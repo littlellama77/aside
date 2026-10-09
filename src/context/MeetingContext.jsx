@@ -97,6 +97,25 @@ export function MeetingProvider({ children }) {
   const [isMiniWindowCollapsed, setIsMiniWindowCollapsed] = useState(false);
   const [isMiniWindowHidden, setIsMiniWindowHidden] = useState(false);
 
+  // Live Speech Recognition for Microsoft Teams, Zoom, Google Meet
+  const [isLiveListening, setIsLiveListening] = useState(false);
+  const [liveTranscript, setLiveTranscript] = useState('');
+  const [speechSupport, setSpeechSupport] = useState(true);
+  const recognitionRef = useRef(null);
+
+  // Tab Audio Capture (DisplayMedia API)
+  const [isTabAudioCapturing, setIsTabAudioCapturing] = useState(false);
+  const tabStreamRef = useRef(null);
+
+  // Compact Dock Mode (for placing right beside Zoom / Teams / Meet)
+  const [isCompactMode, setIsCompactMode] = useState(false);
+
+  // Notes Drawer Open/Close
+  const [isNotesDrawerOpen, setIsNotesDrawerOpen] = useState(false);
+
+  // Meeting Questions Feed (Chronological list of all questions & answers)
+  const [questionsFeed, setQuestionsFeed] = useState(() => DEMO_SCENARIOS.slice(0, 5));
+
   // Live notification banner (for state machine triggers & targeting alerts)
   const [systemNotice, setSystemNotice] = useState(null);
   const noticeTimerRef = useRef(null);
@@ -329,6 +348,14 @@ export function MeetingProvider({ children }) {
         return prev;
       });
 
+      // Add to questions feed for meeting timeline
+      setQuestionsFeed(prev => {
+        if (!prev.some(item => item.id === q.id || item.question === q.question)) {
+          return [q, ...prev];
+        }
+        return prev;
+      });
+
       setTimeout(() => {
         setMeetingAudio(prev => ({ ...prev, isSpeaking: false, level: 10 }));
       }, 1000);
@@ -528,6 +555,141 @@ export function MeetingProvider({ children }) {
     window.speechSynthesis.speak(utterance);
   }, [speechActive]);
 
+  // Select a question directly from history
+  const selectQuestion = useCallback((q) => {
+    setActiveQuestion(q);
+    setIsQuestionActive(true);
+    setFrozenSuggestion(null);
+    transitionToState(CONVERSATION_STATES.QUESTION_CONFIRMED, `Loaded question from ${q.speaker}`);
+  }, [transitionToState]);
+
+  // Live Microphone Listening (Web Speech API for Zoom / Teams / GMeet)
+  const toggleLiveListening = useCallback(() => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      setSpeechSupport(false);
+      showSystemNotice("Speech recognition isn't supported in this browser. Please use Chrome/Edge or type your question below.");
+      return;
+    }
+
+    if (isLiveListening) {
+      if (recognitionRef.current) {
+        try { recognitionRef.current.stop(); } catch (e) {}
+      }
+      setIsLiveListening(false);
+      setLiveTranscript('');
+      showSystemNotice("Microphone listening paused.");
+    } else {
+      try {
+        const recognition = new SpeechRecognition();
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.lang = 'en-US';
+
+        recognition.onstart = () => {
+          setIsLiveListening(true);
+          setLiveTranscript('Listening for meeting questions...');
+          showSystemNotice("🎙️ Listening to meeting audio! Speak or let coworkers speak on your speakers.");
+        };
+
+        recognition.onresult = (event) => {
+          let interim = '';
+          let final = '';
+          for (let i = event.resultIndex; i < event.results.length; ++i) {
+            const transcript = event.results[i][0].transcript;
+            if (event.results[i].isFinal) {
+              final += transcript;
+            } else {
+              interim += transcript;
+            }
+          }
+          const text = (final || interim).trim();
+          setLiveTranscript(text);
+
+          // If a phrase is finalized and contains question patterns, ask it
+          if (final.trim().length > 10) {
+            const lower = final.toLowerCase();
+            const isQuestion = lower.includes('?') ||
+              lower.startsWith('why') || lower.startsWith('how') || lower.startsWith('what') ||
+              lower.startsWith('can you') || lower.startsWith('could you') || lower.startsWith('should we') ||
+              lower.startsWith('do you') || lower.startsWith('is there') || lower.startsWith('what do you');
+
+            if (isQuestion) {
+              askCustomQuestion(final.trim(), "Meeting Participant (Transcribed)");
+            } else {
+              setConversationHistory(prev => [
+                ...prev,
+                {
+                  id: `transcribed-${Date.now()}`,
+                  speaker: "Meeting Participant",
+                  text: final.trim(),
+                  timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                  isUser: false,
+                  type: "statement"
+                }
+              ]);
+            }
+          }
+        };
+
+        recognition.onerror = (event) => {
+          console.warn("Speech recognition error:", event.error);
+          if (event.error === 'not-allowed') {
+            showSystemNotice("Microphone permission denied. Enable microphone in browser settings to transcribe meeting audio.");
+            setIsLiveListening(false);
+          }
+        };
+
+        recognition.onend = () => {
+          if (isLiveListening) {
+            try { recognition.start(); } catch (e) {}
+          }
+        };
+
+        recognition.start();
+        recognitionRef.current = recognition;
+      } catch (err) {
+        console.error("Failed to start speech recognition:", err);
+        setIsLiveListening(false);
+      }
+    }
+  }, [isLiveListening, askCustomQuestion, showSystemNotice]);
+
+  // Tab Audio Capture (DisplayMedia API)
+  const startTabAudioCapture = useCallback(async () => {
+    try {
+      if (isTabAudioCapturing) {
+        if (tabStreamRef.current) {
+          tabStreamRef.current.getTracks().forEach(t => t.stop());
+        }
+        setIsTabAudioCapturing(false);
+        showSystemNotice("Meeting tab audio capture stopped.");
+        return;
+      }
+
+      if (!navigator.mediaDevices?.getDisplayMedia) {
+        showSystemNotice("Tab audio sharing not supported on this browser.");
+        return;
+      }
+
+      const stream = await navigator.mediaDevices.getDisplayMedia({
+        video: true,
+        audio: true
+      });
+      tabStreamRef.current = stream;
+      setIsTabAudioCapturing(true);
+      showSystemNotice("🖥️ Meeting audio connected! Aside is listening to your meeting tab.");
+
+      stream.getVideoTracks().forEach(track => {
+        track.onended = () => {
+          setIsTabAudioCapturing(false);
+        };
+      });
+    } catch (err) {
+      console.warn("DisplayMedia cancelled or denied:", err);
+    }
+  }, [isTabAudioCapturing, showSystemNotice]);
+
   // Start Meeting & Wrap up
   const startMeeting = useCallback(() => {
     setCurrentScreen('meeting');
@@ -618,6 +780,20 @@ export function MeetingProvider({ children }) {
     triggerUserFinished,
     selectScenarioByIndex,
     askCustomQuestion,
+    selectQuestion,
+
+    // REAL MEETING INTEGRATION (Teams, Zoom, Meet)
+    isLiveListening,
+    toggleLiveListening,
+    liveTranscript,
+    speechSupport,
+    isTabAudioCapturing,
+    startTabAudioCapture,
+    isCompactMode,
+    setIsCompactMode,
+    isNotesDrawerOpen,
+    setIsNotesDrawerOpen,
+    questionsFeed,
 
     // FLOATING WINDOW & UTILITY
     isMiniWindowCollapsed,

@@ -62,25 +62,25 @@ export function HeaderNav({ onOpenPairingModal }) {
             className={`nav-step-btn ${currentScreen === 'welcome' ? 'active' : ''}`}
             onClick={() => setCurrentScreen('welcome')}
           >
-            Welcome
-          </button>
-          <button
-            className={`nav-step-btn ${currentScreen === 'prepare' ? 'active' : ''}`}
-            onClick={() => setCurrentScreen('prepare')}
-          >
-            Prepare
-          </button>
-          <button
-            className={`nav-step-btn ${currentScreen === 'setup' ? 'active' : ''}`}
-            onClick={() => setCurrentScreen('setup')}
-          >
-            Setup
+            Home
           </button>
           <button
             className={`nav-step-btn ${currentScreen === 'meeting' ? 'active' : ''}`}
             onClick={() => setCurrentScreen('meeting')}
           >
-            Meeting
+            Live Meeting (Answers)
+          </button>
+          <button
+            className={`nav-step-btn ${currentScreen === 'prepare' ? 'active' : ''}`}
+            onClick={() => setCurrentScreen('prepare')}
+          >
+            Prep Notes
+          </button>
+          <button
+            className={`nav-step-btn ${currentScreen === 'setup' ? 'active' : ''}`}
+            onClick={() => setCurrentScreen('setup')}
+          >
+            Settings
           </button>
           <button
             className={`nav-step-btn ${currentScreen === 'wrapup' ? 'active' : ''}`}
