@@ -4,16 +4,31 @@
  * Transforms raw user notes into detailed, human, and leader-grade answers.
  */
 
+// Stop words to isolate significant search terms
+const STOP_WORDS = new Set([
+  'a', 'about', 'above', 'after', 'again', 'against', 'all', 'am', 'an', 'and', 'any', 'are', 'aren',
+  'as', 'at', 'be', 'because', 'been', 'before', 'being', 'below', 'between', 'both', 'but', 'by',
+  'can', 'could', 'did', 'do', 'does', 'doing', 'down', 'during', 'each', 'few', 'for', 'from',
+  'further', 'had', 'has', 'have', 'having', 'he', 'her', 'here', 'hers', 'herself', 'him', 'himself',
+  'his', 'how', 'i', 'if', 'in', 'into', 'is', 'it', 'its', 'itself', 'just', 'me', 'more', 'most',
+  'my', 'myself', 'no', 'nor', 'not', 'now', 'of', 'off', 'on', 'once', 'only', 'or', 'other',
+  'our', 'ours', 'ourselves', 'out', 'over', 'own', 'same', 'she', 'should', 'so', 'some', 'such',
+  'than', 'that', 'the', 'their', 'theirs', 'them', 'themselves', 'then', 'there', 'these', 'they',
+  'this', 'those', 'through', 'to', 'too', 'under', 'until', 'up', 'very', 'was', 'we', 'were',
+  'what', 'when', 'where', 'which', 'while', 'who', 'whom', 'why', 'will', 'with', 'you', 'your', 'yours'
+]);
+
 /**
- * Extracts numbers, metrics, and data points from raw text
+ * Extracts numbers, metrics, currency, percentages, and data points from text
  */
-function extractNumbersAndMetrics(text) {
+export function extractNumbersAndMetrics(text) {
+  if (!text) return [];
   const metrics = [];
   const lines = text.split('\n');
 
   lines.forEach(line => {
     // Check for "Label: Value" or "Label = Value" or "Metric was 78" or "+12%" or "$50k"
-    const labelMatch = line.match(/([A-Za-z\s]+)[:=]\s*([+\-]?[\d\w%$.]+(?:\s*(?:days|weeks|months|users|YoY|WoY|WoW|lift|score))?)/i);
+    const labelMatch = line.match(/([A-Za-z\s]+)[:=]\s*([+\-]?[\d\w%$.]+(?:\s*(?:days|weeks|months|users|YoY|WoY|WoW|lift|score|NPS|CPA|CAC|ROAS|CTR))?)/i);
     if (labelMatch) {
       metrics.push({
         label: labelMatch[1].trim(),
@@ -23,12 +38,12 @@ function extractNumbersAndMetrics(text) {
       return;
     }
 
-    // Look for percentages, currency, or bare metrics with context
-    const numberMatch = line.match(/([+\-]?\$?\d+(?:\.\d+)?%?|\d+\s*(?:days|weeks|months|hours|sprints))/);
-    if (numberMatch && line.length < 80) {
+    // Look for percentages, currency ($10k, $5M), or numbers with context
+    const numberMatch = line.match(/([+\-]?\$?\d+(?:\.\d+)?%?|\d+\s*(?:days|weeks|months|hours|sprints|users|points|score))/i);
+    if (numberMatch && line.length < 120) {
       const parts = line.split(numberMatch[0]);
-      const potentialLabel = (parts[0] || parts[1] || 'Metric').replace(/[-*•]/g, '').trim();
-      if (potentialLabel.length > 2 && potentialLabel.length < 35) {
+      const potentialLabel = (parts[0] || parts[1] || 'Metric').replace(/[-*•#>\s]+/g, ' ').trim();
+      if (potentialLabel.length > 2 && potentialLabel.length < 40) {
         metrics.push({
           label: potentialLabel,
           value: numberMatch[0].trim(),
@@ -42,7 +57,94 @@ function extractNumbersAndMetrics(text) {
 }
 
 /**
- * Parses raw unstructured notes into an Executive Memory Brief
+ * Breaks massive notes (even 50,000+ words) into logical sections & paragraphs with extracted metadata
+ */
+export function chunkLargeNotes(rawText) {
+  if (!rawText || !rawText.trim()) return [];
+
+  // Split by Markdown headers (# Header), section dividers, or double line breaks
+  const rawSections = rawText.split(/(?:\r?\n){2,}|(?=^#{1,3}\s+)/m);
+  const chunks = [];
+
+  rawSections.forEach((sectionText, idx) => {
+    const trimmed = sectionText.trim();
+    if (!trimmed || trimmed.length < 12) return;
+
+    const lines = trimmed.split('\n').map(l => l.trim()).filter(Boolean);
+    const firstLine = lines[0] || '';
+    
+    // Clean heading title
+    let title = firstLine.replace(/^[#\-*•>\s]+/, '').replace(/[:=].*$/, '').trim();
+    if (title.length > 55) title = title.slice(0, 52) + '...';
+    if (!title) title = `Section ${idx + 1}`;
+
+    const words = trimmed.toLowerCase().split(/[^a-z0-9%$\-+]+/).filter(w => w.length > 2 && !STOP_WORDS.has(w));
+    const metrics = extractNumbersAndMetrics(trimmed);
+
+    chunks.push({
+      id: `chunk-${idx}`,
+      title,
+      text: trimmed,
+      lines,
+      metrics,
+      wordTokens: new Set(words),
+      wordCount: trimmed.split(/\s+/).filter(Boolean).length
+    });
+  });
+
+  return chunks;
+}
+
+/**
+ * BM25 / Ranked relevance search across thousands of lines & sections
+ */
+export function findTopMatchingSections(query, chunks, maxSections = 3) {
+  if (!chunks || chunks.length === 0) return [];
+  const qLower = query.toLowerCase();
+  const queryTokens = qLower.split(/[^a-z0-9%$\-+]+/).filter(w => w.length > 2 && !STOP_WORDS.has(w));
+
+  const scoredChunks = chunks.map(chunk => {
+    let score = 0;
+    const chunkLower = chunk.text.toLowerCase();
+    const titleLower = chunk.title.toLowerCase();
+
+    // 1. Exact phrase match boost (+25)
+    if (chunkLower.includes(qLower)) {
+      score += 25;
+    }
+
+    // 2. Query words in Title (+12 each)
+    queryTokens.forEach(t => {
+      if (titleLower.includes(t)) {
+        score += 12;
+      }
+    });
+
+    // 3. Query words in Chunk Body (+4 each)
+    queryTokens.forEach(t => {
+      if (chunk.wordTokens.has(t)) {
+        score += 4;
+      }
+    });
+
+    // 4. Metric matches (e.g. searching for a number or label)
+    chunk.metrics.forEach(m => {
+      if (qLower.includes(m.label.toLowerCase()) || qLower.includes(m.value.toLowerCase())) {
+        score += 8;
+      }
+    });
+
+    return { ...chunk, score };
+  });
+
+  return scoredChunks
+    .filter(c => c.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, maxSections);
+}
+
+/**
+ * Parses raw unstructured notes (supports massive documents) into an Executive Memory Brief
  */
 export function parseNotesToExecutiveBrief(rawText) {
   if (!rawText || !rawText.trim()) {
@@ -52,7 +154,9 @@ export function parseNotesToExecutiveBrief(rawText) {
       thingsToAsk: ["Strategic questions will populate here."],
       importantNumbers: [],
       guardrails: [],
-      anchors: ["Take a breath. You know this domain inside out."]
+      anchors: ["Take a breath. You know this domain inside out."],
+      stats: { wordCount: 0, charCount: 0, sectionCount: 0, metricCount: 0, readTimeMin: 0 },
+      topics: []
     };
   }
 
@@ -61,6 +165,8 @@ export function parseNotesToExecutiveBrief(rawText) {
   const thingsToAsk = [];
   const guardrails = [];
   const numbers = extractNumbersAndMetrics(rawText);
+  const chunks = chunkLargeNotes(rawText);
+  const totalWords = rawText.split(/\s+/).filter(Boolean).length;
 
   lines.forEach(line => {
     const lower = line.toLowerCase();
@@ -79,13 +185,24 @@ export function parseNotesToExecutiveBrief(rawText) {
     }
 
     // High priority strategic points
-    if (line.length > 15) {
+    if (line.length > 15 && thingsToRemember.length < 15) {
       thingsToRemember.push(line);
     }
   });
 
   // Extract core narrative from first 1-2 substantial sentences
   const narrativeSummary = lines.slice(0, 2).join(' ').slice(0, 180);
+
+  // Document Statistics
+  const stats = {
+    wordCount: totalWords,
+    charCount: rawText.length,
+    sectionCount: chunks.length,
+    metricCount: numbers.length,
+    readTimeMin: Math.max(1, Math.ceil(totalWords / 200))
+  };
+
+  const topics = chunks.map(c => c.title).slice(0, 12);
 
   return {
     coreNarrative: narrativeSummary || "Strategic meeting context prepared.",
@@ -106,39 +223,42 @@ export function parseNotesToExecutiveBrief(rawText) {
     anchors: [
       "Lead with the strategic bottom line, then walk through the data.",
       "You have the domain context. Stay calm, composed, and unhurried."
-    ]
+    ],
+    stats,
+    topics,
+    chunks
   };
 }
 
 /**
- * Synthesizes human, leader-like (LLaMA/Executive presence) answers for ANY question
- * using the user's provided notes.
+ * Synthesizes human, leader-like answers for ANY question
+ * using BM25 chunk retrieval across even huge amounts of notes!
  */
 export function synthesizeLeaderAnswerForCustomQuestion(questionText, rawNotesText, executiveBrief, speakingStyle = {}) {
   const qLower = questionText.toLowerCase();
-  const notesLines = rawNotesText ? rawNotesText.split('\n').map(l => l.trim()).filter(Boolean) : [];
+  const chunks = chunkLargeNotes(rawNotesText);
+  const topSections = findTopMatchingSections(questionText, chunks, 3);
+  const bestSection = topSections[0] || null;
+
   const metrics = executiveBrief?.importantNumbers || [];
   const guardrails = executiveBrief?.guardrails || [];
   const rememberItems = executiveBrief?.thingsToRemember || [];
 
   // Determine intent category
   let category = "expected";
-  let topic = "Meeting Inquiry";
+  let topic = bestSection?.title || "Meeting Inquiry";
   let babeTag = "babe 👀 executive answer";
   let isUnknown = false;
 
-  // Check if asking for specific details not mentioned in notes (external countries, exact line items, etc.)
-  const asksForUnrelatedDetails = (
-    qLower.includes("germany") || qLower.includes("japan") || qLower.includes("france") ||
-    qLower.includes("exact churn") || qLower.includes("random") || qLower.includes("unrelated") ||
-    qLower.includes("last year's audit")
-  ) && !rawNotesText.toLowerCase().includes(qLower.match(/germany|japan|france|churn/)?.[0] || '___');
+  // If no sections matched or query asks for completely unrelated details not in notes
+  const queryTokens = qLower.split(/[^a-z0-9%$\-+]+/).filter(w => w.length > 2 && !STOP_WORDS.has(w));
+  const hasAnyNoteMatch = chunks.some(c => queryTokens.some(t => c.wordTokens.has(t)));
 
-  if (asksForUnrelatedDetails) {
+  if (!hasAnyNoteMatch && chunks.length > 0 && queryTokens.length > 0) {
     category = "unknown";
     isUnknown = true;
     babeTag = "babe, this isn't in your notes 🔒 (preserve credibility)";
-    const glanceSay = "I want to be precise and not give you an off-the-cuff figure—that specific breakout isn't in front of me right now. Let me pull that report post-meeting and follow up directly with the verified numbers.";
+    const glanceSay = "I want to be precise and not give you an off-the-cuff figure—that specific detail isn't in my notes right now. Let me pull that report post-meeting and follow up directly with the verified numbers.";
     const expandedSay = "I want to make sure we're making decisions on verified data rather than an estimate, so I won't guess on that specific breakout off the top of my head. I have our high-level benchmarks in front of me, but let me pull the audited granular data right after we wrap up today and send the exact breakdown over to the team.";
     return {
       id: `custom-${Date.now()}`,
@@ -156,6 +276,7 @@ export function synthesizeLeaderAnswerForCustomQuestion(questionText, rawNotesTe
       ],
       expandedSay,
       supportingContext: "Executive safety guardrail: Grounded in your actual notes. No hallucinations.",
+      extraInformation: "Grounded defense: Notes contain other sections, but zero verified mentions of this specific inquiry.",
       isUnknown: true,
       stuckRecovery: {
         breatheMsg: "Take a breath. Leaders never guess numbers on the fly.",
@@ -167,18 +288,18 @@ export function synthesizeLeaderAnswerForCustomQuestion(questionText, rawNotesTe
     };
   }
 
-  // Find relevant sentences in notes
-  const matchedLines = notesLines.filter(line => {
-    const lineLower = line.toLowerCase();
-    const words = qLower.split(/\s+/).filter(w => w.length > 3);
-    return words.some(w => lineLower.includes(w));
-  });
+  // Find relevant sentences and metrics from best section, or fallback across all lines
+  let coreFact = "";
+  let relevantMetrics = [];
 
-  // Find relevant numbers
-  const relevantMetrics = metrics.filter(m => {
-    return qLower.includes(m.label.toLowerCase()) || qLower.includes(m.value.toLowerCase()) ||
-      matchedLines.some(l => l.includes(m.label) || l.includes(m.value));
-  });
+  if (bestSection && bestSection.score > 0) {
+    const sectionLines = bestSection.lines.filter(l => l.length > 15);
+    coreFact = sectionLines.slice(0, 2).join('. ').replace(/[-*•#>\s]+/g, ' ').trim();
+    relevantMetrics = bestSection.metrics.length > 0 ? bestSection.metrics : metrics.slice(0, 2);
+  } else {
+    coreFact = rememberItems.slice(0, 2).join('. ').replace(/[-*•#>\s]+/g, ' ').trim() || "Our execution remains aligned with planned roadmap benchmarks.";
+    relevantMetrics = metrics.slice(0, 2);
+  }
 
   // Construct Leader Framing
   let opening = "Yeah, happy to address that.";
@@ -196,16 +317,6 @@ export function synthesizeLeaderAnswerForCustomQuestion(questionText, rawNotesTe
     opening = "That's a fair question, and I want to be upfront about what we ran into.";
     babeTag = "babe 👀 accountability & proactive solution";
     category = "reflective";
-  }
-
-  // Build the Core Fact Clause from notes
-  let coreFact = "";
-  if (matchedLines.length > 0) {
-    coreFact = matchedLines.slice(0, 2).join('. ').replace(/[-*•]/g, '').trim();
-  } else if (rememberItems.length > 0) {
-    coreFact = rememberItems.slice(0, 2).join('. ').replace(/[-*•]/g, '').trim();
-  } else {
-    coreFact = "Our core metrics and rollout remain aligned with our roadmap goals.";
   }
 
   // Build the Metric Clause
@@ -243,13 +354,18 @@ export function synthesizeLeaderAnswerForCustomQuestion(questionText, rawNotesTe
     category,
     speaker: "Meeting Attendee",
     question: questionText,
-    topic: "Custom Inquiry",
+    topic: bestSection?.title || "Meeting Inquiry",
     babeTag,
     simplestQuestion: "They're asking for your perspective and status.",
     glanceSay,
     glanceBullets,
     expandedSay,
-    supportingContext: `Synthesized from your notes: "${coreFact.slice(0, 90)}..."`,
+    supportingContext: bestSection
+      ? `Retrieved from Section: "${bestSection.title}" · ${coreFact}`
+      : `Synthesized from your notes: "${coreFact.slice(0, 90)}..."`,
+    extraInformation: bestSection && bestSection.lines.length > 2
+      ? `Deep-dive context from "${bestSection.title}": ${bestSection.lines.slice(2, 5).join(' ')}`
+      : `${guardrailMention} Strategic rationale: ${coreFact}.`,
     isUnknown: false,
     stuckRecovery: {
       breatheMsg: "Take a second babe. Lead with the core point from your notes.",
