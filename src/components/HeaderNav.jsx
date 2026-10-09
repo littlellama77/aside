@@ -15,6 +15,7 @@ export function HeaderNav({ onOpenPairingModal }) {
   const {
     currentScreen,
     setCurrentScreen,
+    wrapUpMeeting,
     theme,
     toggleTheme,
     userName,
@@ -83,7 +84,7 @@ export function HeaderNav({ onOpenPairingModal }) {
           </button>
           <button
             className={`nav-step-btn ${currentScreen === 'wrapup' ? 'active' : ''}`}
-            onClick={() => setCurrentScreen('wrapup')}
+            onClick={() => wrapUpMeeting()}
           >
             Wrap-up
           </button>

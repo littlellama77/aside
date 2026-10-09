@@ -11,7 +11,10 @@ import {
   Monitor,
   ChevronRight,
   Sparkles,
-  Radio
+  Radio,
+  Sliders,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 
 export function PrivateMeetingView({ onOpenPairingModal }) {
@@ -46,6 +49,7 @@ export function PrivateMeetingView({ onOpenPairingModal }) {
   } = useMeeting();
 
   const [customInput, setCustomInput] = useState('');
+  const [showDiagnostics, setShowDiagnostics] = useState(false);
 
   const handleCustomSubmit = (e) => {
     e.preventDefault();
@@ -141,205 +145,289 @@ export function PrivateMeetingView({ onOpenPairingModal }) {
         </div>
       )}
 
-      {/* SECTION 2: AUDIO ARCHITECTURE DUAL MONITOR */}
-      <div className="audio-architecture-bar glass-panel">
-        <div className="audio-stream-card">
-          <div className="stream-header">
-            <div className="stream-title-group">
-              <Radio size={14} className={meetingAudio.isSpeaking ? "text-accent animate-pulse" : "text-tertiary"} />
-              <span className="stream-title">Meeting Audio Stream</span>
+      {/* SCREEN SHARING PRIVACY MODE ACTIVE BANNER */}
+      {isScreenSharing && (
+        <div className="screen-share-active-alert glass-panel animate-fade-in">
+          <div className="share-alert-left">
+            <ShieldAlert size={18} className="text-panic" />
+            <div>
+              <strong>Screen-Sharing Privacy Mode is Active 🔒</strong>
+              <p>Your screen is being shared on Zoom/Meet. Desktop hints are hidden for privacy. Prompts are streaming to your paired phone display.</p>
             </div>
-            <span className={`stream-status ${meetingAudio.isSpeaking ? 'status-active' : 'status-standby'}`}>
-              {meetingAudio.isSpeaking ? `🎙️ ${meetingAudio.speaker} speaking` : "Idle"}
-            </span>
           </div>
-          <div className="audio-visualizer-track">
-            {[20, 45, 80, 55, 30, 65, 90, 40, 25, 60, 85, 35].map((h, i) => (
-              <span
-                key={i}
-                className="audio-wave-bar meeting-bar"
-                style={{
-                  height: meetingAudio.isSpeaking ? `${Math.min(100, (h * meetingAudio.level) / 50)}%` : '15%',
-                  opacity: meetingAudio.isSpeaking ? 1 : 0.3
-                }}
-              />
-            ))}
-          </div>
-          <span className="stream-desc">Analyzes for participant questions, targeting & continuous context</span>
-        </div>
-
-        <div className="stream-divider">⇄</div>
-
-        <div className="audio-stream-card user-stream">
-          <div className="stream-header">
-            <div className="stream-title-group">
-              <Mic size={14} className={userAudio.isSpeaking ? "text-freeze animate-pulse" : "text-tertiary"} />
-              <span className="stream-title">User Microphone Stream</span>
-            </div>
-            <span className={`stream-status ${userAudio.isSpeaking ? 'status-freeze' : 'status-standby'}`}>
-              {userAudio.isSpeaking ? "🗣️ USER IS SPEAKING (Frozen)" : "Listening standby"}
-            </span>
-          </div>
-          <div className="audio-visualizer-track">
-            {[35, 75, 95, 60, 45, 85, 100, 50, 40, 70, 90, 30].map((h, i) => (
-              <span
-                key={i}
-                className="audio-wave-bar user-bar"
-                style={{
-                  height: userAudio.isSpeaking ? `${Math.min(100, (h * userAudio.level) / 50)}%` : '15%',
-                  opacity: userAudio.isSpeaking ? 1 : 0.3
-                }}
-              />
-            ))}
-          </div>
-          <span className="stream-desc">When you speak, Aside enters YOUR TURN and freezes — zero regeneration</span>
-        </div>
-      </div>
-
-      {/* SECTION 3: CONVERSATION STATE MACHINE VISUALIZER */}
-      <div className="state-machine-track glass-panel">
-        <span className="state-track-label">Conversation State:</span>
-        <div className="state-steps-row">
-          <div className={`state-step-pill ${conversationState === 'LISTENING' ? 'active-listening' : ''}`}>
-            <span className="step-dot">●</span>
-            <span>LISTENING</span>
-          </div>
-          <span className="state-arrow">→</span>
-
-          <div className={`state-step-pill ${conversationState === 'OTHER_PERSON_SPEAKING' ? 'active-participant' : ''}`}>
-            <span>OTHER SPEAKING</span>
-          </div>
-          <span className="state-arrow">→</span>
-
-          <div className={`state-step-pill ${conversationState === 'POSSIBLE_QUESTION' ? 'active-eval' : ''}`}>
-            <span>POSSIBLE QUESTION</span>
-          </div>
-          <span className="state-arrow">→</span>
-
-          <div className={`state-step-pill ${conversationState === 'QUESTION_CONFIRMED' ? 'active-confirmed' : ''}`}>
-            <span>QUESTION CONFIRMED</span>
-          </div>
-          <span className="state-arrow">→</span>
-
-          <div className={`state-step-pill ${conversationState === 'YOUR_TURN' ? 'active-yourturn' : ''}`}>
-            <span>YOUR TURN (FROZEN)</span>
-          </div>
-          <span className="state-arrow">→</span>
-
-          <div className={`state-step-pill ${conversationState === 'RESPONSE_FINISHED' ? 'active-finished' : ''}`}>
-            <span>RESPONSE FINISHED</span>
-          </div>
-        </div>
-      </div>
-
-      {/* SECTION 23: DEMO / DEVELOPER CONTROLS BAR */}
-      <div className="dev-controls-panel glass-panel">
-        <div className="dev-controls-header">
-          <span className="dev-tag">Developer / Demo Controls (Section 23)</span>
-          <span className="dev-sub">Test turn-taking, targeting checks, speaker states & silence guarantees:</span>
-        </div>
-
-        <div className="dev-buttons-grid">
           <button
             type="button"
-            className="btn-dev-action"
-            onClick={() => triggerParticipantSpeaking("Sarah (VP Marketing)", "Let me frame the Q3 marketing numbers...")}
-            title="Simulate participant speaking"
+            className="btn-turn-off-share"
+            onClick={() => toggleScreenSharing(false)}
           >
-            <span>🎙️ Participant speaking</span>
+            Turn Off Screen Share (Show Desktop Hints)
           </button>
+        </div>
+      )}
+
+      {/* QUICK INTERACTIVE SIMULATOR GUIDE */}
+      <div className="meeting-flow-guide-bar glass-panel">
+        <div className="flow-guide-header">
+          <div className="flow-guide-title-group">
+            <span className="flow-guide-icon">💡</span>
+            <div>
+              <h2 className="flow-guide-heading">How Aside Works (Try it in 3 steps):</h2>
+              <p className="flow-guide-desc">
+                Aside is quiet during your call until someone asks you something. When you start speaking, it freezes so you never get distracted.
+              </p>
+            </div>
+          </div>
 
           <button
             type="button"
-            className="btn-dev-action highlight-btn"
+            className={`btn-toggle-diagnostics ${showDiagnostics ? 'active' : ''}`}
+            onClick={() => setShowDiagnostics(!showDiagnostics)}
+            title="Toggle advanced audio monitors & state machine"
+          >
+            <Sliders size={13} />
+            <span>{showDiagnostics ? "Hide Diagnostics" : "⚙️ Diagnostics & State Machine"}</span>
+            {showDiagnostics ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+          </button>
+        </div>
+
+        {/* 3 Clear, Intuitive Action Buttons */}
+        <div className="flow-quick-test-row">
+          <button
+            type="button"
+            className="btn-flow-action btn-flow-question"
             onClick={() => triggerQuestionDetected(demoScenarios[0])}
-            title="Simulate question detected for user"
+            title="Simulate Sarah asking a question"
           >
-            <span>✦ Question detected</span>
+            <span className="flow-step-badge">Step 1</span>
+            <span>▶ Sarah asks: “Why did campaign underperform?”</span>
           </button>
 
           <button
             type="button"
-            className="btn-dev-action"
-            onClick={() => triggerQuestionNotForUser("Marcus (Growth Lead)", "Does anyone want coffee or water?")}
-            title="Question not directed at user -> Aside remains silent"
-          >
-            <span>🚫 Question not for user</span>
-          </button>
-
-          <button
-            type="button"
-            className="btn-dev-action freeze-btn"
+            className="btn-flow-action btn-flow-speak"
             onClick={() => triggerUserSpeaking("Yeah, so I think there were two main things. The creative changed mid-week and CPC went up...")}
-            title="Simulate user speaking -> Freezes suggestion without regeneration"
+            title="Simulate you speaking"
           >
-            <span>🗣️ User speaking (Freeze)</span>
+            <span className="flow-step-badge">Step 2</span>
+            <span>🗣️ You speak (Watch cue freeze)</span>
           </button>
 
           <button
             type="button"
-            className="btn-dev-action"
+            className="btn-flow-action btn-flow-finish"
             onClick={triggerUserFinished}
-            title="User finishes speaking -> Return to quiet listening"
+            title="Simulate you finishing speaking"
           >
-            <span>✓ User finished</span>
-          </button>
-
-          <button
-            type="button"
-            className="btn-dev-action"
-            onClick={() => selectScenarioByIndex(1)}
-            title="Unexpected question synthesized from earlier Marcus conversation context"
-          >
-            <span>✨ Unexpected question</span>
-          </button>
-
-          <button
-            type="button"
-            className="btn-dev-action"
-            onClick={() => selectScenarioByIndex(8)}
-            title="Muffled audio with Replay / Transcript options"
-          >
-            <span>⚠️ Low-confidence audio</span>
-          </button>
-
-          <button
-            type="button"
-            className="btn-dev-action panic-btn"
-            onClick={() => triggerImStuck(true)}
-            title="Emergency recovery modal"
-          >
-            <span>😭 I'm stuck</span>
-          </button>
-
-          <button
-            type="button"
-            className="btn-dev-action"
-            onClick={() => toggleScreenSharing()}
-            title="Toggle screen sharing privacy mode"
-          >
-            <span>🔒 Screen sharing</span>
-          </button>
-
-          <button
-            type="button"
-            className="btn-dev-action highlight-btn"
-            onClick={sendTestPingToPhone}
-            title="Beam live state packet to Phone Companion"
-          >
-            <span>📱 Beam to Phone</span>
-          </button>
-
-          <button
-            type="button"
-            className="btn-dev-action"
-            onClick={() => setSimulatedPhoneStatus(!isPhonePaired)}
-            title="Toggle simulated phone connection status"
-          >
-            <span>{isPhonePaired ? "📱 Disconnect Phone" : "📱 Reconnect Phone"}</span>
+            <span className="flow-step-badge">Step 3</span>
+            <span>✓ You finish (Back to quiet listening)</span>
           </button>
         </div>
       </div>
+
+      {/* OPTIONAL COLLAPSIBLE ADVANCED DIAGNOSTICS */}
+      {showDiagnostics && (
+        <div className="diagnostics-drawer animate-fade-in">
+          {/* SECTION 2: AUDIO ARCHITECTURE DUAL MONITOR */}
+          <div className="audio-architecture-bar glass-panel">
+            <div className="audio-stream-card">
+              <div className="stream-header">
+                <div className="stream-title-group">
+                  <Radio size={14} className={meetingAudio.isSpeaking ? "text-accent animate-pulse" : "text-tertiary"} />
+                  <span className="stream-title">Meeting Audio Stream</span>
+                </div>
+                <span className={`stream-status ${meetingAudio.isSpeaking ? 'status-active' : 'status-standby'}`}>
+                  {meetingAudio.isSpeaking ? `🎙️ ${meetingAudio.speaker} speaking` : "Idle"}
+                </span>
+              </div>
+              <div className="audio-visualizer-track">
+                {[20, 45, 80, 55, 30, 65, 90, 40, 25, 60, 85, 35].map((h, i) => (
+                  <span
+                    key={i}
+                    className="audio-wave-bar meeting-bar"
+                    style={{
+                      height: meetingAudio.isSpeaking ? `${Math.min(100, (h * meetingAudio.level) / 50)}%` : '15%',
+                      opacity: meetingAudio.isSpeaking ? 1 : 0.3
+                    }}
+                  />
+                ))}
+              </div>
+              <span className="stream-desc">Analyzes for participant questions, targeting & continuous context</span>
+            </div>
+
+            <div className="stream-divider">⇄</div>
+
+            <div className="audio-stream-card user-stream">
+              <div className="stream-header">
+                <div className="stream-title-group">
+                  <Mic size={14} className={userAudio.isSpeaking ? "text-freeze animate-pulse" : "text-tertiary"} />
+                  <span className="stream-title">User Microphone Stream</span>
+                </div>
+                <span className={`stream-status ${userAudio.isSpeaking ? 'status-freeze' : 'status-standby'}`}>
+                  {userAudio.isSpeaking ? "🗣️ USER IS SPEAKING (Frozen)" : "Listening standby"}
+                </span>
+              </div>
+              <div className="audio-visualizer-track">
+                {[35, 75, 95, 60, 45, 85, 100, 50, 40, 70, 90, 30].map((h, i) => (
+                  <span
+                    key={i}
+                    className="audio-wave-bar user-bar"
+                    style={{
+                      height: userAudio.isSpeaking ? `${Math.min(100, (h * userAudio.level) / 50)}%` : '15%',
+                      opacity: userAudio.isSpeaking ? 1 : 0.3
+                    }}
+                  />
+                ))}
+              </div>
+              <span className="stream-desc">When you speak, Aside enters YOUR TURN and freezes — zero regeneration</span>
+            </div>
+          </div>
+
+          {/* SECTION 3: CONVERSATION STATE MACHINE VISUALIZER */}
+          <div className="state-machine-track glass-panel">
+            <span className="state-track-label">Conversation State:</span>
+            <div className="state-steps-row">
+              <div className={`state-step-pill ${conversationState === 'LISTENING' ? 'active-listening' : ''}`}>
+                <span className="step-dot">●</span>
+                <span>LISTENING</span>
+              </div>
+              <span className="state-arrow">→</span>
+
+              <div className={`state-step-pill ${conversationState === 'OTHER_PERSON_SPEAKING' ? 'active-participant' : ''}`}>
+                <span>OTHER SPEAKING</span>
+              </div>
+              <span className="state-arrow">→</span>
+
+              <div className={`state-step-pill ${conversationState === 'POSSIBLE_QUESTION' ? 'active-eval' : ''}`}>
+                <span>POSSIBLE QUESTION</span>
+              </div>
+              <span className="state-arrow">→</span>
+
+              <div className={`state-step-pill ${conversationState === 'QUESTION_CONFIRMED' ? 'active-confirmed' : ''}`}>
+                <span>QUESTION CONFIRMED</span>
+              </div>
+              <span className="state-arrow">→</span>
+
+              <div className={`state-step-pill ${conversationState === 'YOUR_TURN' ? 'active-yourturn' : ''}`}>
+                <span>YOUR TURN (FROZEN)</span>
+              </div>
+              <span className="state-arrow">→</span>
+
+              <div className={`state-step-pill ${conversationState === 'RESPONSE_FINISHED' ? 'active-finished' : ''}`}>
+                <span>RESPONSE FINISHED</span>
+              </div>
+            </div>
+          </div>
+
+          {/* SECTION 23: DEMO / DEVELOPER CONTROLS BAR */}
+          <div className="dev-controls-panel glass-panel">
+            <div className="dev-controls-header">
+              <span className="dev-tag">Developer / Demo Controls (Section 23)</span>
+              <span className="dev-sub">Test turn-taking, targeting checks, speaker states & silence guarantees:</span>
+            </div>
+
+            <div className="dev-buttons-grid">
+              <button
+                type="button"
+                className="btn-dev-action"
+                onClick={() => triggerParticipantSpeaking("Sarah (VP Marketing)", "Let me frame the Q3 marketing numbers...")}
+                title="Simulate participant speaking"
+              >
+                <span>🎙️ Participant speaking</span>
+              </button>
+
+              <button
+                type="button"
+                className="btn-dev-action highlight-btn"
+                onClick={() => triggerQuestionDetected(demoScenarios[0])}
+                title="Simulate question detected for user"
+              >
+                <span>✦ Question detected</span>
+              </button>
+
+              <button
+                type="button"
+                className="btn-dev-action"
+                onClick={() => triggerQuestionNotForUser("Marcus (Growth Lead)", "Does anyone want coffee or water?")}
+                title="Question not directed at user -> Aside remains silent"
+              >
+                <span>🚫 Question not for user</span>
+              </button>
+
+              <button
+                type="button"
+                className="btn-dev-action freeze-btn"
+                onClick={() => triggerUserSpeaking("Yeah, so I think there were two main things. The creative changed mid-week and CPC went up...")}
+                title="Simulate user speaking -> Freezes suggestion without regeneration"
+              >
+                <span>🗣️ User speaking (Freeze)</span>
+              </button>
+
+              <button
+                type="button"
+                className="btn-dev-action"
+                onClick={triggerUserFinished}
+                title="User finishes speaking -> Return to quiet listening"
+              >
+                <span>✓ User finished</span>
+              </button>
+
+              <button
+                type="button"
+                className="btn-dev-action"
+                onClick={() => selectScenarioByIndex(1)}
+                title="Unexpected question synthesized from earlier Marcus conversation context"
+              >
+                <span>✨ Unexpected question</span>
+              </button>
+
+              <button
+                type="button"
+                className="btn-dev-action"
+                onClick={() => selectScenarioByIndex(8)}
+                title="Muffled audio with Replay / Transcript options"
+              >
+                <span>⚠️ Low-confidence audio</span>
+              </button>
+
+              <button
+                type="button"
+                className="btn-dev-action panic-btn"
+                onClick={() => triggerImStuck(true)}
+                title="Emergency recovery modal"
+              >
+                <span>😭 I'm stuck</span>
+              </button>
+
+              <button
+                type="button"
+                className="btn-dev-action"
+                onClick={() => toggleScreenSharing()}
+                title="Toggle screen sharing privacy mode"
+              >
+                <span>🔒 Screen sharing</span>
+              </button>
+
+              <button
+                type="button"
+                className="btn-dev-action highlight-btn"
+                onClick={sendTestPingToPhone}
+                title="Beam live state packet to Phone Companion"
+              >
+                <span>📱 Beam to Phone</span>
+              </button>
+
+              <button
+                type="button"
+                className="btn-dev-action"
+                onClick={() => setSimulatedPhoneStatus(!isPhonePaired)}
+                title="Toggle simulated phone connection status"
+              >
+                <span>{isPhonePaired ? "📱 Disconnect Phone" : "📱 Reconnect Phone"}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main Surface Grid */}
       <div className={`meeting-layout-grid view-${viewMode}`}>

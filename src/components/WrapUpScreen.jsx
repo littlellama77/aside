@@ -1,16 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useMeeting } from '../context/MeetingContext';
+import { MEETING_WRAPUP_SUMMARY } from '../constants/mockData';
 import confetti from 'canvas-confetti';
 import {
   Heart,
   CheckCircle2,
-  Calendar,
-  Sparkles,
   ArrowRight,
   RotateCcw,
   Copy,
   Check,
-  ListTodo,
   Compass,
   FileCheck,
   Search
@@ -18,14 +16,16 @@ import {
 
 export function WrapUpScreen() {
   const {
-    userName,
-    wrapUpSummary,
-    meetingLog,
+    userName = "Roo",
+    wrapUpSummary = MEETING_WRAPUP_SUMMARY,
+    conversationHistory = [],
     setCurrentScreen,
     startMeeting
   } = useMeeting();
 
   const [copied, setCopied] = useState(false);
+
+  const summary = wrapUpSummary || MEETING_WRAPUP_SUMMARY;
 
   useEffect(() => {
     try {
@@ -41,25 +41,27 @@ export function WrapUpScreen() {
   }, []);
 
   const handleCopySummary = () => {
-    const text = `Meeting Wrap-Up: ${wrapUpSummary.title}
-Date: ${wrapUpSummary.date}
+    const text = `Meeting Wrap-Up: ${summary.title}
+Date: ${summary.date}
 
 Things Discussed:
-${wrapUpSummary.thingsDiscussed.map(d => `• ${d}`).join('\n')}
+${(summary.thingsDiscussed || []).map(d => `• ${d}`).join('\n')}
 
 Decisions:
-${wrapUpSummary.decisions.map(d => `• ${d}`).join('\n')}
+${(summary.decisions || []).map(d => `• ${d}`).join('\n')}
 
 Follow-ups:
-${wrapUpSummary.followUps.map(f => `• ${f}`).join('\n')}
+${(summary.followUps || []).map(f => `• ${f}`).join('\n')}
 
 Things You Said You'd Check:
-${wrapUpSummary.thingsToCheck.map(c => `• ${c}`).join('\n')}`;
+${(summary.thingsToCheck || []).map(c => `• ${c}`).join('\n')}`;
 
     navigator.clipboard?.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
+
+  const questionsCount = conversationHistory?.filter(c => c.type === 'question')?.length || 8;
 
   return (
     <div className="wrapup-screen animate-fade-in">
@@ -76,7 +78,7 @@ ${wrapUpSummary.thingsToCheck.map(c => `• ${c}`).join('\n')}`;
 
         <div className="wrapup-stats-strip">
           <div className="stat-box">
-            <span className="stat-val">{meetingLog.length > 0 ? meetingLog.length : 10}</span>
+            <span className="stat-val">{questionsCount}</span>
             <span className="stat-lbl">Questions navigated</span>
           </div>
           <div className="stat-box">
@@ -90,7 +92,7 @@ ${wrapUpSummary.thingsToCheck.map(c => `• ${c}`).join('\n')}`;
         </div>
       </div>
 
-      {/* 4 Cards following Section 25 */}
+      {/* 4 Summary Cards */}
       <div className="wrapup-cards-container">
         {/* Things Discussed */}
         <div className="wrapup-card glass-panel">
@@ -101,7 +103,7 @@ ${wrapUpSummary.thingsToCheck.map(c => `• ${c}`).join('\n')}`;
             <h2>Things discussed</h2>
           </div>
           <ul className="decisions-list">
-            {wrapUpSummary.thingsDiscussed.map((item, idx) => (
+            {(summary.thingsDiscussed || []).map((item, idx) => (
               <li key={idx} className="wrapup-list-item">
                 <span className="todo-bullet">•</span>
                 <span>{item}</span>
@@ -119,7 +121,7 @@ ${wrapUpSummary.thingsToCheck.map(c => `• ${c}`).join('\n')}`;
             <h2>Decisions</h2>
           </div>
           <ul className="decisions-list">
-            {wrapUpSummary.decisions.map((dec, idx) => (
+            {(summary.decisions || []).map((dec, idx) => (
               <li key={idx} className="wrapup-list-item">
                 <span className="check-dot">✓</span>
                 <span>{dec}</span>
@@ -137,7 +139,7 @@ ${wrapUpSummary.thingsToCheck.map(c => `• ${c}`).join('\n')}`;
             <h2>Follow-ups</h2>
           </div>
           <ul className="followups-list">
-            {wrapUpSummary.followUps.map((fol, idx) => (
+            {(summary.followUps || []).map((fol, idx) => (
               <li key={idx} className="wrapup-list-item">
                 <span className="followup-bullet">📌</span>
                 <span>{fol}</span>
@@ -155,7 +157,7 @@ ${wrapUpSummary.thingsToCheck.map(c => `• ${c}`).join('\n')}`;
             <h2>Things you said you'd check</h2>
           </div>
           <ul className="actions-list">
-            {wrapUpSummary.thingsToCheck.map((chk, idx) => (
+            {(summary.thingsToCheck || []).map((chk, idx) => (
               <li key={idx} className="wrapup-list-item">
                 <span className="todo-bullet">🔍</span>
                 <span>{chk}</span>

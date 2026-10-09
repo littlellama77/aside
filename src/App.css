@@ -3636,4 +3636,235 @@
   margin-top: 0.35rem;
 }
 
+/* ========================================================
+   SIMPLIFIED MEETING SIMULATOR & WORKFLOW ENHANCEMENTS
+   ======================================================== */
+
+/* Screen Share Active Alert on Desktop */
+.screen-share-active-alert {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.85rem;
+}
+
+.share-alert-left {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.share-alert-left strong {
+  display: block;
+  font-size: 0.82rem;
+  color: var(--text-main);
+  margin-bottom: 0.15rem;
+}
+
+.share-alert-left p {
+  margin: 0;
+  font-size: 0.74rem;
+  color: var(--text-secondary);
+}
+
+.btn-turn-off-share {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.35rem 0.8rem;
+  border-radius: var(--radius-sm);
+  background: #ef4444;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-turn-off-share:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+}
+
+/* Friendly Meeting Flow Guide Bar */
+.meeting-flow-guide-bar {
+  background: var(--bg-card-subtle);
+  border: 1px solid var(--accent-border);
+  border-radius: var(--radius-md);
+  padding: 0.85rem 1.15rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.flow-guide-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.flow-guide-title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.flow-guide-icon {
+  font-size: 1.35rem;
+}
+
+.flow-guide-heading {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0 0 0.15rem 0;
+}
+
+.flow-guide-desc {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.35;
+}
+
+.btn-toggle-diagnostics {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.3rem 0.65rem;
+  border-radius: var(--radius-full);
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-toggle-diagnostics:hover {
+  border-color: var(--accent-border);
+  color: var(--text-main);
+}
+
+.btn-toggle-diagnostics.active {
+  background: var(--accent-light);
+  border-color: var(--accent-border);
+  color: var(--accent-primary);
+  font-weight: 700;
+}
+
+/* 3 Quick Action Flow Buttons */
+.flow-quick-test-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 0.65rem;
+}
+
+.btn-flow-action {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.55rem 0.85rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-card);
+  color: var(--text-main);
+  cursor: pointer;
+  text-align: left;
+  transition: all var(--transition-fast);
+}
+
+.btn-flow-action:hover {
+  transform: translateY(-1.5px);
+  box-shadow: var(--shadow-sm);
+}
+
+.flow-step-badge {
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  padding: 0.15rem 0.45rem;
+  border-radius: var(--radius-full);
+}
+
+.btn-flow-question {
+  border-color: rgba(223, 105, 81, 0.35);
+  background: rgba(223, 105, 81, 0.05);
+}
+
+.btn-flow-question .flow-step-badge {
+  background: var(--accent-primary);
+  color: white;
+}
+
+.btn-flow-question:hover {
+  border-color: var(--accent-primary);
+  background: rgba(223, 105, 81, 0.1);
+}
+
+.btn-flow-speak {
+  border-color: rgba(59, 130, 246, 0.35);
+  background: rgba(59, 130, 246, 0.05);
+}
+
+.btn-flow-speak .flow-step-badge {
+  background: #3b82f6;
+  color: white;
+}
+
+.btn-flow-speak:hover {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.btn-flow-finish {
+  border-color: rgba(16, 185, 129, 0.35);
+  background: rgba(16, 185, 129, 0.05);
+}
+
+.btn-flow-finish .flow-step-badge {
+  background: #10b981;
+  color: white;
+}
+
+.btn-flow-finish:hover {
+  border-color: #10b981;
+  background: rgba(16, 185, 129, 0.1);
+}
+
+/* Diagnostics Drawer */
+.diagnostics-drawer {
+  background: var(--bg-card-subtle);
+  border: 1px dashed var(--accent-border);
+  border-radius: var(--radius-md);
+  padding: 0.85rem;
+  margin-bottom: 1rem;
+}
+
+.btn-exit-stealth {
+  display: block;
+  width: 100%;
+  margin-top: 0.45rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  background: var(--accent-primary);
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+
 

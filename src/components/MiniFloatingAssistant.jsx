@@ -19,6 +19,7 @@ export function MiniFloatingAssistant() {
     activeQuestion,
     isQuestionActive,
     isScreenSharing,
+    toggleScreenSharing,
     conversationState,
     frozenSuggestion,
     triggerUserSpeaking,
@@ -126,6 +127,13 @@ export function MiniFloatingAssistant() {
           <p className="stealth-whisper">
             Screen is shared. Responses stream quietly to your paired phone.
           </p>
+          <button
+            type="button"
+            className="btn-exit-stealth"
+            onClick={() => toggleScreenSharing(false)}
+          >
+            Show Desktop Notes
+          </button>
         </div>
       </div>
     );
