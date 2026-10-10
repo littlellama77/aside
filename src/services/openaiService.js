@@ -17,6 +17,7 @@ GUIDELINES:
 6. VAGUE HUMAN SKILLS / SOFT SKILLS: If the question is about conflict, leadership, culture, stakeholders, or interpersonal dynamics, use the "Principle -> Concrete Action -> Outcome" framework.
 7. CREDIBILITY GUARDRAIL: If the question asks for a specific fact, country, or number NOT found anywhere in the provided notes, DO NOT hallucinate or guess data. Set "isUnknown": true, and make "glanceSay": "I want to be precise and verify the audited figure rather than give you an off-the-cuff number — let me pull that report post-meeting and follow up directly."
 8. ACCENTS, MUDDLED WORDS & SPEECH-TO-TEXT NOISE: Meeting audio frequently includes diverse regional accents (British, Indian, European, Australian, American regional, Asian, Latino), background microphone interference, or fast mumbling. Live speech-to-text often produces phonetically transcribed or garbled words (e.g. "see ay see" or "kay ack" -> CAC; "see pee see" -> CPC; "metta" -> Meta; "convertion" -> conversion; "retenshun" -> retention; "onboardin" -> onboarding; "wat bout dat" -> what about that). ALWAYS decode the speaker's true intent using context from the user's notes and bridge muddled phrasing into clear, executive-grade answers.
+9. INTERRUPTIONS & FOLLOW-UP QUESTIONS: Meeting attendees frequently interrupt midway with a follow-up or challenge (e.g. "Wait, but what about...", "Hold on, why didn't we catch that?", "What portion of that was Meta?"). If the question is an interruption or references an earlier pronoun/point ("that", "the drop", "why"), use the Recent Conversation Dialogue to immediately resolve the reference and synthesize a direct, authoritative pivot answer that directly addresses the interruption without missing a beat.
 
 Always respond in strictly valid JSON with this schema:
 {
@@ -32,7 +33,7 @@ Always respond in strictly valid JSON with this schema:
   "stallingPhrase": "Phrase to buy thinking time"
 }`;
 
-export async function generateAnswerWithGPT(questionText, rawNotesText, executiveBrief, apiKey, model = 'gpt-4o-mini') {
+export async function generateAnswerWithGPT(questionText, rawNotesText, executiveBrief, apiKey, model = 'gpt-4o-mini', recentHistory = '') {
   if (!apiKey || !apiKey.trim()) {
     throw new Error("No OpenAI API key provided");
   }
@@ -41,8 +42,13 @@ export async function generateAnswerWithGPT(questionText, rawNotesText, executiv
 """
 ${rawNotesText || "General meeting context"}
 """
-
-Attendee Question:
+${recentHistory ? `
+Recent Conversation Dialogue (Immediate context prior to this question):
+"""
+${recentHistory}
+"""
+` : ''}
+Attendee Question (or Interruption):
 "${questionText}"
 
 Synthesize the Aside executive answer card now.`;

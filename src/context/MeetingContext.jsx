@@ -521,12 +521,20 @@ export function MeetingProvider({ children }) {
       try {
         setIsGeneratingWithAi(true);
         showSystemNotice(`⚡ Synthesizing answer with ${openaiModel}...`);
+
+        // Format recent conversation turns to resolve pronouns & follow-up interruptions
+        const recentHistory = conversationHistory
+          .slice(-4)
+          .map(item => `${item.speaker}: "${item.text}"`)
+          .join('\n');
+
         const gptQ = await generateAnswerWithGPT(
           customText,
           rawNotes,
           cheatSheet,
           openaiApiKey,
-          openaiModel
+          openaiModel,
+          recentHistory
         );
         gptQ.speaker = speakerName;
         triggerQuestionDetected(gptQ);
