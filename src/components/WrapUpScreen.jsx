@@ -17,6 +17,9 @@ import {
 export function WrapUpScreen() {
   const {
     userName = "Roo",
+    meetingConfig,
+    cheatSheet,
+    questionsFeed,
     wrapUpSummary = MEETING_WRAPUP_SUMMARY,
     conversationHistory = [],
     setCurrentScreen,
@@ -25,7 +28,33 @@ export function WrapUpScreen() {
 
   const [copied, setCopied] = useState(false);
 
-  const summary = wrapUpSummary || MEETING_WRAPUP_SUMMARY;
+  // Dynamically assemble wrap-up summary based on actual meeting notes & questions asked
+  const dynamicTitle = meetingConfig?.name || cheatSheet?.topics?.[0]?.name || wrapUpSummary?.title || "Meeting Wrap-Up";
+  
+  const discussedItems = (questionsFeed && questionsFeed.length > 0)
+    ? questionsFeed.slice(0, 5).map(q => q.topic ? `${q.topic} (“${q.question}”)` : q.question)
+    : (wrapUpSummary?.thingsDiscussed || []);
+
+  const decisionItems = (cheatSheet?.guardrails && cheatSheet.guardrails.length > 0)
+    ? cheatSheet.guardrails.slice(0, 4)
+    : (wrapUpSummary?.decisions || []);
+
+  const followUpItems = (cheatSheet?.thingsToRemember && cheatSheet.thingsToRemember.length > 0)
+    ? cheatSheet.thingsToRemember.slice(0, 4)
+    : (wrapUpSummary?.followUps || []);
+
+  const checkItems = (cheatSheet?.thingsToAsk && cheatSheet.thingsToAsk.length > 0)
+    ? cheatSheet.thingsToAsk.slice(0, 4)
+    : (wrapUpSummary?.thingsToCheck || []);
+
+  const summary = {
+    title: dynamicTitle,
+    date: wrapUpSummary?.date || new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+    thingsDiscussed: discussedItems,
+    decisions: decisionItems,
+    followUps: followUpItems,
+    thingsToCheck: checkItems
+  };
 
   useEffect(() => {
     try {
@@ -47,13 +76,13 @@ Date: ${summary.date}
 Things Discussed:
 ${(summary.thingsDiscussed || []).map(d => `• ${d}`).join('\n')}
 
-Decisions:
+Decisions & Guidelines:
 ${(summary.decisions || []).map(d => `• ${d}`).join('\n')}
 
-Follow-ups:
+Follow-ups & Key Priorities:
 ${(summary.followUps || []).map(f => `• ${f}`).join('\n')}
 
-Things You Said You'd Check:
+Action Items to Check:
 ${(summary.thingsToCheck || []).map(c => `• ${c}`).join('\n')}`;
 
     navigator.clipboard?.writeText(text);
@@ -61,7 +90,7 @@ ${(summary.thingsToCheck || []).map(c => `• ${c}`).join('\n')}`;
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const questionsCount = conversationHistory?.filter(c => c.type === 'question')?.length || 8;
+  const questionsCount = (questionsFeed?.length) || (conversationHistory?.filter(c => c.type === 'question')?.length) || 6;
 
   return (
     <div className="wrapup-screen animate-fade-in">

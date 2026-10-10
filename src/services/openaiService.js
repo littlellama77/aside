@@ -47,23 +47,37 @@ Attendee Question:
 
 Synthesize the Aside executive answer card now.`;
 
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${apiKey.trim()}`
-    },
-    body: JSON.stringify({
-      model: model || "gpt-4o-mini",
-      messages: [
-        { role: "system", content: SYSTEM_PROMPT },
-        { role: "user", content: userPrompt }
-      ],
-      response_format: { type: "json_object" },
-      temperature: 0.3,
-      max_tokens: 800
-    })
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 12000);
+
+  let response;
+  try {
+    response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey.trim()}`
+      },
+      body: JSON.stringify({
+        model: model || "gpt-4o-mini",
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          { role: "user", content: userPrompt }
+        ],
+        response_format: { type: "json_object" },
+        temperature: 0.3,
+        max_tokens: 800
+      }),
+      signal: controller.signal
+    });
+  } catch (err) {
+    if (err.name === 'AbortError') {
+      throw new Error("OpenAI request timed out (12s). Falling back to local engine.");
+    }
+    throw err;
+  } finally {
+    clearTimeout(timeoutId);
+  }
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
@@ -76,7 +90,35 @@ Synthesize the Aside executive answer card now.`;
     throw new Error("No response content from OpenAI");
   }
 
-  const parsed = JSON.parse(content);
+  // Resilient JSON parsing (handles markdown fences, preamble, or escaped chars)
+  let cleanJson = content.trim();
+  if (cleanJson.startsWith('```')) {
+    cleanJson = cleanJson.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
+  }
+
+  let parsed;
+  try {
+    parsed = JSON.parse(cleanJson);
+  } catch {
+    const match = cleanJson.match(/\{[\s\S]*\}/);
+    if (match) {
+      try {
+        parsed = JSON.parse(match[0]);
+      } catch {
+        throw new Error("Invalid JSON structure from OpenAI");
+      }
+    } else {
+      throw new Error("Unable to parse OpenAI response as JSON");
+    }
+  }
+
+  const glanceSay = parsed.glanceSay || parsed.say || parsed.spokenAnswer || parsed.answer || parsed.expandedSay || "I'm reviewing the exact notes on this now.";
+  const glanceBullets = Array.isArray(parsed.glanceBullets)
+    ? parsed.glanceBullets
+    : typeof parsed.glanceBullets === 'string'
+      ? [parsed.glanceBullets]
+      : [];
+
   return {
     id: `gpt-${Date.now()}`,
     speaker: "Meeting Attendee",
@@ -84,17 +126,17 @@ Synthesize the Aside executive answer card now.`;
     topic: parsed.topic || "Meeting Inquiry",
     simplestQuestion: parsed.simplestQuestion || questionText,
     babeTag: parsed.babeTag || "babe 👀 GPT-4o executive cue",
-    glanceSay: parsed.glanceSay,
-    glanceBullets: parsed.glanceBullets || [],
-    expandedSay: parsed.expandedSay || parsed.glanceSay,
+    glanceSay,
+    glanceBullets,
+    expandedSay: parsed.expandedSay || glanceSay,
     extraInformation: parsed.extraInformation || "Synthesized live with GPT-4o from your notes.",
     supportingContext: parsed.supportingContext || "Live GPT synthesis from your meeting notes.",
     isUnknown: Boolean(parsed.isUnknown),
     stuckRecovery: {
       breatheMsg: "Take a breath babe. You've got this.",
       questionSummary: questionText,
-      points: parsed.glanceBullets || ["Ground in notes", "Stay calm"],
-      easySay: parsed.glanceSay,
+      points: glanceBullets.length > 0 ? glanceBullets : ["Ground in notes", "Stay calm"],
+      easySay: glanceSay,
       stallSay: parsed.stallingPhrase || "Give me one second — I want to make sure I frame that clearly."
     }
   };
