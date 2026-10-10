@@ -103,6 +103,7 @@ export function MeetingProvider({ children }) {
   const [liveTranscript, setLiveTranscript] = useState('');
   const [speechSupport, setSpeechSupport] = useState(true);
   const recognitionRef = useRef(null);
+  const isListeningActiveRef = useRef(false);
 
   // Tab Audio Capture (DisplayMedia API)
   const [isTabAudioCapturing, setIsTabAudioCapturing] = useState(false);
@@ -640,6 +641,7 @@ export function MeetingProvider({ children }) {
     }
 
     if (isLiveListening) {
+      isListeningActiveRef.current = false;
       if (recognitionRef.current) {
         try { recognitionRef.current.stop(); } catch (e) {}
       }
@@ -648,6 +650,7 @@ export function MeetingProvider({ children }) {
       showSystemNotice("Microphone listening paused.");
     } else {
       try {
+        isListeningActiveRef.current = true;
         const recognition = new SpeechRecognition();
         recognition.continuous = true;
         recognition.interimResults = true;
@@ -700,16 +703,29 @@ export function MeetingProvider({ children }) {
         };
 
         recognition.onerror = (event) => {
-          console.warn("Speech recognition error:", event.error);
           if (event.error === 'not-allowed') {
             showSystemNotice("Microphone permission denied. Enable microphone in browser settings to transcribe meeting audio.");
             setIsLiveListening(false);
+            isListeningActiveRef.current = false;
+          } else if (event.error === 'no-speech') {
+            // Normal Chrome timeout after silence; watchdog in onend will keep connection alive
+          } else {
+            console.warn("Speech recognition notice:", event.error);
           }
         };
 
         recognition.onend = () => {
-          if (isLiveListening) {
-            try { recognition.start(); } catch (e) {}
+          if (isListeningActiveRef.current) {
+            // 300ms audio buffer reset before auto-restarting to prevent Chrome DOMException
+            setTimeout(() => {
+              if (isListeningActiveRef.current) {
+                try {
+                  recognition.start();
+                } catch {
+                  // Fallback restart
+                }
+              }
+            }, 300);
           }
         };
 
@@ -718,6 +734,7 @@ export function MeetingProvider({ children }) {
       } catch (err) {
         console.error("Failed to start speech recognition:", err);
         setIsLiveListening(false);
+        isListeningActiveRef.current = false;
       }
     }
   }, [isLiveListening, askCustomQuestion, showSystemNotice]);
