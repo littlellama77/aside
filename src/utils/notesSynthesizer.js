@@ -96,11 +96,33 @@ export function chunkLargeNotes(rawText) {
 }
 
 /**
+ * Normalizes speech-to-text phonetic approximations, garbled acronyms, and muddled spoken words
+ */
+export function normalizeSpokenPhonetics(text) {
+  if (!text) return '';
+  return text
+    .toLowerCase()
+    .replace(/\b(see\s*ay\s*see|c\s*a\s*c|kay\s*ack)\b/g, 'cac')
+    .replace(/\b(see\s*pee\s*see|c\s*p\s*c)\b/g, 'cpc')
+    .replace(/\b(see\s*tee\s*are|c\s*t\s*r)\b/g, 'ctr')
+    .replace(/\b(row\s*as|r\s*o\s*a\s*s)\b/g, 'roas')
+    .replace(/\b(en\s*pee\s*es|n\s*p\s*s)\b/g, 'nps')
+    .replace(/\b(kay\s*pee\s*eye|k\s*p\s*i)\b/g, 'kpi')
+    .replace(/\b(mehtah|metta)\b/g, 'meta')
+    .replace(/\b(convertion|convershun)\b/g, 'conversion')
+    .replace(/\b(retenshun)\b/g, 'retention')
+    .replace(/\b(onboardin)\b/g, 'onboarding')
+    .replace(/\b(road\s*map|rodmap)\b/g, 'roadmap')
+    .replace(/\b(quater|quartr)\b/g, 'quarter');
+}
+
+/**
  * BM25 / Ranked relevance search across thousands of lines & sections
  */
 export function findTopMatchingSections(query, chunks, maxSections = 3) {
   if (!chunks || chunks.length === 0) return [];
-  const qLower = query.toLowerCase();
+  const normalizedQuery = normalizeSpokenPhonetics(query);
+  const qLower = normalizedQuery.toLowerCase();
   const queryTokens = qLower.split(/[^a-z0-9%$\-+]+/).filter(w => w.length > 2 && !STOP_WORDS.has(w));
 
   const scoredChunks = chunks.map(chunk => {

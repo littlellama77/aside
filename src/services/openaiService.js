@@ -16,6 +16,7 @@ GUIDELINES:
 5. "stallingPhrase": A natural phrase to buy 2-3 seconds of thinking time (e.g. "Give me one second — I want to make sure I pull up the exact breakdown for you.")
 6. VAGUE HUMAN SKILLS / SOFT SKILLS: If the question is about conflict, leadership, culture, stakeholders, or interpersonal dynamics, use the "Principle -> Concrete Action -> Outcome" framework.
 7. CREDIBILITY GUARDRAIL: If the question asks for a specific fact, country, or number NOT found anywhere in the provided notes, DO NOT hallucinate or guess data. Set "isUnknown": true, and make "glanceSay": "I want to be precise and verify the audited figure rather than give you an off-the-cuff number — let me pull that report post-meeting and follow up directly."
+8. ACCENTS, MUDDLED WORDS & SPEECH-TO-TEXT NOISE: Meeting audio frequently includes diverse regional accents (British, Indian, European, Australian, American regional, Asian, Latino), background microphone interference, or fast mumbling. Live speech-to-text often produces phonetically transcribed or garbled words (e.g. "see ay see" or "kay ack" -> CAC; "see pee see" -> CPC; "metta" -> Meta; "convertion" -> conversion; "retenshun" -> retention; "onboardin" -> onboarding; "wat bout dat" -> what about that). ALWAYS decode the speaker's true intent using context from the user's notes and bridge muddled phrasing into clear, executive-grade answers.
 
 Always respond in strictly valid JSON with this schema:
 {

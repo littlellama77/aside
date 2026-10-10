@@ -20,7 +20,9 @@ export function AiSettingsModal({ isOpen, onClose }) {
     openaiApiKey,
     setOpenaiApiKey,
     openaiModel,
-    setOpenaiModel
+    setOpenaiModel,
+    speechLocale,
+    setSpeechLocale
   } = useMeeting();
 
   const [inputKey, setInputKey] = useState(openaiApiKey || '');
@@ -235,6 +237,32 @@ export function AiSettingsModal({ isOpen, onClose }) {
               </p>
             </div>
           </div>
+        </div>
+
+        {/* Accent & Speech Recognition Region Tuning */}
+        <div className="ai-accent-section">
+          <div className="ai-accent-label-row">
+            <label className="ai-input-label">Accent & Speech Recognition Tuning:</label>
+            <span className="accent-rec-pill">Deciphers accents & muddled audio</span>
+          </div>
+          <div className="accent-dropdown-container">
+            <select
+              value={speechLocale || 'en-US'}
+              onChange={(e) => setSpeechLocale(e.target.value)}
+              className="accent-dropdown-select"
+            >
+              <option value="en-US">English — US / American & Global</option>
+              <option value="en-GB">English — UK / British & European</option>
+              <option value="en-IN">English — India & South Asia</option>
+              <option value="en-AU">English — Australia & New Zealand</option>
+              <option value="en-CA">English — Canada</option>
+              <option value="en-IE">English — Ireland & Scotland</option>
+              <option value="en-SG">English — Singapore & SE Asia</option>
+            </select>
+          </div>
+          <p className="key-hint">
+            Tuned acoustic recognition and GPT phonetic awareness decode heavy regional accents, fast mumbles, and garbled phrases (e.g. "see ay see" → CAC).
+          </p>
         </div>
 
         {/* Footer Actions */}

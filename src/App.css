@@ -5390,6 +5390,56 @@
   text-decoration: underline;
 }
 
+.ai-accent-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-top: 0.35rem;
+  border-top: 1px dashed var(--border-subtle);
+}
+
+.ai-accent-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.accent-rec-pill {
+  font-size: 0.68rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 10px;
+  background: rgba(107, 154, 126, 0.15);
+  color: var(--sage-main);
+  font-weight: 600;
+}
+
+.accent-dropdown-container {
+  position: relative;
+  width: 100%;
+}
+
+.accent-dropdown-select {
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-card);
+  color: var(--text-main);
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.accent-dropdown-select:focus {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 2px rgba(223, 105, 81, 0.15);
+}
+
+
 
 
 

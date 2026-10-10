@@ -145,6 +145,17 @@ export function MeetingProvider({ children }) {
     }
   }, [openaiModel]);
 
+  // Speech Recognition Accent & Regional Tuning ('en-US', 'en-GB', 'en-IN', 'en-AU', etc.)
+  const [speechLocale, setSpeechLocale] = useState(() => {
+    return localStorage.getItem('aside_speech_locale') || 'en-US';
+  });
+
+  useEffect(() => {
+    if (speechLocale) {
+      localStorage.setItem('aside_speech_locale', speechLocale);
+    }
+  }, [speechLocale]);
+
   // Meeting Questions Feed (Chronological list of all questions & answers)
   const [questionsFeed, setQuestionsFeed] = useState(() => DEMO_SCENARIOS.slice(0, 5));
 
@@ -640,12 +651,12 @@ export function MeetingProvider({ children }) {
         const recognition = new SpeechRecognition();
         recognition.continuous = true;
         recognition.interimResults = true;
-        recognition.lang = 'en-US';
+        recognition.lang = speechLocale || 'en-US';
 
         recognition.onstart = () => {
           setIsLiveListening(true);
           setLiveTranscript('Listening for meeting questions...');
-          showSystemNotice("🎙️ Listening to meeting audio! Speak or let coworkers speak on your speakers.");
+          showSystemNotice(`🎙️ Listening to meeting audio (${speechLocale})!`);
         };
 
         recognition.onresult = (event) => {
@@ -662,13 +673,13 @@ export function MeetingProvider({ children }) {
           const text = (final || interim).trim();
           setLiveTranscript(text);
 
-          // If a phrase is finalized and contains question patterns, ask it
-          if (final.trim().length > 10) {
+          // Robust question detection for accents, mumbling, and conversational filler
+          if (final.trim().length > 8) {
             const lower = final.toLowerCase();
             const isQuestion = lower.includes('?') ||
-              lower.startsWith('why') || lower.startsWith('how') || lower.startsWith('what') ||
-              lower.startsWith('can you') || lower.startsWith('could you') || lower.startsWith('should we') ||
-              lower.startsWith('do you') || lower.startsWith('is there') || lower.startsWith('what do you');
+              /\b(why|how|what|where|when|who|which)\b/.test(lower) ||
+              /\b(can you|could you|would you|should we|do you|did we|are we|is there|have you|will we)\b/.test(lower) ||
+              /\b(where are we|where do we stand|any update|walk us through|break down|thoughts on|look into|tell us about|can someone clarify)\b/.test(lower);
 
             if (isQuestion) {
               askCustomQuestion(final.trim(), "Meeting Participant (Transcribed)");
@@ -856,6 +867,8 @@ export function MeetingProvider({ children }) {
     setOpenaiApiKey,
     openaiModel,
     setOpenaiModel,
+    speechLocale,
+    setSpeechLocale,
     isAiSettingsOpen,
     setIsAiSettingsOpen,
     isGeneratingWithAi,
