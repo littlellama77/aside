@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useMeeting } from '../context/MeetingContext';
 import { NotesDrawer } from './NotesDrawer';
+import { AiSettingsModal } from './AiSettingsModal';
 import {
   Mic,
   MicOff,
@@ -10,6 +11,7 @@ import {
   Check,
   Clock,
   Sparkles,
+  Zap,
   Send,
   ShieldAlert,
   Shield,
@@ -59,6 +61,11 @@ export function PrivateMeetingView({ onOpenPairingModal }) {
     setIsCompactMode,
     isNotesDrawerOpen,
     setIsNotesDrawerOpen,
+    openaiApiKey,
+    openaiModel,
+    isAiSettingsOpen,
+    setIsAiSettingsOpen,
+    isGeneratingWithAi,
     cheatSheet,
     demoScenarios
   } = useMeeting();
@@ -149,6 +156,17 @@ export function PrivateMeetingView({ onOpenPairingModal }) {
             <span>My Notes ({cheatSheet?.importantNumbers?.length || 4} metrics)</span>
           </button>
 
+          {/* OpenAI GPT Real-Time Engine & Settings */}
+          <button
+            type="button"
+            className={`btn-ai-engine ${openaiApiKey ? 'ai-connected' : 'ai-offline'}`}
+            onClick={() => setIsAiSettingsOpen(true)}
+            title="Configure OpenAI GPT-4o real-time answering engine"
+          >
+            <Zap size={14} className={openaiApiKey ? "text-accent fill-accent" : ""} />
+            <span>{openaiApiKey ? (openaiModel === 'gpt-4o' ? '⚡ GPT-4o' : '⚡ GPT-4o Mini') : 'Local AI'}</span>
+          </button>
+
           {/* Compact Side-by-Side Mode Toggle */}
           <button
             type="button"
@@ -177,6 +195,14 @@ export function PrivateMeetingView({ onOpenPairingModal }) {
           <span className="transcript-live-text">
             {liveTranscript || "Listening for questions from your colleagues on Microsoft Teams / Zoom / Meet..."}
           </span>
+        </div>
+      )}
+
+      {/* Live AI Generating Indicator */}
+      {isGeneratingWithAi && (
+        <div className="ai-live-generating-pill glass-panel animate-fade-in">
+          <Zap size={14} className="text-accent animate-pulse" />
+          <span>Synthesizing live answer with {openaiModel} using your notes...</span>
         </div>
       )}
 
@@ -454,6 +480,12 @@ export function PrivateMeetingView({ onOpenPairingModal }) {
       <NotesDrawer
         isOpen={isNotesDrawerOpen}
         onClose={() => setIsNotesDrawerOpen(false)}
+      />
+
+      {/* OpenAI GPT Settings Modal */}
+      <AiSettingsModal
+        isOpen={isAiSettingsOpen}
+        onClose={() => setIsAiSettingsOpen(false)}
       />
     </div>
   );
