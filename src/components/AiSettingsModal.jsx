@@ -11,7 +11,8 @@ import {
   Trash2,
   ExternalLink,
   Eye,
-  EyeOff
+  EyeOff,
+  AlertTriangle
 } from 'lucide-react';
 
 export function AiSettingsModal({ isOpen, onClose }) {
@@ -25,8 +26,55 @@ export function AiSettingsModal({ isOpen, onClose }) {
   const [inputKey, setInputKey] = useState(openaiApiKey || '');
   const [showKey, setShowKey] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [testStatus, setTestStatus] = useState(null);
 
   if (!isOpen) return null;
+
+  const handleTestConnection = async () => {
+    if (!inputKey || !inputKey.trim()) {
+      setTestStatus({ type: 'error', msg: 'Please enter an OpenAI API key starting with sk-' });
+      return;
+    }
+    setTestStatus({ type: 'testing', msg: 'Testing connection to OpenAI...' });
+    try {
+      const res = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${inputKey.trim()}`
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: [{ role: 'user', content: 'Say hello in 3 words' }],
+          max_tokens: 10
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        if (data.error?.code === 'credit_balance_exhausted' || data.error?.type === 'insufficient_quota') {
+          setTestStatus({
+            type: 'quota',
+            msg: 'Key is authenticated! However, your OpenAI credit balance is currently $0. Add $5 prepaid credits in OpenAI Billing to enable live GPT calls. Aside will use its built-in engine until funded.'
+          });
+        } else {
+          setTestStatus({
+            type: 'error',
+            msg: data.error?.message || `OpenAI returned status ${res.status}`
+          });
+        }
+      } else {
+        setTestStatus({
+          type: 'success',
+          msg: `Connected successfully! Live meeting cues will run on ${openaiModel}.`
+        });
+      }
+    } catch (err) {
+      setTestStatus({
+        type: 'error',
+        msg: `Connection test failed: ${err.message}`
+      });
+    }
+  };
 
   const handleSave = () => {
     setOpenaiApiKey(inputKey.trim());
@@ -38,6 +86,7 @@ export function AiSettingsModal({ isOpen, onClose }) {
     setInputKey('');
     setOpenaiApiKey('');
     localStorage.removeItem('aside_openai_api_key');
+    setTestStatus(null);
   };
 
   const isKeyActive = Boolean(inputKey && inputKey.startsWith('sk-'));
@@ -91,7 +140,10 @@ export function AiSettingsModal({ isOpen, onClose }) {
             <input
               type={showKey ? "text" : "password"}
               value={inputKey}
-              onChange={(e) => setInputKey(e.target.value)}
+              onChange={(e) => {
+                setInputKey(e.target.value);
+                setTestStatus(null);
+              }}
               placeholder="sk-proj-..."
               className="key-text-input"
             />
@@ -104,8 +156,50 @@ export function AiSettingsModal({ isOpen, onClose }) {
               {showKey ? <EyeOff size={14} /> : <Eye size={14} />}
             </button>
           </div>
+
+          <div className="key-actions-row">
+            <button
+              type="button"
+              className="btn-test-connection"
+              onClick={handleTestConnection}
+              disabled={testStatus?.type === 'testing'}
+            >
+              <Zap size={13} />
+              <span>{testStatus?.type === 'testing' ? 'Verifying with OpenAI...' : 'Test Key Connection'}</span>
+            </button>
+            <a
+              href="https://platform.openai.com/settings/organization/billing/overview"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="billing-check-link"
+            >
+              OpenAI Billing ($5 Credits) <ExternalLink size={11} />
+            </a>
+          </div>
+
+          {testStatus && (
+            <div className={`ai-test-result-banner animate-fade-in ${testStatus.type}`}>
+              {testStatus.type === 'success' && <Check size={14} className="text-sage" />}
+              {testStatus.type === 'quota' && <AlertTriangle size={14} className="text-amber" />}
+              {testStatus.type === 'error' && <X size={14} className="text-panic" />}
+              <div className="test-result-text">
+                <p>{testStatus.msg}</p>
+                {testStatus.type === 'quota' && (
+                  <a
+                    href="https://platform.openai.com/settings/organization/billing/overview"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="quota-billing-action"
+                  >
+                    Add $5 prepaid balance on OpenAI →
+                  </a>
+                )}
+              </div>
+            </div>
+          )}
+
           <p className="key-hint">
-            Your key is used strictly for real-time question answering during meetings. It never touches any external database.
+            Your key stays in your local browser and connects directly to OpenAI. If your OpenAI account is unbilled or offline, Aside automatically falls back to its built-in local engine.
           </p>
         </div>
 
