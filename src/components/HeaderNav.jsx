@@ -6,7 +6,6 @@ import {
   Smartphone,
   Sun,
   Moon,
-  Volume2,
   Check,
   Radio
 } from 'lucide-react';

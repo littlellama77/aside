@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useMeeting } from '../context/MeetingContext';
 import { companionSync } from '../services/companionSync';
 import {
-  Volume2,
   Copy,
   Check,
   Clock,
@@ -248,15 +247,6 @@ export function PhoneCompanion({ isStandalone = false }) {
               </span>
 
               <div className="phone-quick-actions">
-                {context?.speakText && (
-                  <button
-                    className="btn-phone-icon"
-                    onClick={() => context.speakText(displayedSay)}
-                    title="Practice listen"
-                  >
-                    <Volume2 size={14} className={context.speechActive ? 'text-accent' : ''} />
-                  </button>
-                )}
                 <button
                   className="btn-phone-icon"
                   onClick={() => handleCopy(displayedSay)}

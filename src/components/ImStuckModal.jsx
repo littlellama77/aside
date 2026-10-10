@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useMeeting } from '../context/MeetingContext';
 import {
   X,
-  Volume2,
   Copy,
   Check,
   Clock,
@@ -17,9 +16,7 @@ export function ImStuckModal() {
     isStuckModalOpen,
     triggerImStuck,
     activeQuestion,
-    cheatSheet,
-    speakText,
-    speechActive
+    cheatSheet
   } = useMeeting();
 
   const [copied, setCopied] = useState(false);
@@ -113,13 +110,6 @@ export function ImStuckModal() {
           <div className="answer-card-header">
             <span className="easy-answer-tag">Say out loud:</span>
             <div className="answer-header-actions">
-              <button
-                className="btn-icon-subtle"
-                onClick={() => speakText(getSpokenText())}
-                title="Practice listen"
-              >
-                <Volume2 size={15} className={speechActive ? 'text-accent' : ''} />
-              </button>
               <button
                 className="btn-icon-subtle"
                 onClick={() => handleCopy(getSpokenText())}

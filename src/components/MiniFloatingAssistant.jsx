@@ -3,7 +3,6 @@ import { useMeeting } from '../context/MeetingContext';
 import {
   ChevronDown,
   Minimize2,
-  Volume2,
   Copy,
   Check,
   Clock,
@@ -33,9 +32,7 @@ export function MiniFloatingAssistant() {
     triggerImStuck,
     stallingPhrase,
     setStallingPhrase,
-    triggerBuyMeASecond,
-    speakText,
-    speechActive
+    triggerBuyMeASecond
   } = useMeeting();
 
   const [copied, setCopied] = useState(false);
@@ -294,13 +291,6 @@ export function MiniFloatingAssistant() {
           </span>
 
           <div className="mini-header-quick-actions">
-            <button
-              className="icon-mini-btn"
-              onClick={() => speakText(displayedSay)}
-              title="Practice listen"
-            >
-              <Volume2 size={13} className={speechActive ? 'text-accent' : ''} />
-            </button>
             <button
               className="icon-mini-btn"
               onClick={() => handleCopy(displayedSay)}

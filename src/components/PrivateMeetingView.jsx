@@ -6,7 +6,6 @@ import {
   Mic,
   MicOff,
   Radio,
-  Volume2,
   Copy,
   Check,
   Clock,
@@ -40,8 +39,6 @@ export function PrivateMeetingView({ onOpenPairingModal }) {
     stallingPhrase,
     setStallingPhrase,
     triggerImStuck,
-    speakText,
-    speechActive,
     isScreenSharing,
     toggleScreenSharing,
     isPhonePaired,
@@ -265,16 +262,6 @@ export function PrivateMeetingView({ onOpenPairingModal }) {
             </span>
 
             <div className="spoken-quick-actions">
-              <button
-                type="button"
-                className="action-icon-pill"
-                onClick={() => speakText(displayedSay)}
-                title="Listen to spoken response quietly"
-              >
-                <Volume2 size={13} className={speechActive ? 'text-accent' : ''} />
-                <span>Listen</span>
-              </button>
-
               <button
                 type="button"
                 className="action-icon-pill"
