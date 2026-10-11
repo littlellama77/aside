@@ -38,6 +38,7 @@ export function PrepareScreen() {
   const [syncedAlert, setSyncedAlert] = useState(null);
 
   const toneOptions = [
+    "Enthusiastic & Curious (Eager Learner with Numbers)",
     "Natural & Light (Human with Numbers)",
     "Conversational & Friendly",
     "Executive Leader",

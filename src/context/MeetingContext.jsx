@@ -69,10 +69,10 @@ export function MeetingProvider({ children }) {
   // User Profile
   const [userName, setUserName] = useState(DEFAULT_USER);
   const [speakingStyle, setSpeakingStyle] = useState({
-    tone: "Natural & Light (Human with Numbers)",
+    tone: "Enthusiastic & Curious (Eager Learner with Numbers)",
     depthId: "detailed",
     depth: "Executive Depth (Longer & Detailed)",
-    userQuirks: "Friendly, natural, down-to-earth, and articulate. I speak like a real human having a great conversation on a video call—light, confident, honest about what worked and what didn't, and weaving real numbers in naturally without sounding pretentious or scripted."
+    userQuirks: "Friendly, enthusiastic, down-to-earth, and deeply curious about everything. I speak like someone genuinely excited about performance marketing, experimentation, and data—fascinated by why things work, eager to learn from mentors, honest and reflective about challenges, and weaving real numbers in naturally without sounding scripted."
   });
 
   // Pre-Meeting Notes & Executive Memory Brief

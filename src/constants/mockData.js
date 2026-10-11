@@ -18,32 +18,32 @@ export const CONVERSATION_STATES = {
 };
 
 export const BUY_ME_A_SECOND_PHRASES = [
-  "Give me one second — let me think about how to frame that.",
-  "Let me think about that for a second...",
+  "Ooh, that's such a great question to think through—give me one second to frame it.",
+  "Let me think about that for a second—there's actually a really cool story in the data there.",
   "Wait, let me just check that in my head so I don't give you the wrong number.",
-  "Oh, that's a good one—give me a quick second on that.",
-  "Give me two seconds on that, just gathering my thoughts."
+  "Oh, I love looking at that piece of it—give me two quick seconds on that.",
+  "Give me two seconds on that, just gathering my thoughts because there were a few moving parts."
 ];
 
 export const NATURAL_HUMAN_FILLERS = [
-  "“And honestly, what made a huge difference there was…”",
-  "“To give you a bit of context on that…”",
-  "“Which sounds pretty simple on paper, but…”",
-  "“And what was so cool to see in the data was…”",
-  "“So yeah, basically…”",
-  "“And looking back at the numbers, the biggest takeaway was…”",
-  "“To be completely fair, the first thing we noticed was…”"
+  "“And honestly, what made me super curious there was…”",
+  "“And what was so exciting to see in the data was…”",
+  "“Which was such a fascinating learning puzzle, because…”",
+  "“To give you a bit of context on why that was so interesting…”",
+  "“And looking back at the numbers, what I really wanted to explore further was…”",
+  "“So yeah, that really sparked my curiosity about…”",
+  "“Which sounds pretty simple on paper, but digging into the math showed us…”"
 ];
 
 export const THINKING_INTRO_SENTENCES = [
-  "“Hmm, let me think about how to put this…”",
-  "“Yeah, so… let me rewind for a second…”",
-  "“Honestly, the way I look at it is…”",
-  "“Oh, that’s a good one—give me a quick second on that…”",
-  "“Wait, let me make sure I explain this right…”",
-  "“Right, so basically what happened was…”",
-  "“Yeah totally, so the first thing that comes to mind is…”",
-  "“Hmm, let’s see… so where that started was…”"
+  "“Ooh, I love thinking about that—give me two seconds to frame it…”",
+  "“That’s actually something I got super curious about, let me walk through it…”",
+  "“Honestly, what fascinated me most when digging into that was…”",
+  "“Yeah totally! I was actually so excited when we were testing that…”",
+  "“Hmm, let me think about the best way to explain what we found…”",
+  "“Right! What was really cool in the data was…”",
+  "“Oh that’s such a great question—let me rewind to what we discovered…”",
+  "“Yeah, so the thing that really pulled me in there was…”"
 ];
 
 export const PRESET_NOTE_TEMPLATES = [
@@ -114,7 +114,7 @@ PART 5: GUARDRAILS & REMINDERS
 • Use numbers to support answers, not replace the explanation behind them.
 • Remember: I don't have to know everything to be a good candidate for an associate role.`,
     cheatSheet: {
-      coreNarrative: "Performance marketer with editorial rigor from Sportskeeda (1,000+ articles, 20+ writers) and hands-on campaign results at Kraftshala across Google Search (CTR: 5.20%→14.78%, CPC: ₹5.33→₹4.21), Meta Ads (₹91→₹29 cost/ATC), and Amazon PPC.",
+      coreNarrative: "Performance marketer driven by deep analytical curiosity and editorial storytelling instincts. Hands-on across Google Search (CTR: 5.20%→14.78%, CPC: ₹5.33→₹4.21), Meta Ads (₹91→₹29 cost/ATC), and Amazon PPC (ACoS 173% learning puzzle). Constantly tinkering with tech (built 5+ AI prototypes) and genuinely excited to learn from Crealytics' algorithmic standards.",
       thingsToRemember: [
         "Google Search Ads: 1,252 impressions, 185 clicks, CTR 5.20% → 14.78%, CPC ₹5.33 → ₹4.21 (-21%), 17 of 19 conversions, ₹777/₹800 spend",
         "Unleavables Meta Ads: 11.04% CTR, 15 add-to-carts, Cost/ATC dropped ₹91 → ₹29 (₹54.52 overall CV benchmark), Cost Cap won",

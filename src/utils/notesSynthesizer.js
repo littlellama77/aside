@@ -602,9 +602,9 @@ export function synthesizeLeaderAnswerForCustomQuestion(questionText, rawNotesTe
   if (isIntro) {
     category = "intro";
     topic = "Executive Overview";
-    babeTag = "babe 👀 concise executive intro";
-    const glanceSay = "Sure, absolutely. To give you the high-level picture: I focus on performance marketing and campaign execution, connecting audience psychology with quantitative data. In my recent work, I've managed hands-on campaigns across search, social, and marketplaces, focusing on real business impact and profitable unit economics.";
-    const expandedSay = "Sure, absolutely. To give you a complete picture: I started out in editorial where I learned how to capture audience attention under fast deadlines, and then transitioned into performance marketing to get hands-on with the numbers and experimentation. Across my recent projects, I've focused on testing bidding strategies, refining search intent, and scaling ad efficiency. In this meeting, I have our verified results and campaign learnings ready to walk through wherever helpful.";
+    babeTag = "babe 👀 curious learner & hands-on marketer";
+    const glanceSay = "Sure, absolutely! To give you the high-level picture: I'm really passionate about the intersection of audience psychology and performance marketing data. I started out in editorial where I learned what captures attention, but I got genuinely obsessed with the numbers—why people click, what triggers conversions, and how bidding algorithms work. Across Google Search, Meta, and Amazon PPC, I love testing hypotheses and understanding the *why* behind campaign performance, and I'm eager to keep learning and building my fundamentals.";
+    const expandedSay = "Sure, absolutely! To give you a complete picture: I started out in editorial where I learned how to engage audiences under tight deadlines, editing over 1,000 articles and writing 600+ pieces. But what truly pulled me into performance marketing was curiosity about human behavior and data—I wanted to measure what happens after the impression and understand how algorithmic systems optimize. At Kraftshala, I ran hands-on campaigns across Google Search, Meta Ads, and Amazon PPC, and I love tinkering with technology—I've built more than 5 AI web prototypes on the side. I'm someone who loves being a beginner, asks lots of questions, and gets genuinely excited to learn from smart practitioners.";
     return {
       id: `custom-${Date.now()}`,
       category,
@@ -612,16 +612,17 @@ export function synthesizeLeaderAnswerForCustomQuestion(questionText, rawNotesTe
       question: questionText,
       topic,
       babeTag,
-      simplestQuestion: "They're asking for an introductory overview of your role, focus, and background.",
+      simplestQuestion: "They're asking for an introductory overview of your background, curiosity, and learning path.",
       glanceSay,
       glanceBullets: [
-        "• Performance marketing & audience data focus",
-        "• Hands-on across search, social, and marketplaces",
-        "• Core priority: profitable growth and verified metrics"
+        "• Passionate about connecting audience psychology with quantitative data",
+        "• Hands-on across Google Search, Meta Ads, and Amazon PPC",
+        "• Continuous tinkerer: built 5+ functional AI web prototypes",
+        "• Deep curiosity to understand *why* algorithms and audiences behave"
       ],
       expandedSay,
-      supportingContext: "Executive introduction aligned with your background.",
-      extraInformation: "Grounded in your profile and hands-on experience.",
+      supportingContext: "Executive introduction radiating curiosity and eager learning.",
+      extraInformation: "Grounded in your profile, editorial roots, and passion for performance data.",
       isUnknown: false
     };
   }
@@ -677,21 +678,21 @@ export function synthesizeLeaderAnswerForCustomQuestion(questionText, rawNotesTe
     relevantMetrics = metrics.slice(0, 2);
   }
 
-  // Construct Leader Framing
-  let opening = "Yeah, happy to address that.";
+  // Construct curious, enthusiastic, and thoughtful framing
+  let opening = "Yeah, I love digging into that!";
   if (coreLower.includes("why")) {
-    opening = "Yeah, happy to walk through the rationale behind that.";
-    babeTag = "babe 👀 clear strategic rationale";
+    opening = "Yeah, honestly, what fascinated me most about the rationale behind that was:";
+    babeTag = "babe 👀 curious analysis & clear rationale";
   } else if (coreLower.includes("what should") || coreLower.includes("recommend") || coreLower.includes("opinion") || coreLower.includes("next step")) {
-    opening = "Looking at where things stand, my recommendation is very clear.";
-    babeTag = "babe 👀 decisive recommendation";
+    opening = "Looking at the data, what I'd be really excited to test next is:";
+    babeTag = "babe 👀 test-driven recommendation";
     category = "opinion";
   } else if (coreLower.includes("how") || coreLower.includes("status")) {
-    opening = "To give you a direct status update on that:";
-    babeTag = "babe 👀 status & performance update";
+    opening = "To give you the direct picture on that—and what was so cool to see in the numbers:";
+    babeTag = "babe 👀 enthusiastic performance update";
   } else if (coreLower.includes("risk") || coreLower.includes("delay") || coreLower.includes("concern") || coreLower.includes("problem") || coreLower.includes("mistake")) {
-    opening = "That's a fair question, and I want to be upfront about what we ran into.";
-    babeTag = "babe 👀 accountability & proactive solution";
+    opening = "That's such a fair question, and honestly, it was one of the most exciting learning puzzles we ran into!";
+    babeTag = "babe 👀 growth mindset & honest learning";
     category = "reflective";
   }
 
@@ -704,11 +705,11 @@ export function synthesizeLeaderAnswerForCustomQuestion(questionText, rawNotesTe
     metricMention = `${topM.label} is currently holding at ${topM.value}`;
   }
 
-  // Assemble Glanceable Leader Answer (2-3 sentences, articulate, punchy)
-  const glanceSay = `${opening} ${coreFact}. ${metricMention ? `As a reference point, ${metricMention}. ` : ''}And honestly, the key takeaway was validating our data and keeping execution steady.`;
+  // Assemble Glanceable Leader Answer (2-3 sentences, articulate, curious, punchy)
+  const glanceSay = `${opening} ${coreFact}. ${metricMention ? `Looking at the data, ${metricMention}. ` : ''}And honestly, what made me so curious was understanding the drivers underneath so we can keep experimenting and learning as we scale!`;
 
   // Assemble Full Expanded Leader Answer (4-6 sentences, structured executive narrative)
-  const expandedSay = `${opening} If we step back and look at the full picture, ${coreFact.toLowerCase().startsWith('i ') ? coreFact : coreFact.charAt(0).toLowerCase() + coreFact.slice(1)}. ${metricMention ? `Specifically, ${metricMention}, which gives us a solid baseline to build on. ` : ''}Looking back, the decisive lesson was confirming our test results so we could scale with real confidence.`;
+  const expandedSay = `${opening} If you look at the full picture, ${coreFact.toLowerCase().startsWith('i ') ? coreFact : coreFact.charAt(0).toLowerCase() + coreFact.slice(1)}. ${metricMention ? `Specifically, ${metricMention}, which gave us a really fascinating baseline to evaluate. ` : ''}Looking back, the coolest takeaway was seeing how much you learn when you treat every campaign as a hypothesis. It made me so eager to dive deeper and test what happens next.`;
 
   // Bullets
   const glanceBullets = [
@@ -773,25 +774,25 @@ export function generateQuestionsFromNotes(rawNotesText, templateId = "custom") 
         avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
         question: "Tell me about yourself and your journey into performance marketing.",
         topic: "Candidate Story & Background",
-        babeTag: "babe 👀 editorial to performance marketing: keep it light and natural",
-        simplestQuestion: "Torsten wants to know who you are and how you got here.",
+        babeTag: "babe 👀 editorial to data: deeply curious, eager learner & hands-on",
+        simplestQuestion: "Torsten wants to know who you are, what drives your curiosity, and how you got here.",
         startWithPrompt: "Start with: “I actually started out in editorial at Sportskeeda…”",
-        glanceSay: "I actually started out in editorial at Sportskeeda, editing over 1,000 articles and working with around 20 writers and managers, before going on to write 600+ articles covering the NFL and college football. And honestly, working under fast daily deadlines taught me a lot about what grabs people's attention, but over time, I got really curious about the data side—like why people click, what makes them convert, and how audiences behave. That’s really what brought me into performance marketing at Kraftshala, where I ran hands-on campaigns across Google Search, Meta, and Amazon PPC. I also love tinkering with tech on the side and have built more than 5 AI web prototypes. So yeah, I'm really excited about Crealytics because of how you focus on profitable growth and using real technology to solve client problems.",
+        glanceSay: "I actually started out in editorial at Sportskeeda, editing over 1,000 articles and coordinating with 20+ writers and managers, before going on to write 600+ articles covering the NFL. Working under daily deadlines taught me so much about audience attention, but what made me genuinely obsessed was the *why* behind the numbers—like why do certain people click, what triggers a conversion, and what does the data actually tell us about human behavior? That curiosity is what pulled me headfirst into performance marketing at Kraftshala. I got to run hands-on campaigns across Google Search, Meta, and Amazon PPC, and I was constantly tinkering with things—I even built 5+ AI web prototypes on the side just to see what was possible with modern tech. And that's honestly why I'm so excited about Crealytics: you're doing real retail media tech and algorithmic growth, and I'm eager to dive in, learn from people with high standards, and absorb as much as I possibly can.",
         glanceBullets: [
-          "• Sportskeeda: edited 1,000+ pieces, wrote 600+ NFL articles",
-          "• Editorial instinct: sharp understanding of audience attention and copy",
-          "• Kraftshala hands-on: Google Search, Meta Ads, and Amazon PPC",
-          "• Tech curiosity: built 5+ functional AI web prototypes",
-          "• Why Crealytics: focus on real profitable growth over vanity metrics"
+          "• Sportskeeda: edited 1,000+ pieces, wrote 600+ NFL articles under daily deadlines",
+          "• Curiosity pivot: obsessed with why people click and what drives conversions",
+          "• Kraftshala hands-on: executed Google Search, Meta Ads, and Amazon PPC campaigns",
+          "• Continuous builder: created 5+ functional AI web prototypes on the side",
+          "• Excited for Crealytics: eager to learn from high standards and master retail media tech"
         ],
-        expandedSay: "Hi Torsten, thanks so much for having me. To give you the quick overview, I started out in media at Sportskeeda. I spent about a year editing and fact-checking over 1,000 articles while coordinating with 20+ writers and managers, and then wrote over 600 articles covering the NFL and college football. It was fast-paced, high-volume work—often 3,000 to 4,000 words a day—which really sharpened how I think about audience interest.\n\nAnd to be honest, over time I realized I wanted to be closer to the performance side of things—not just putting content out there, but actually measuring how people behave through data. That’s really what brought me into performance marketing at Kraftshala. I got hands-on experience running Google Search campaigns, Meta paid social, and Amazon PPC, learning how bidding, targeting, and creative come together. I also love building things—I’ve created more than five web prototypes using AI tools just to see how technology can speed up workflows.\n\nSo looking at Crealytics, what really stood out to me is how practical you are about profitable growth. A lot of places just look at clicks or impressions, but Crealytics actually cares about bottom-line business impact, and that’s the kind of environment where I want to build my fundamentals.",
+        expandedSay: "Hi Torsten, thanks so much for having me! To give you the journey, I actually started out on the editorial side at Sportskeeda. I spent about a year editing and fact-checking over 1,000 articles while coordinating with 20+ writers and managers, and then authored 600+ articles covering NFL and college football. It was fast-paced, high-volume work—often 3,000 to 4,000 words a day—which really trained my instincts around audience psychology and hook copy.\n\nBut to be completely honest, as I saw content perform, I got so curious about the mechanics behind user actions. I didn't just want to create content; I wanted to understand the data: why did an audience click here, what made someone convert, and how do algorithms decide what to show? That curiosity pulled me headfirst into performance marketing at Kraftshala. I got hands-on running campaigns across Google Search, Meta Ads, and Amazon PPC, testing bidding strategies and analyzing keyword search terms. I also love tinkering with new tools—I've built more than five AI web prototypes on the side just to see how technology can automate and enhance workflows.\n\nSo looking at Crealytics, what gets me so excited is your focus on real, profitable growth and cutting-edge retail media tech. I'm really looking for an environment with high standards where I can ask questions, learn from great practitioners, and build rock-solid algorithmic fundamentals.",
         supportingContext: "Notes Part 1: Sportskeeda (1,000+ edited, 600+ written), Doon University (BA 2020, MA 2022), Kraftshala Launchpad, AI prototypes.",
         stuckRecovery: {
           breatheMsg: "Take a breath babe. Keep it friendly: Sportskeeda → Kraftshala → Crealytics.",
           questionSummary: "Tell me about yourself?",
           points: ["1,000+ edited, 600+ written", "Moved from writing to data at Kraftshala", "Crealytics profitable growth focus"],
-          easySay: "I started in editorial editing over 1,000 articles, got curious about the data behind audience behavior, and moved into performance marketing.",
-          stallSay: "I'd love to share the journey—it really started on the editorial side."
+          easySay: "I started in editorial editing 1,000+ articles, got obsessed with the data behind audience behavior, and moved into performance marketing where I'm eager to keep learning.",
+          stallSay: "I'd love to share the journey—it really started with my curiosity about audience behavior."
         }
       },
       {
@@ -801,17 +802,17 @@ export function generateQuestionsFromNotes(rawNotesText, templateId = "custom") 
         avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
         question: "Why Crealytics specifically, and what draws you to this role?",
         topic: "Why Crealytics & Culture Fit",
-        babeTag: "babe 👀 profitable growth over vanity clicks, real retail media tech",
-        simplestQuestion: "Why Crealytics? Focus on profitable growth and honest tech.",
-        startWithPrompt: "Start with: “To be completely honest with you, what stood out to me about Crealytics is…”",
-        glanceSay: "To be completely honest with you, what stood out to me about Crealytics is that you don't get distracted by vanity metrics. A lot of agencies celebrate big impression spikes or high click counts even if the client isn't making money, but Crealytics is known for focusing on real profitable growth and incrementality. Coming from writing, I have a natural feel for messaging and creative, but honestly, working in performance marketing and building AI prototypes made me realize how crucial the math and tech are. So I really want to be somewhere where people care about bottom-line outcomes, use AI to make smarter decisions, and have high standards I can learn from.",
+        babeTag: "babe 👀 passionate about profitable growth, retail media tech & learning from the best",
+        simplestQuestion: "Why Crealytics? Highlight your excitement about retail media, AI, and learning from high standards.",
+        startWithPrompt: "Start with: “To be completely honest with you, what makes me so excited about Crealytics is…”",
+        glanceSay: "To be completely honest with you, what makes me so excited about Crealytics is that you don't get distracted by vanity metrics—you actually care about real profitable growth and incrementality. A lot of places just celebrate big impression spikes, but I love digging into the actual math and understanding whether a campaign is genuinely moving the business forward. Coming from writing, I have that intuition for messaging, but working in performance marketing and building AI prototypes made me realize how much more there is to explore on the technical and algorithmic side. Crealytics sits right at that intersection of retail media, tech, and AI, which is fascinating to me. I'm really looking for an environment where people ask the hard questions, push each other to understand *why* things work, and have high standards I can learn from every single day.",
         glanceBullets: [
-          "• Profitable growth over vanity metrics (real bottom-line focus)",
-          "• Strong focus on retail media, technology, and AI",
-          "• Bridges creative intuition with quantitative rigor",
-          "• Culture of candid feedback and continuous learning"
+          "• Profitable growth over vanity metrics (real bottom-line business impact)",
+          "• Fascinated by the intersection of retail media, algorithms, and AI",
+          "• Eager to bridge creative intuition with quantitative rigor",
+          "• Thrives in a high-feedback learning culture with demanding standards"
         ],
-        expandedSay: "What really interests me about Crealytics is the combination of performance marketing, technology, and AI. I'm at a point in my career where I'm excited by understanding not just how to run campaigns, but why certain things work and how technology can help us make better decisions. The focus on profitable growth particularly stood out to me, because it means looking beyond whether an ad gets clicks and asking whether it's actually helping the business grow.\n\nIn so many agency narratives, people celebrate impression spikes while ignoring incrementality and margin. Crealytics looks retailers in the eye and asks the harder question: is this advertising truly profitable? That kind of intellectual honesty is rare. I also think my background in writing and editing gives me an interesting perspective to bring into performance marketing. I've spent a lot of time thinking about audiences, what makes people pay attention, and why some messages resonate more than others. Now I want to understand how that connects with campaign data, experimentation, and business outcomes.\n\nI've been building little AI web prototypes myself, so joining a team that uses technology to solve real marketing problems at scale feels like a natural match for what I'm already curious about.",
+        expandedSay: "What really fascinates me about Crealytics is the intersection of performance marketing, retail media, and technology. I'm at a stage in my career where I'm constantly eager to learn not just *how* to execute a campaign, but *why* specific algorithmic mechanisms work and how technology can solve complex problems at scale.\n\nThe focus on profitable growth particularly stood out to me. In so many marketing spaces, teams celebrate clicks or impression spikes while ignoring incrementality and unit economics. Crealytics looks retailers in the eye and asks the harder question: is this advertising truly profitable for the bottom line? That level of intellectual honesty and analytical rigor is exactly what I want to surround myself with.\n\nMy background in journalism taught me how to research deeply and question assumptions, but working with performance data and building AI prototypes made me realize that marketing is becoming deeply algorithmic. Joining a team that builds its own retail media technology and uses AI to solve real client challenges feels like the ultimate classroom for me. I'm hungry to absorb that knowledge and contribute with high energy.",
         supportingContext: "Notes Part 2: Profitable growth focus; technology + AI integration; writing background brings audience perspective.",
         stuckRecovery: {
           breatheMsg: "Profitable growth + AI + learning environment. You've got this.",
@@ -828,18 +829,18 @@ export function generateQuestionsFromNotes(rawNotesText, templateId = "custom") 
         avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
         question: "Can you walk me through your Google Search Ads project and your key results?",
         topic: "Google Search Ads Project",
-        babeTag: "babe 👀 CTR 5.2%→14.8%, CPC ₹5.33→₹4.21, 17/19 conversions on ₹777",
-        simplestQuestion: "Torsten wants to hear your Google Search project numbers and learnings.",
-        startWithPrompt: "Start with: “So in my Google Search project at Kraftshala, what we noticed right away was…”",
-        glanceSay: "So in my Google Search project at Kraftshala, what we noticed right away was that our original structure was casting too wide a net. We restructured the campaign into tighter, intent-based ad groups and cleaned up our negative keyword lists. And honestly, the numbers responded so quickly: our CTR went from 5.20% all the way up to 14.78%, and our CPC dropped from ₹5.33 down to ₹4.21, which was about a 21% reduction in cost. We ended up hitting 17 out of our 19 planned conversions while spending ₹777 of an ₹800 budget. Which, looking back, was such a clear takeaway: when the copy directly answers what someone is searching for, quality scores improve and costs drop naturally.",
+        babeTag: "babe 👀 thrilled by intent testing: CTR 5.2%→14.8%, CPC down 21%, curious about dropoffs",
+        simplestQuestion: "Torsten wants to hear your numbers, what excited you about the test, and your curiosity on next steps.",
+        startWithPrompt: "Start with: “So in my Google Search project at Kraftshala, what was so thrilling to see was…”",
+        glanceSay: "So in my Google Search project at Kraftshala, what was so thrilling to see was how directly the numbers reacted when we tightened up our search intent! We realized our original ad groups were casting too broad a net, so we restructured into tighter, high-intent themes and got really disciplined with negative keywords. And the results responded so fast: our CTR surged from 5.20% all the way up to 14.78%, and our CPC dropped 21% from ₹5.33 down to ₹4.21, hitting 17 of our 19 planned conversions on a ₹777 spend. But honestly, what made me even more curious afterwards was investigating the 2 conversions that didn't happen—I was digging into search term reports to see where customer intent dropped off. That whole feedback loop between data, customer psychology, and campaign tweaks made me so eager to do this at larger scale.",
         glanceBullets: [
           "• 1,252 impressions and 185 clicks",
           "• CTR surged: 5.20% → 14.78% via intent-based ad groups",
-          "• CPC dropped: ₹5.33 → ₹4.21 (~21% cost reduction)",
+          "• CPC dropped 21%: ₹5.33 → ₹4.21 through negative keyword sculpting",
           "• 17 of 19 conversions achieved on ₹777 spend (₹800 budget)",
-          "• Key learning: high ad relevance naturally reduces acquisition cost"
+          "• Eager curiosity: analyzed search terms to understand the 2 unachieved conversions"
         ],
-        expandedSay: "In my Google Search Ads project at Kraftshala, I focused on improving campaign efficiency through intent-based ad groups and keyword refinement. The project started with 1,252 impressions and 185 clicks, but the real breakthrough was structural: moving away from generic broad targeting toward high-intent ad copy that spoke directly to customer needs.\n\nI focused on refining negative keywords, expanding high-performing geographic pockets, adjusting bids, and pausing underperforming ad variations. By the end of the project, our CTR had surged from 5.20% to 14.78%, while CPC decreased from ₹5.33 to ₹4.21, which represents approximately a 21% reduction in cost per click. We achieved 17 of our 19 planned conversions within a ₹777 spend against our ₹800 planned budget.\n\nWhat I found most valuable was learning to evaluate multiple metrics together rather than celebrating in a silo. If asked what I'd improve next, I'd investigate the two conversions that weren't achieved and examine search terms to understand where customer intent dropped off, rather than judging success purely on CTR and CPC alone.",
+        expandedSay: "In my Google Search Ads project at Kraftshala, what made the project so exciting was treating campaign optimization like a scientific feedback loop. The project started with 1,252 impressions and 185 clicks, but our initial structure was too broad. I was really eager to see if tightening query intent would dramatically shift ad relevance.\n\nWe restructured the campaign into tight, intent-based ad groups, expanded high-performing geographic clusters, and rigorously sculpted negative keywords to eliminate wasted spend. The impact in the data was immediate and thrilling: our CTR jumped from 5.20% all the way to 14.78%, while CPC dropped from ₹5.33 to ₹4.21—an approximate 21% reduction in cost per click. We achieved 17 of our 19 planned conversions within a ₹777 spend against an ₹800 budget.\n\nWhat I loved most about that experience was that it left me with so many new questions to explore. Rather than just celebrating the CTR jump, I was fascinated by the 2 conversions we missed. I wanted to dig into search term dropoffs, landing page friction, and query nuances. That curiosity about what lies beneath the top-line numbers is what makes me love this field.",
         supportingContext: "Notes Part 4: Google Search Ads — 1,252 impressions, 185 clicks, CTR 5.20% to 14.78%, CPC ₹5.33 to ₹4.21, 17 of 19 conversions, ₹777/₹800 spend.",
         stuckRecovery: {
           breatheMsg: "You have all the numbers: 1,252 impressions, CTR 14.78%, CPC down 21% to ₹4.21.",
@@ -856,18 +857,18 @@ export function generateQuestionsFromNotes(rawNotesText, templateId = "custom") 
         avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
         question: "In your Unleavables Meta Ads project, what did you test and what were the outcomes?",
         topic: "Unleavables Meta Ads Project",
-        babeTag: "babe 👀 Cost Cap vs Highest Volume: ₹91 down to ₹29, 11.04% CTR",
-        simplestQuestion: "What did you test on Meta and what did the data show?",
+        babeTag: "babe 👀 fascinated by bidding tests: Cost Cap beat Highest Volume, ₹91→₹29, 11.04% CTR",
+        simplestQuestion: "What did you test on Meta, what did the data show, and what made it a fascinating experiment?",
         startWithPrompt: "Start with: “For Unleavables, we ran a direct test between bidding strategies…”",
-        glanceSay: "For Unleavables, which is a custom apparel brand, we ran a direct test between Meta’s default Highest Volume bidding and Cost Cap bidding. And to be fair, Meta always pushes you toward Highest Volume, but Cost Cap worked significantly better for our margins. During the test period, our cost per add-to-cart dropped from ₹91 all the way down to ₹29, with an overall CTR of 11.04% and 15 add-to-carts. Across the full campaign lifecycle, our blended cost per add-to-cart was ₹54.52. So yeah, it was a great lesson in not just trusting the platform’s default settings, but setting guardrails that protect the client's unit economics.",
+        glanceSay: "For Unleavables, which was a custom apparel brand, we ran a direct head-to-head test between Meta's default Highest Volume bidding and Cost Cap bidding. Meta always nudges you toward Highest Volume, but I was super curious to see what would happen if we set strict cost guardrails to protect unit economics. And it was fascinating: during our test, Cost Cap drove cost per add-to-cart down from ₹91 all the way to ₹29, with an overall 11.04% CTR and 15 add-to-carts, ending at a ₹54.52 blended benchmark. It was such an eye-opening experiment for me—it showed me why you shouldn't just accept platform defaults blindly, and it made me really excited about continuous hypothesis testing and algorithmic bidding.",
         glanceBullets: [
-          "• Direct test: Cost Cap vs Highest Volume bidding",
-          "• Cost per add-to-cart dropped: ₹91 → ₹29 during test",
-          "• Overall campaign CTR: 11.04% with 15 add-to-carts",
+          "• Head-to-head experiment: Cost Cap vs Highest Volume bidding",
+          "• Cost per add-to-cart dropped: ₹91 → ₹29 during test period",
+          "• High engagement: 11.04% overall CTR with 15 add-to-carts",
           "• Blended benchmark: ₹54.52 across full campaign lifecycle",
-          "• Core takeaway: test bidding strategies against real margins"
+          "• Key learning: question platform defaults and test algorithms against real margins"
         ],
-        expandedSay: "One project I worked on was a Meta Ads campaign for Unleavables, a direct-to-consumer custom-print apparel brand. The project involved competitor research, audience segmentation, and creative strategy. But the core operational test was comparing bidding strategies.\n\nMeta defaults to Highest Volume, which optimizes for quantity without respect to cost volatility. During our test period, Cost Cap proved significantly more cost-efficient, driving our cost per add-to-cart down from ₹91 to ₹29. The campaign achieved an overall 11.04% CTR and 15 add-to-carts, with a blended cost per add-to-cart of ₹54.52 across the entire duration.\n\nI found the experimentation especially rewarding because it reinforced how important it is to test bidding strategies empirically rather than assuming default settings will protect client margins. It taught me to optimize based on business objectives rather than platform defaults.",
+        expandedSay: "For Unleavables, a direct-to-consumer custom apparel brand, I worked on competitor research, audience segmentation, and creative strategy. But the part of the project that genuinely fascinated me was running a live experiment on bidding algorithms.\n\nMeta defaults to Highest Volume, which optimizes for conversion volume without respecting cost volatility. I wanted to see if setting an explicit Cost Cap would force the algorithm to bid more selectively and protect client margins. During our test, Cost Cap proved significantly more efficient, driving cost per add-to-cart down from ₹91 to ₹29. The campaign achieved an overall 11.04% CTR and 15 add-to-carts, with a blended cost per add-to-cart of ₹54.52.\n\nThat test really ignited my curiosity around algorithmic bidding. It proved that simply trusting platform automation isn't enough—you have to design smart experiments and understand the mechanics under the hood. It made me so eager to learn how enterprise retail media tools manage bidding at massive scale.",
         supportingContext: "Notes Part 4: Unleavables Meta Ads — 11.04% CTR, 15 add-to-carts, ₹54.52 CV benchmark, ₹91 to ₹29 test cost.",
         stuckRecovery: {
           breatheMsg: "Cost Cap vs Highest Volume. Dropped ₹91 to ₹29. 11.04% CTR.",
@@ -884,17 +885,17 @@ export function generateQuestionsFromNotes(rawNotesText, templateId = "custom") 
         avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
         question: "In your Homecrust Amazon campaign, clicks rose by 40% but ACoS increased to 173%. How do you evaluate that?",
         topic: "Homecrust Amazon PPC & Honest Analysis",
-        babeTag: "babe 👀 honest & light: clicks jumped 40%, but ACoS was 173%",
-        simplestQuestion: "Torsten is testing your honesty. Be candid about what didn't work and what you learned.",
-        startWithPrompt: "Start with: “I actually really like talking about this campaign, because honestly…”",
-        glanceSay: "I actually really like talking about this campaign, because honestly, it was our biggest learning experience. On paper, our traffic looked great—impressions went up 5% to 5,955, clicks jumped 40% from 45 to 63, and CTR improved from 0.80% to 1.06%, bringing in ₹857 in sales on our ₹700 budget with 9 hours of dayparting. But here's the catch: our conversion rate dropped from 2.20% down to 1.58%, and ACoS jumped from 155% to 173.59%. So basically, we were driving plenty of clicks, but people just weren't buying. It taught me that clicks don't mean much without conversion readiness. If I were running it again, I'd optimize the product listing and check price competitiveness before scaling ad spend.",
+        babeTag: "babe 👀 curious about conversion puzzles: clicks +40%, but ACoS was 173%",
+        simplestQuestion: "Be candid and curious about what didn't work and what you're excited to learn to solve it.",
+        startWithPrompt: "Start with: “I actually love talking about this campaign, because honestly…”",
+        glanceSay: "I actually love talking about this campaign, because it was such a fascinating puzzle and taught me more than any textbook could! On paper, our traffic metrics looked amazing—impressions grew 5% to 5,955, clicks surged 40% from 45 to 63, and CTR rose from 0.80% to 1.06%, bringing in ₹857 in sales on our ₹700 budget with 9 hours of dayparting. But here was the twist: our conversion rate dropped from 2.20% down to 1.58%, and ACoS jumped from 155% to 173.59%! Seeing that contrast made me so curious—we were driving all this traffic, but people were dropping off before buying. It was such an awesome reality check that clicks alone mean nothing without conversion readiness. It made me want to dive into product-page friction, review sentiment, and price elasticity, and that's the kind of holistic analytical problem-solving I'm so excited to learn more about.",
         glanceBullets: [
-          "• Traffic up: impressions +5% (5,955), clicks +40% (45 → 63), CTR 0.80% → 1.06%",
-          "• Conversion friction: rate dipped 2.20% → 1.58%, ACoS rose to 173.59%",
-          "• Honest takeaway: traffic without listing readiness just burns budget",
-          "• Next steps: audit product page, check pricing, sculpt negative keywords"
+          "• Traffic surged: impressions +5% (5,955), clicks +40% (45 → 63), CTR 0.80% → 1.06%",
+          "• Conversion mystery: rate dipped 2.20% → 1.58%, ACoS rose to 173.59%",
+          "• Honest realization: traffic without listing readiness just burns budget",
+          "• Eager to learn: analyze product page friction, pricing elasticity, and negative targeting"
         ],
-        expandedSay: "I worked on an Amazon Sponsored Products campaign for Homecrust, a home and kitchen brand, optimizing a ₹700 budget using negative targeting, placement adjustments, and approximately nine hours of dayparting. The campaign generated clear improvements in visibility and engagement: impressions increased from 5,681 to 5,955 (about 5%), clicks grew from 45 to 63 (or 40%), and CTR lifted from 0.80% to 1.06%, generating two orders and ₹857 in sales.\n\nHowever, the conversion rate decreased from 2.20% to 1.58%, and ACoS increased from 155.56% to 173.59%. So while the campaign improved engagement, profitability remained a severe challenge.\n\nThat taught me that more clicks do not automatically mean a better campaign. It was a vivid lesson that traffic without conversion readiness just burns cash. If I were optimizing this next, I'd want to investigate product-page performance, targeting quality, keyword intent mismatches, and the unit economics of each order before deciding what to scale.",
+        expandedSay: "I worked on an Amazon Sponsored Products campaign for Homecrust, a home and kitchen brand, optimizing a ₹700 budget using negative targeting, placement adjustments, and about nine hours of dayparting. In terms of top-of-funnel engagement, the campaign looked like a win: impressions grew from 5,681 to 5,955 (about 5%), clicks jumped from 45 to 63 (a 40% lift), and CTR climbed from 0.80% to 1.06%, generating two orders and ₹857 in sales.\n\nHowever, our conversion rate dropped from 2.20% down to 1.58%, which drove our ACoS from 155.56% up to 173.59%. And honestly, that discrepancy was the most valuable lesson of my entire training. It forced me to ask the deeper questions: why did people click our ad but refuse to buy? Was the price point uncompetitive? Was the product description lacking social proof? Were our search terms attracting browsing intent rather than buying intent?\n\nIt taught me that PPC isn't an isolated silo—it interacts with product listings, pricing, and consumer psychology. I loved having to confront that reality, and it made me so curious to learn how experienced teams diagnose conversion leakage and optimize the full marketplace funnel.",
         supportingContext: "Notes Part 4 & 6: Homecrust — 5,681 to 5,955 impressions, 45 to 63 clicks, ACoS 155.56% to 173.59%, ₹700 budget.",
         stuckRecovery: {
           breatheMsg: "This shows mature analytical thinking. Honest about ACoS, clear on next steps.",
@@ -911,17 +912,18 @@ export function generateQuestionsFromNotes(rawNotesText, templateId = "custom") 
         avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
         question: "Tell me about a time you had to learn something quickly or adapt to a new domain.",
         topic: "Adaptability & Fast Learning",
-        babeTag: "babe 👀 600+ NFL articles from scratch: do the research",
-        simplestQuestion: "Share how you learned American football writing from scratch.",
+        babeTag: "babe 👀 loves being a beginner: 600+ NFL articles from scratch, eager to research",
+        simplestQuestion: "Share how you learned American football writing from scratch and why you love tackling new domains.",
         startWithPrompt: "Start with: “When I was first asked to write about the NFL at Sportskeeda, honestly…”",
-        glanceSay: "When I was first asked to write about the NFL and college football at Sportskeeda, honestly, I knew almost nothing about American football! It was pretty daunting at first because NFL fans know every tiny rule and roster detail. But you know, I just treated it like a deep-dive research project: I watched game film, studied playbooks, read beat writers, and asked for constant feedback from our senior editors. Over the year, I ended up writing over 600 articles with solid on-page SEO that fans actually read. So looking back, it showed me that whenever I step into a new field or work with new tools, starting from scratch isn't a disadvantage as long as you're curious and willing to do the homework.",
+        glanceSay: "When I was first asked to cover the NFL and college football at Sportskeeda, honestly, I knew almost nothing about American football! It was definitely intimidating at first because NFL fans are so knowledgeable, but I actually love starting as a beginner. I turned it into a full immersion project: I studied playbooks, watched film, broke down beat writer coverage, and constantly asked senior editors for critical feedback so I could improve. Over the year, I ended up writing over 600 articles that built real readership and strong SEO. That experience gave me so much confidence in diving into totally unfamiliar domains—whenever I encounter a new tool, platform, or algorithmic concept, I don't feel intimidated, I get genuinely excited to do the research, ask questions, and master it from the ground up.",
         glanceBullets: [
-          "• Started NFL writing with zero prior knowledge of American football",
-          "• Researched playbooks, terminology, and beat coverage daily",
-          "• Wrote 600+ published articles with strong fan engagement and SEO",
-          "• Built confidence in quickly mastering unfamiliar domains"
+          "• Embraced being a beginner with zero prior American football knowledge",
+          "• Deep immersion: researched playbooks, film, and terminology daily",
+          "• Welcomed feedback: iterated constantly with senior editors",
+          "• 600+ articles published with strong readership and organic SEO",
+          "• Growth mindset: genuinely excited to explore and conquer unfamiliar topics"
         ],
-        expandedSay: "A defining example for me was moving into NFL and college football writing at Sportskeeda when I barely knew American football. I had to learn the terminology, understand the game, and research unfamiliar subjects consistently enough to produce accurate, high-velocity articles on daily publishing schedules.\n\nI approached it by researching regularly, learning from editor feedback, and building my understanding over time. I eventually wrote over 600 articles, and the experience taught me that I actually enjoy starting as a beginner. It also helped me realize that I don't want to hold on to something simply because it's familiar—I'd rather keep learning and find new ways to grow, which is part of what drew me to performance marketing.",
+        expandedSay: "A defining experience for me was moving into NFL and college football writing at Sportskeeda when I started with zero background in the sport. I had to learn the terminology, understand complex defensive schemes, and research players and teams fast enough to publish accurate, high-velocity articles on daily publishing cycles.\n\nInstead of being intimidated, I leaned into the learning curve. I spent hours reading beat writers, watching film, studying analytics, and actively seeking out editor feedback so I could calibrate my writing. Over time, I went on to write over 600 published articles. What that experience really taught me is that I love the process of being a beginner and figuring things out.\n\nIt taught me how to ask the right questions, how to synthesize complex information quickly, and how to stay humble while building expertise. That's the exact same curiosity and learning stamina I bring into performance marketing—whenever there's a new platform update, attribution model, or AI tool, I can't wait to roll up my sleeves and understand how it works.",
         supportingContext: "Notes Part 3 & 5: Question 19 & 29 — moved into NFL writing from scratch, authored 600+ articles.",
         stuckRecovery: {
           breatheMsg: "600+ NFL articles from scratch. You can learn anything quickly.",
@@ -938,17 +940,17 @@ export function generateQuestionsFromNotes(rawNotesText, templateId = "custom") 
         avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
         question: "Do you have any questions for me today?",
         topic: "Questions to Ask Torsten",
-        babeTag: "babe 👀 show genuine curiosity about the role & team culture",
-        simplestQuestion: "Ask thoughtful, human questions about 3-6 month expectations and team life.",
-        startWithPrompt: "Start with: “I do, Torsten, thank you…”",
-        glanceSay: "I do, Torsten, thank you! First, what does success look like for someone in this role during their first three to six months—not just in terms of metrics, but in terms of how they integrate into the team? Second, because Crealytics sits so uniquely at the crossroads of retail media and AI, how does the team mentor associates to build deep, instinctive fundamentals in algorithmic optimization? And third, what is something about working here that surprised you when you first joined?",
+        babeTag: "babe 👀 genuine curiosity about the steep learning curve, mentorship & culture",
+        simplestQuestion: "Ask energetic, curious questions about 3-6 month growth, team puzzles, and mentorship.",
+        startWithPrompt: "Start with: “I do, Torsten, thank you! I'm genuinely so curious about…”",
+        glanceSay: "I do, Torsten, thank you! I'm genuinely so curious about how the team operates. First, for an associate joining the team, what does a steep learning curve look like in the first three to six months, and how do you help them ramp up? Second, because Crealytics is so innovative with retail media and AI, how do associates collaborate with the senior analysts and tech squads to build deep algorithmic intuition? And third, what's a campaign or client challenge recently that really pushed the team to think creatively and made everyone excited to solve it?",
         glanceBullets: [
-          "• 1. What does success look like in the first 3–6 months?",
-          "• 2. How does Crealytics cultivate deep PPC & algorithmic intuition?",
-          "• 3. How closely do associates work with data & technical squads?",
-          "• 4. What surprised you most about the culture when you joined?"
+          "• 1. What does the learning curve look like in the first 3–6 months?",
+          "• 2. How do associates collaborate with tech & data squads to build algorithmic intuition?",
+          "• 3. What is a recent client puzzle that got the team really excited to solve?",
+          "• 4. What surprised you most about the learning culture when you joined?"
         ],
-        expandedSay: "Yes, thank you Torsten, I do have a couple of questions that help me understand the work and team dynamics. First, what would success look like for someone joining as a Performance Marketing Associate during their first three to six months? Second, given Crealytics' strong focus on technology and AI, how is mentorship structured to help associates build deep fundamentals in PPC and campaign optimization? And third, how closely does the associate team collaborate with your data and technical squads on daily client work?",
+        expandedSay: "Yes, thank you Torsten, I do have a few questions! I'm really curious about the development path here. First, what does success and a steep learning curve look like for someone joining as a Performance Marketing Associate in their first three to six months? Second, given Crealytics' strong focus on retail media technology and AI, how is mentorship structured to help associates build deep intuition around bidding algorithms and incrementality? And third, what is a recent campaign or client challenge that really pushed the team to think outside the box and made everyone excited to solve it?",
         supportingContext: "Notes Part 7: Questions to Ask Torsten (success in 3-6 months, PPC development, team structure, next steps).",
         stuckRecovery: {
           breatheMsg: "Ask about 3-6 month success and learning PPC.",
