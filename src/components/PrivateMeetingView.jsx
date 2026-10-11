@@ -374,8 +374,8 @@ export function PrivateMeetingView({ onOpenPairingModal }) {
                 <span className="thinking-badge-icon">💭</span>
                 <span className="thinking-intro-title">
                   {isGeneratingWithAi || activeQuestion?.isSynthesizing
-                    ? "Say this aloud right now while your answer synthesizes:"
-                    : "“I'm thinking” Intro sentence (Say first to buy thinking time):"}
+                    ? "Say this right now while your answer synthesizes:"
+                    : "Thinking out loud (say this while you gather your thoughts):"}
                 </span>
               </div>
               {(isGeneratingWithAi || activeQuestion?.isSynthesizing) && (

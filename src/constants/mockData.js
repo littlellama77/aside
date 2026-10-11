@@ -18,11 +18,11 @@ export const CONVERSATION_STATES = {
 };
 
 export const BUY_ME_A_SECOND_PHRASES = [
-  "Give me one second — I want to make sure I explain that properly.",
-  "Let me think about that for a second.",
-  "I want to check the exact number before I answer.",
-  "That's a fair question, let me pull up the specific breakdown from last week.",
-  "Give me just a moment to pull the verified line item."
+  "Give me one second — let me think about how to frame that.",
+  "Let me think about that for a second...",
+  "Wait, let me just check that in my head so I don't give you the wrong number.",
+  "Oh, that's a good one—give me a quick second on that.",
+  "Give me two seconds on that, just gathering my thoughts."
 ];
 
 export const NATURAL_HUMAN_FILLERS = [
@@ -36,13 +36,14 @@ export const NATURAL_HUMAN_FILLERS = [
 ];
 
 export const THINKING_INTRO_SENTENCES = [
-  "“That's a really great question — let me break down how I look at that…”",
-  "“Yeah, absolutely — give me just a second to frame how we approached that…”",
-  "“That's a fair point — let me walk you through the logic behind that…”",
-  "“Sure thing — let me give you the quick context on that first…”",
-  "“Yeah, I'd love to speak to that — let me share how that played out…”",
-  "“Great question — let me pull up the specific breakdown in my mind for that…”",
-  "“I'm glad you brought that up — let me share the background on how we tackled that…”"
+  "“Hmm, let me think about how to put this…”",
+  "“Yeah, so… let me rewind for a second…”",
+  "“Honestly, the way I look at it is…”",
+  "“Oh, that’s a good one—give me a quick second on that…”",
+  "“Wait, let me make sure I explain this right…”",
+  "“Right, so basically what happened was…”",
+  "“Yeah totally, so the first thing that comes to mind is…”",
+  "“Hmm, let’s see… so where that started was…”"
 ];
 
 export const PRESET_NOTE_TEMPLATES = [
