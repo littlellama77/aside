@@ -6,6 +6,8 @@ import {
   DEFAULT_USER,
   CONVERSATION_STATES,
   BUY_ME_A_SECOND_PHRASES,
+  NATURAL_HUMAN_FILLERS,
+  THINKING_INTRO_SENTENCES,
   PRESET_NOTE_TEMPLATES,
   DEMO_SCENARIOS,
   INITIAL_CONVERSATION_HISTORY,
@@ -564,16 +566,21 @@ export function MeetingProvider({ children }) {
       return;
     }
 
-    // Instantly set skeleton card so user sees Aside responded immediately!
+    // Instantly set skeleton card with a real spoken opener so user can start talking immediately!
+    const randomIntro = THINKING_INTRO_SENTENCES[Math.floor(Math.random() * THINKING_INTRO_SENTENCES.length)].replace(/^[“”"']|[“”"']$/g, '');
     const skeletonQ = {
       id: `q-${Date.now()}`,
       speaker: speakerName,
       question: cleanText,
       topic: "Live Meeting Inquiry",
-      babeTag: "babe 👀 formulating answer...",
-      glanceSay: "Synthesizing answer from your notes...",
-      glanceBullets: ["• Formulating key talking points", "• Connecting to your notes"],
+      babeTag: "babe 👀 synthesizing answer... (say intro below)",
+      glanceSay: randomIntro,
+      glanceBullets: [
+        "• Synthesizing full answer with verified metrics...",
+        "• Say the natural intro opener aloud while answer loads"
+      ],
       extraInformation: "Retrieving relevant data points and context...",
+      isSynthesizing: true,
       isUnknown: false
     };
     setActiveQuestion(skeletonQ);
@@ -1016,6 +1023,8 @@ export function MeetingProvider({ children }) {
     questionsList: DEMO_SCENARIOS,
     wrapUpSummary: MEETING_WRAPUP_SUMMARY,
     stallingPhrases: BUY_ME_A_SECOND_PHRASES,
+    thinkingIntroSentences: THINKING_INTRO_SENTENCES,
+    naturalFillers: NATURAL_HUMAN_FILLERS,
     startMeeting,
     startDemo,
     wrapUpMeeting

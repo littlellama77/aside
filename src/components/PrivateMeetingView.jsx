@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useMeeting } from '../context/MeetingContext';
 import { NotesDrawer } from './NotesDrawer';
 import { AiSettingsModal } from './AiSettingsModal';
-import { NATURAL_HUMAN_FILLERS } from '../constants/mockData';
+import { NATURAL_HUMAN_FILLERS, THINKING_INTRO_SENTENCES } from '../constants/mockData';
 import {
   Mic,
   MicOff,
@@ -72,6 +72,11 @@ export function PrivateMeetingView({ onOpenPairingModal }) {
   const [customInput, setCustomInput] = useState('');
   const [copied, setCopied] = useState(false);
   const [copiedFiller, setCopiedFiller] = useState(null);
+  const [selectedIntro, setSelectedIntro] = useState(null);
+
+  useEffect(() => {
+    setSelectedIntro(null);
+  }, [activeQuestion?.id]);
 
   const handleCustomSubmit = (e) => {
     e.preventDefault();
@@ -96,9 +101,11 @@ export function PrivateMeetingView({ onOpenPairingModal }) {
   const isYourTurn = conversationState === 'YOUR_TURN';
   const displayedSay = isYourTurn && frozenSuggestion
     ? frozenSuggestion
-    : disclosureLevel === 'expanded'
-      ? (activeQuestion?.expandedSay || activeQuestion?.glanceSay)
-      : activeQuestion?.glanceSay;
+    : selectedIntro && (isGeneratingWithAi || activeQuestion?.isSynthesizing)
+      ? selectedIntro
+      : disclosureLevel === 'expanded'
+        ? (activeQuestion?.expandedSay || activeQuestion?.glanceSay)
+        : activeQuestion?.glanceSay;
 
   const isUnknown = activeQuestion?.category === 'unknown';
 
@@ -360,11 +367,58 @@ export function PrivateMeetingView({ onOpenPairingModal }) {
             </div>
           </div>
 
+          {/* "I'm Thinking" Intro Sentences Over the Answer Box */}
+          <div className={`thinking-intro-bar ${isGeneratingWithAi || activeQuestion?.isSynthesizing ? 'thinking-synthesizing-active' : ''}`}>
+            <div className="thinking-intro-top-row">
+              <div className="thinking-intro-left">
+                <span className="thinking-badge-icon">💭</span>
+                <span className="thinking-intro-title">
+                  {isGeneratingWithAi || activeQuestion?.isSynthesizing
+                    ? "Say this aloud right now while your answer synthesizes:"
+                    : "“I'm thinking” Intro sentence (Say first to buy thinking time):"}
+                </span>
+              </div>
+              {(isGeneratingWithAi || activeQuestion?.isSynthesizing) && (
+                <div className="synthesizing-status-tag">
+                  <span className="pulse-dot-coral"></span>
+                  <span>Synthesizing answer from your notes...</span>
+                </div>
+              )}
+            </div>
+
+            <div className="thinking-intro-chips">
+              {THINKING_INTRO_SENTENCES.map((intro, idx) => {
+                const clean = intro.replace(/^[“”"']|[“”"']$/g, '');
+                const isSelected = selectedIntro === clean || (!selectedIntro && displayedSay === clean);
+                return (
+                  <button
+                    key={idx}
+                    type="button"
+                    className={`thinking-intro-chip ${isSelected ? 'intro-chip-selected' : ''}`}
+                    onClick={() => {
+                      setSelectedIntro(clean);
+                      handleCopyFiller(clean);
+                    }}
+                    title="Click to use this natural opener right now"
+                  >
+                    <span className="chip-quote">“</span>
+                    <span>{clean}</span>
+                    <span className="chip-quote">”</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           {/* Primary Answer Section: WHAT TO SAY ALOUD */}
-          <div className={`answer-spoken-box ${isYourTurn ? 'spoken-box-frozen' : ''}`}>
+          <div className={`answer-spoken-box ${isYourTurn ? 'spoken-box-frozen' : ''} ${isGeneratingWithAi || activeQuestion?.isSynthesizing ? 'spoken-box-synthesizing' : ''}`}>
             <div className="spoken-box-top">
               <span className="spoken-label">
-                {isYourTurn ? "Your Cue (Frozen during speech):" : "Say This Aloud:"}
+                {isYourTurn
+                  ? "Your Cue (Frozen during speech):"
+                  : (isGeneratingWithAi || activeQuestion?.isSynthesizing)
+                    ? "Say This Intro Aloud Right Now:"
+                    : "Say This Aloud:"}
               </span>
 
               <div className="spoken-quick-actions">
@@ -380,9 +434,16 @@ export function PrivateMeetingView({ onOpenPairingModal }) {
               </div>
             </div>
 
-            <p className="spoken-phrase-content">
-              “{displayedSay || "Checking your notes for the best talking points..."}”
+            <p className={`spoken-phrase-content ${isGeneratingWithAi || activeQuestion?.isSynthesizing ? 'spoken-phrase-intro' : ''}`}>
+              “{displayedSay || "That's a really great question — let me break down how I look at that..."}”
             </p>
+
+            {(isGeneratingWithAi || activeQuestion?.isSynthesizing) && (
+              <div className="synthesizing-live-hint">
+                <Zap size={13} className="text-accent animate-pulse" />
+                <span>Full detailed answer with metrics is synthesizing right now. Say the opener above while it completes!</span>
+              </div>
+            )}
 
             {/* Turn-Taking Button: Freeze / Done Speaking */}
             <div className="spoken-turn-controls">

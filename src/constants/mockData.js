@@ -35,6 +35,16 @@ export const NATURAL_HUMAN_FILLERS = [
   "“To be completely fair, the first thing we noticed was…”"
 ];
 
+export const THINKING_INTRO_SENTENCES = [
+  "“That's a really great question — let me break down how I look at that…”",
+  "“Yeah, absolutely — give me just a second to frame how we approached that…”",
+  "“That's a fair point — let me walk you through the logic behind that…”",
+  "“Sure thing — let me give you the quick context on that first…”",
+  "“Yeah, I'd love to speak to that — let me share how that played out…”",
+  "“Great question — let me pull up the specific breakdown in my mind for that…”",
+  "“I'm glad you brought that up — let me share the background on how we tackled that…”"
+];
+
 export const PRESET_NOTE_TEMPLATES = [
   {
     id: "crealytics-interview",
