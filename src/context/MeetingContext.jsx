@@ -161,9 +161,7 @@ export function MeetingProvider({ children }) {
   const [isManualCaptureActive, setIsManualCaptureActive] = useState(false);
   const isManualCaptureActiveRef = useRef(false);
   const [manualCapturedTranscript, setManualCapturedTranscript] = useState('');
-  const [isFollowCursorEnabled, setIsFollowCursorEnabled] = useState(() => {
-    return localStorage.getItem('aside_follow_cursor') === 'true'; // default false (docked safely in corner)
-  });
+  const [isFollowCursorEnabled, setIsFollowCursorEnabled] = useState(false);
 
   useEffect(() => {
     localStorage.setItem('aside_follow_cursor', String(isFollowCursorEnabled));
@@ -823,230 +821,225 @@ export function MeetingProvider({ children }) {
     selectQuestionRef.current = selectQuestion;
   }, [selectQuestion]);
 
-  // Live Microphone Listening (Web Speech API for Zoom / Teams / GMeet + getUserMedia)
-  const toggleLiveListening = useCallback(async () => {
+  // Start Hardware Audio Meter (AnalyserNode for real-time 0-100% volume display)
+  const startAudioMeter = useCallback(() => {
+    if (micStreamRef.current && audioContextRef.current) return;
+    if (navigator.mediaDevices?.getUserMedia) {
+      navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: false,
+          autoGainControl: true
+        }
+      }).then(stream => {
+        micStreamRef.current = stream;
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (AudioCtx) {
+          const audioCtx = new AudioCtx();
+          if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+          }
+          const source = audioCtx.createMediaStreamSource(stream);
+          const analyser = audioCtx.createAnalyser();
+          analyser.fftSize = 256;
+          source.connect(analyser);
+          audioContextRef.current = audioCtx;
+
+          const dataArray = new Uint8Array(analyser.frequencyBinCount);
+          const updateMeter = () => {
+            if (!micStreamRef.current) {
+              setMicVolumeLevel(0);
+              return;
+            }
+            analyser.getByteFrequencyData(dataArray);
+            let sum = 0;
+            for (let i = 0; i < dataArray.length; i++) sum += dataArray[i];
+            const avg = sum / dataArray.length;
+            const level = Math.min(100, Math.round((avg / 128) * 100));
+            setMicVolumeLevel(level);
+            requestAnimationFrame(updateMeter);
+          };
+          requestAnimationFrame(updateMeter);
+        }
+      }).catch(err => {
+        console.warn("Audio meter stream notice:", err);
+      });
+    }
+  }, []);
+
+  // Cleanly stop SpeechRecognition instance
+  const stopSpeechRecognition = useCallback(() => {
+    if (silenceTimerRef.current) {
+      clearTimeout(silenceTimerRef.current);
+      silenceTimerRef.current = null;
+    }
+    if (restartTimerRef.current) {
+      clearTimeout(restartTimerRef.current);
+      restartTimerRef.current = null;
+    }
+    isListeningActiveRef.current = false;
+    turnTranscriptBufferRef.current = '';
+
+    if (recognitionRef.current) {
+      const oldRec = recognitionRef.current;
+      oldRec.onend = null;
+      oldRec.onerror = null;
+      oldRec.onresult = null;
+      oldRec.onstart = null;
+      try { oldRec.abort(); } catch (e) {}
+      recognitionRef.current = null;
+    }
+
+    setIsLiveListening(false);
+    setLiveTranscript('');
+  }, []);
+
+  // Fresh SpeechRecognition instance creator — guarantees a healthy session every single turn
+  const startFreshSpeechRecognition = useCallback(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
       setSpeechSupport(false);
       showSystemNotice("Speech recognition isn't supported in this browser. Please use Chrome/Edge or type your question below.");
-      return;
+      return null;
     }
 
-    if (isListeningActiveRef.current) {
-      // 1. TURN OFF
-      if (silenceTimerRef.current) {
-        clearTimeout(silenceTimerRef.current);
-        silenceTimerRef.current = null;
-      }
-      if (restartTimerRef.current) {
-        clearTimeout(restartTimerRef.current);
-        restartTimerRef.current = null;
-      }
-      isListeningActiveRef.current = false;
-      turnTranscriptBufferRef.current = '';
+    // Abort & detach previous instance completely to avoid state locks
+    if (recognitionRef.current) {
+      const oldRec = recognitionRef.current;
+      oldRec.onend = null;
+      oldRec.onerror = null;
+      oldRec.onresult = null;
+      oldRec.onstart = null;
+      try { oldRec.abort(); } catch (e) {}
+      recognitionRef.current = null;
+    }
 
-      if (recognitionRef.current) {
-        recognitionRef.current.onend = null;
-        recognitionRef.current.onerror = null;
-        recognitionRef.current.onresult = null;
-        try { recognitionRef.current.abort(); } catch (e) {}
-        recognitionRef.current = null;
-      }
+    if (restartTimerRef.current) {
+      clearTimeout(restartTimerRef.current);
+      restartTimerRef.current = null;
+    }
 
-      // Stop & clean up hardware audio stream and analyser
-      if (micStreamRef.current) {
-        try {
-          micStreamRef.current.getTracks().forEach(track => track.stop());
-        } catch (e) {}
-        micStreamRef.current = null;
-      }
-      if (audioContextRef.current) {
-        try {
-          audioContextRef.current.close();
-        } catch (e) {}
-        audioContextRef.current = null;
-      }
+    try {
+      const recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.maxAlternatives = 1;
+      recognition.lang = speechLocale || (typeof navigator !== 'undefined' ? navigator.language : 'en-US') || 'en-US';
 
-      setIsLiveListening(false);
-      setLiveTranscript('');
-      setMicVolumeLevel(0);
-      showSystemNotice("Microphone listening paused.");
-    } else {
-      // 2. TURN ON
-      isListeningActiveRef.current = true;
-      turnTranscriptBufferRef.current = '';
-      setIsLiveListening(true);
-      setLiveTranscript('');
+      recognition.onstart = () => {
+        setIsLiveListening(true);
+        isListeningActiveRef.current = true;
+      };
 
-      // Background Audio Visualizer (non-blocking so SpeechRecognition starts immediately)
-      if (navigator.mediaDevices?.getUserMedia) {
-        navigator.mediaDevices.getUserMedia({
-          audio: {
-            echoCancellation: true,
-            noiseSuppression: false,
-            autoGainControl: true
+      recognition.onresult = (event) => {
+        let sessionFinal = '';
+        let sessionInterim = '';
+        for (let i = 0; i < event.results.length; ++i) {
+          const res = event.results[i];
+          if (res.isFinal) {
+            sessionFinal += res[0].transcript + ' ';
+          } else {
+            sessionInterim += res[0].transcript + ' ';
           }
-        }).then(stream => {
-          if (!isListeningActiveRef.current) {
-            stream.getTracks().forEach(t => t.stop());
-            return;
+        }
+
+        const currentTurnText = (
+          turnTranscriptBufferRef.current + ' ' + sessionFinal + sessionInterim
+        ).trim();
+
+        if (currentTurnText) {
+          setLiveTranscript(currentTurnText);
+          if (isManualCaptureActiveRef.current) {
+            setManualCapturedTranscript(currentTurnText);
           }
-          micStreamRef.current = stream;
+        }
 
-          const AudioCtx = window.AudioContext || window.webkitAudioContext;
-          if (AudioCtx) {
-            const audioCtx = new AudioCtx();
-            if (audioCtx.state === 'suspended') {
-              audioCtx.resume();
-            }
-            const source = audioCtx.createMediaStreamSource(stream);
-            const analyser = audioCtx.createAnalyser();
-            analyser.fftSize = 256;
-            source.connect(analyser);
-            audioContextRef.current = audioCtx;
+        if (silenceTimerRef.current) {
+          clearTimeout(silenceTimerRef.current);
+        }
 
-            const dataArray = new Uint8Array(analyser.frequencyBinCount);
-            const updateMeter = () => {
-              if (!isListeningActiveRef.current) {
-                setMicVolumeLevel(0);
-                return;
-              }
-              analyser.getByteFrequencyData(dataArray);
-              let sum = 0;
-              for (let i = 0; i < dataArray.length; i++) sum += dataArray[i];
-              const avg = sum / dataArray.length;
-              const level = Math.min(100, Math.round((avg / 128) * 100));
-              setMicVolumeLevel(level);
-              requestAnimationFrame(updateMeter);
-            };
-            requestAnimationFrame(updateMeter);
-          }
-        }).catch(err => {
-          console.warn("Audio meter stream notice:", err);
-          if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-            showSystemNotice("⚠️ Microphone access blocked in Chrome! Please click the lock/camera icon in your address bar to allow.");
-          }
-        });
-      }
+        // In manual capture mode, user controls when the turn stops
+        if (isManualCaptureActiveRef.current) {
+          return;
+        }
 
-      showSystemNotice(`🎙️ Listening to meeting audio (${speechLocale || 'en-US'})!`);
-
-      const startSession = () => {
-        if (!isListeningActiveRef.current) return;
-        try {
-          if (recognitionRef.current) {
-            recognitionRef.current.onend = null;
-            recognitionRef.current.onerror = null;
-            recognitionRef.current.onresult = null;
-            try { recognitionRef.current.abort(); } catch (e) {}
-            recognitionRef.current = null;
-          }
-
-          const recognition = new SpeechRecognition();
-          recognition.continuous = true;
-          recognition.interimResults = true;
-          recognition.maxAlternatives = 1;
-          recognition.lang = speechLocale || (typeof navigator !== 'undefined' ? navigator.language : 'en-US') || 'en-US';
-
-          recognition.onstart = () => {
-            setIsLiveListening(true);
-          };
-
-          recognition.onresult = (event) => {
-            let sessionFinal = '';
-            let sessionInterim = '';
-            for (let i = 0; i < event.results.length; ++i) {
-              const res = event.results[i];
-              if (res.isFinal) {
-                sessionFinal += res[0].transcript + ' ';
-              } else {
-                sessionInterim += res[0].transcript + ' ';
-              }
-            }
-
-            const currentTurnText = (
-              turnTranscriptBufferRef.current + ' ' + sessionFinal + sessionInterim
-            ).trim();
-
-            if (currentTurnText) {
-              setLiveTranscript(currentTurnText);
-              if (isManualCaptureActiveRef.current) {
-                setManualCapturedTranscript(currentTurnText);
-              }
-            }
-
-            if (silenceTimerRef.current) {
-              clearTimeout(silenceTimerRef.current);
-            }
-
-            // In manual question capture mode, the user controls when the turn stops
-            if (isManualCaptureActiveRef.current) {
-              return;
-            }
-
-            // Conversational Debounce Watchdog (1500ms) for automatic listening mode
-            if (currentTurnText.length >= 6) {
-              silenceTimerRef.current = setTimeout(() => {
-                if (isListeningActiveRef.current && !isManualCaptureActiveRef.current) {
-                  const candidateToProcess = currentTurnText.trim();
-                  if (candidateToProcess.length >= 6) {
-                    if (isMeetingPromptOrQuestion(candidateToProcess) || candidateToProcess.split(/\s+/).length >= 4) {
-                      turnTranscriptBufferRef.current = '';
-                      askCustomQuestion(candidateToProcess, "Meeting Participant (Transcribed)");
-                    }
-                  }
+        // Automatic mode 1500ms conversational debounce
+        if (currentTurnText.length >= 6) {
+          silenceTimerRef.current = setTimeout(() => {
+            if (isListeningActiveRef.current && !isManualCaptureActiveRef.current) {
+              const candidateToProcess = currentTurnText.trim();
+              if (candidateToProcess.length >= 6) {
+                if (isMeetingPromptOrQuestion(candidateToProcess) || candidateToProcess.split(/\s+/).length >= 4) {
+                  turnTranscriptBufferRef.current = '';
+                  askCustomQuestion(candidateToProcess, "Meeting Participant (Transcribed)");
                 }
-              }, 1500);
+              }
             }
-          };
-
-          recognition.onerror = (event) => {
-            if (event.error === 'not-allowed') {
-              showSystemNotice("⚠️ Microphone permission denied in Chrome. Please allow microphone access in site settings.");
-              setIsLiveListening(false);
-              isListeningActiveRef.current = false;
-            } else if (event.error === 'network') {
-              showSystemNotice("⚠️ Chrome speech server timeout. Retrying...");
-            } else if (event.error !== 'no-speech') {
-              console.warn("Speech recognition notice:", event.error);
-            }
-          };
-
-          recognition.onend = () => {
-            // Cleanly restart session if still listening without creating an abort loop
-            if (isListeningActiveRef.current) {
-              if (restartTimerRef.current) clearTimeout(restartTimerRef.current);
-              restartTimerRef.current = setTimeout(() => {
-                if (isListeningActiveRef.current) {
-                  startSession();
-                }
-              }, 300);
-            }
-          };
-
-          recognition.start();
-          recognitionRef.current = recognition;
-        } catch (err) {
-          console.error("Speech recognition session start error:", err);
-          if (isListeningActiveRef.current) {
-            if (restartTimerRef.current) clearTimeout(restartTimerRef.current);
-            restartTimerRef.current = setTimeout(() => {
-              if (isListeningActiveRef.current) startSession();
-            }, 1000);
-          }
+          }, 1500);
         }
       };
 
-      startSession();
+      recognition.onerror = (event) => {
+        console.warn("Speech recognition notice:", event.error);
+        if (event.error === 'not-allowed') {
+          showSystemNotice("⚠️ Microphone permission denied in Chrome. Please allow microphone access in site settings.");
+          setIsLiveListening(false);
+          isListeningActiveRef.current = false;
+        } else if (event.error === 'network') {
+          showSystemNotice("⚠️ Chrome speech connection timeout. Reconnecting...");
+        }
+      };
+
+      recognition.onend = () => {
+        // In active listening or manual capture mode, cleanly restart after natural silence
+        if (isListeningActiveRef.current || isManualCaptureActiveRef.current) {
+          if (restartTimerRef.current) clearTimeout(restartTimerRef.current);
+          restartTimerRef.current = setTimeout(() => {
+            if (isListeningActiveRef.current || isManualCaptureActiveRef.current) {
+              startFreshSpeechRecognition();
+            }
+          }, 250);
+        }
+      };
+
+      recognition.start();
+      recognitionRef.current = recognition;
+      setIsLiveListening(true);
+      isListeningActiveRef.current = true;
+      return recognition;
+    } catch (err) {
+      console.error("Speech recognition start error:", err);
+      return null;
     }
   }, [speechLocale, askCustomQuestion, showSystemNotice]);
+
+  // Live Microphone Listening (Continuous toggle for background listening)
+  const toggleLiveListening = useCallback(async () => {
+    if (isListeningActiveRef.current) {
+      stopSpeechRecognition();
+      if (micStreamRef.current) {
+        try { micStreamRef.current.getTracks().forEach(t => t.stop()); } catch (e) {}
+        micStreamRef.current = null;
+      }
+      if (audioContextRef.current) {
+        try { audioContextRef.current.close(); } catch (e) {}
+        audioContextRef.current = null;
+      }
+      setMicVolumeLevel(0);
+      showSystemNotice("Microphone listening paused.");
+    } else {
+      startAudioMeter();
+      startFreshSpeechRecognition();
+      showSystemNotice(`🎙️ Listening to meeting audio (${speechLocale || 'en-US'})!`);
+    }
+  }, [stopSpeechRecognition, startAudioMeter, startFreshSpeechRecognition, speechLocale, showSystemNotice]);
 
   useEffect(() => {
     toggleLiveListeningRef.current = toggleLiveListening;
   }, [toggleLiveListening]);
 
   // Manual Push-to-Listen / Start-End Question Capture (Section 2)
-  // Gives user 100% control: Click 1 to start listening -> Click 2 to stop and answer ASAP!
+  // Gives candidate 100% control: Click 1 to start listening -> Click 2 to stop and answer ASAP!
   const toggleManualQuestionCapture = useCallback(async () => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
@@ -1056,7 +1049,7 @@ export function MeetingProvider({ children }) {
     }
 
     if (!isManualCaptureActiveRef.current) {
-      // 1. START LISTENING FOR QUESTION
+      // 1. START LISTENING FOR QUESTION (NEW TURN)
       isManualCaptureActiveRef.current = true;
       setIsManualCaptureActive(true);
       setManualCapturedTranscript('');
@@ -1069,15 +1062,16 @@ export function MeetingProvider({ children }) {
         silenceTimerRef.current = null;
       }
 
-      // If speech recognition isn't running, start it right now!
-      if (!isListeningActiveRef.current && toggleLiveListeningRef.current) {
-        await toggleLiveListeningRef.current();
-      }
+      // Ensure audio meter is active for visual feedback
+      startAudioMeter();
+
+      // ALWAYS launch a brand-new, healthy SpeechRecognition session for this turn!
+      startFreshSpeechRecognition();
 
       showSystemNotice("🔴 Listening for question... Speak now, then click Stop (or Space) to answer ASAP!");
       companionSync.sendActionToPhone('MANUAL_CAPTURE_STARTED');
     } else {
-      // 2. STOP LISTENING AND GET ANSWER ASAP
+      // 2. STOP LISTENING AND GET ANSWER ASAP (FINISH TURN)
       isManualCaptureActiveRef.current = false;
       setIsManualCaptureActive(false);
 
@@ -1093,8 +1087,8 @@ export function MeetingProvider({ children }) {
         ''
       ).trim();
 
-      turnTranscriptBufferRef.current = '';
-      setLiveTranscript('');
+      // Cleanly stop speech recognition so Chrome doesn't transcribe candidate's own voice while answering
+      stopSpeechRecognition();
       setManualCapturedTranscript('');
 
       if (capturedText.length >= 3) {
@@ -1105,13 +1099,13 @@ export function MeetingProvider({ children }) {
         }
         companionSync.sendActionToPhone('MANUAL_CAPTURE_FINISHED', { question: capturedText });
       } else {
-        // Fallback: If no audio was heard or captured was too short, provide a helpful prompt
+        // Fallback: If no audio was heard or capture was empty, offer quick-pick questions
         setLastEmptyCaptureNotice(true);
         showSystemNotice("⚠️ Didn't catch speech from mic. Pick a question below or type to answer immediately!");
         companionSync.sendActionToPhone('MANUAL_CAPTURE_CANCELLED');
       }
     }
-  }, [liveTranscript, manualCapturedTranscript, showSystemNotice]);
+  }, [liveTranscript, manualCapturedTranscript, startAudioMeter, startFreshSpeechRecognition, stopSpeechRecognition, showSystemNotice]);
 
   useEffect(() => {
     toggleManualQuestionCaptureRef.current = toggleManualQuestionCapture;

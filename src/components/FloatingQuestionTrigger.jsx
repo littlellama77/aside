@@ -139,7 +139,7 @@ export function FloatingQuestionTrigger() {
       <button
         type="button"
         className={`floating-trigger-minimized ${isManualCaptureActive ? 'recording' : ''}`}
-        style={{ left: `${currentPos.x}px`, top: `${currentPos.y}px` }}
+        style={{ position: 'fixed', bottom: '24px', right: '24px', left: 'auto', top: 'auto', zIndex: 999999 }}
         onClick={() => setIsMinimized(false)}
         title="Expand Question Listener"
       >
@@ -151,9 +151,22 @@ export function FloatingQuestionTrigger() {
   return (
     <div
       className={`floating-question-trigger-container ${isFollowCursorEnabled ? 'following-cursor' : 'pinned'} ${isManualCaptureActive ? 'recording-active' : 'idle'} animate-fade-in`}
-      style={{
-        transform: `translate3d(${currentPos.x}px, ${currentPos.y}px, 0)`,
-        pointerEvents: 'auto'
+      style={isFollowCursorEnabled ? {
+        position: 'fixed',
+        left: 0,
+        top: 0,
+        transform: `translate3d(${mousePos.x}px, ${mousePos.y}px, 0)`,
+        pointerEvents: 'auto',
+        zIndex: 999999
+      } : {
+        position: 'fixed',
+        bottom: '24px',
+        right: '24px',
+        top: 'auto',
+        left: 'auto',
+        transform: 'none',
+        pointerEvents: 'auto',
+        zIndex: 999999
       }}
       onMouseEnter={() => { isHoveredRef.current = true; }}
       onMouseLeave={() => { isHoveredRef.current = false; }}
@@ -161,7 +174,6 @@ export function FloatingQuestionTrigger() {
       <div
         className={`floating-trigger-card ${isManualCaptureActive ? 'card-recording' : 'card-idle'}`}
         onClick={toggleManualQuestionCapture}
-        onMouseDown={!isFollowCursorEnabled ? handleDragStart : undefined}
       >
         {/* Left Status Icon */}
         <div className="trigger-icon-area">
@@ -199,7 +211,7 @@ export function FloatingQuestionTrigger() {
         </div>
 
         {/* Hotkey Tag */}
-        <div className="trigger-hotkey-badge" title="Tap Spacebar or Alt+Q to toggle">
+        <div className="trigger-hotkey-badge" title="Tap Spacebar to toggle">
           <span>Space</span>
         </div>
 
@@ -214,19 +226,32 @@ export function FloatingQuestionTrigger() {
               if (next) {
                 setMousePos({
                   x: Math.min(window.innerWidth - 240, Math.max(20, e.clientX + 20)),
-                  y: Math.min(window.innerHeight - 80, Math.max(20, e.clientY + 20))
+                  y: Math.min(window.innerHeight - 80, Math.max(75, e.clientY + 20))
                 });
               }
               return next;
             });
           }}
-          title={isFollowCursorEnabled ? "Currently following cursor (Click to Pin in corner)" : "Currently pinned (Click to Follow cursor)"}
+          title={isFollowCursorEnabled ? "Currently following cursor (Click to Pin in bottom-right corner)" : "Currently pinned in bottom-right (Click to Follow cursor)"}
         >
           {isFollowCursorEnabled ? (
             <Pin size={13} className="text-accent" />
           ) : (
             <MousePointer size={13} className="text-accent" />
           )}
+        </button>
+
+        {/* Minimize / Close Button */}
+        <button
+          type="button"
+          className="trigger-mode-btn"
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsMinimized(true);
+          }}
+          title="Minimize to small icon in corner"
+        >
+          ✕
         </button>
       </div>
     </div>
