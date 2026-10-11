@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useMeeting } from '../context/MeetingContext';
+import { useMeeting, isMeetingPromptOrQuestion } from '../context/MeetingContext';
 import { companionSync } from '../services/companionSync';
 import { THINKING_INTRO_SENTENCES, BUY_ME_A_SECOND_PHRASES } from '../constants/mockData';
 import {
@@ -14,10 +14,19 @@ import {
   Radio,
   Mic,
   MicOff,
-  RotateCcw
+  RotateCcw,
+  Send,
+  ExternalLink,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 
-export function PhoneCompanion({ isStandalone = false }) {
+export function PhoneCompanion({
+  isStandalone = false,
+  onOpenNotes,
+  onOpenAiSettings,
+  onOpenPairing
+}) {
   const context = useMeeting();
 
   // URL parameter parsing for standalone phone mode
@@ -34,12 +43,14 @@ export function PhoneCompanion({ isStandalone = false }) {
   const [localStallPhrase, setLocalStallPhrase] = useState(null);
   const [localDisclosure, setLocalDisclosure] = useState('glance');
   const [selectedIntro, setSelectedIntro] = useState(null);
+  const [mobileCustomInput, setMobileCustomInput] = useState('');
 
-  // Local phone microphone listening state
+  // Local phone microphone listening state (Listening to laptop speakers)
   const [localIsListening, setLocalIsListening] = useState(false);
   const [localTranscript, setLocalTranscript] = useState('');
   const recognitionRef = useRef(null);
   const isListeningActiveRef = useRef(false);
+  const silenceTimerRef = useRef(null);
 
   // Initialize phone connection via companionSync
   useEffect(() => {
@@ -62,6 +73,7 @@ export function PhoneCompanion({ isStandalone = false }) {
     return () => {
       unsubStatus();
       unsubMsg();
+      if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
       if (recognitionRef.current) {
         try { recognitionRef.current.stop(); } catch {}
       }
@@ -76,24 +88,38 @@ export function PhoneCompanion({ isStandalone = false }) {
   const frozenSuggestion = remoteState ? remoteState.frozenSuggestion : context?.frozenSuggestion;
   const cheatSheet = remoteState ? remoteState.cheatSheet : context?.cheatSheet || {};
   const effectiveStall = localStallPhrase || (remoteState ? remoteState.stallingPhrase : context?.stallingPhrase);
-  
+
   // Microphone status (active if either phone local mic or laptop mic is active)
   const isRemoteListening = remoteState?.isLiveListening ?? context?.isLiveListening ?? false;
   const isMicListeningActive = localIsListening || isRemoteListening;
   const activeTranscript = localTranscript || remoteState?.liveTranscript || (context?.liveTranscript ?? '');
 
-  // Toggle Microphone Listening (controls both local phone mic and broadcasts to laptop)
+  // Process a candidate question locally or via sync
+  const handleProcessCandidateQuestion = (text, speaker = "Laptop Speaker Audio") => {
+    if (!text || text.trim().length < 5) return;
+    const clean = text.trim();
+
+    // 1. Synthesize right on phone via context
+    if (context?.askCustomQuestion) {
+      context.askCustomQuestion(clean, speaker);
+    }
+
+    // 2. Also broadcast to laptop if paired
+    companionSync.sendActionToLaptop('ASK_QUESTION', { question: clean });
+  };
+
+  // Toggle Microphone Listening (controls local phone mic & broadcasts to laptop)
   const handleToggleListening = () => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     const nextListeningState = !isMicListeningActive;
 
-    // 1. Send sync action to laptop
+    // Broadcast to laptop
     companionSync.sendActionToLaptop(nextListeningState ? 'START_LISTENING' : 'STOP_LISTENING');
     if (context?.toggleLiveListening && context.isLiveListening !== nextListeningState) {
       context.toggleLiveListening();
     }
 
-    // 2. Control phone's own local microphone if browser supports Web Speech API
+    // Browser speech recognition support
     if (!SpeechRecognition) {
       setLocalIsListening(nextListeningState);
       return;
@@ -101,6 +127,7 @@ export function PhoneCompanion({ isStandalone = false }) {
 
     if (localIsListening) {
       isListeningActiveRef.current = false;
+      if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
       if (recognitionRef.current) {
         try { recognitionRef.current.stop(); } catch {}
       }
@@ -112,11 +139,11 @@ export function PhoneCompanion({ isStandalone = false }) {
         const recognition = new SpeechRecognition();
         recognition.continuous = true;
         recognition.interimResults = true;
-        recognition.lang = 'en-US';
+        recognition.lang = context?.speechLocale || 'en-US';
 
         recognition.onstart = () => {
           setLocalIsListening(true);
-          setLocalTranscript('Listening for meeting questions...');
+          setLocalTranscript('Listening to laptop speakers...');
         };
 
         recognition.onresult = (event) => {
@@ -130,9 +157,26 @@ export function PhoneCompanion({ isStandalone = false }) {
           const spoken = (final || interim).trim();
           if (spoken) setLocalTranscript(spoken);
 
-          // If speaker finished sentence of 6+ characters, send to laptop to synthesize answer!
-          if (final.trim().length >= 6) {
-            companionSync.sendActionToLaptop('ASK_QUESTION', { question: final.trim() });
+          if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+
+          const candidate = (final.trim() || spoken).trim();
+          if (candidate.length >= 6) {
+            const isPrompt = isMeetingPromptOrQuestion(candidate);
+
+            // Immediate trigger if Chrome marked sentence final & it is a question
+            if (final.trim().length >= 6 && isPrompt) {
+              handleProcessCandidateQuestion(final.trim());
+              return;
+            }
+
+            // Silence watchdog (900ms pause after speaking a prompt)
+            silenceTimerRef.current = setTimeout(() => {
+              if (isListeningActiveRef.current && candidate.length >= 6) {
+                if (isMeetingPromptOrQuestion(candidate) || candidate.split(/\s+/).length >= 4) {
+                  handleProcessCandidateQuestion(candidate);
+                }
+              }
+            }, 900);
           }
         };
 
@@ -193,6 +237,13 @@ export function PhoneCompanion({ isStandalone = false }) {
     }
   };
 
+  const handleMobileSubmit = (e) => {
+    e.preventDefault();
+    if (!mobileCustomInput.trim()) return;
+    handleProcessCandidateQuestion(mobileCustomInput.trim(), "Mobile User");
+    setMobileCustomInput('');
+  };
+
   const isYourTurn = conversationState === 'YOUR_TURN';
   const isParticipantSpeaking = conversationState === 'OTHER_PERSON_SPEAKING';
   const isUnknown = activeQuestion?.category === 'unknown' || activeQuestion?.isUnknown;
@@ -210,7 +261,7 @@ export function PhoneCompanion({ isStandalone = false }) {
       : syncType === 'broadcast'
         ? 'Live Relay ⚡'
         : 'Live Sync 🟢'
-    : 'Connecting to Laptop...';
+    : 'Standalone Mode (Local)';
 
   // Thinking opener to display
   const activeThinkingIntro = selectedIntro || (
@@ -234,7 +285,15 @@ export function PhoneCompanion({ isStandalone = false }) {
         </div>
       </div>
 
-      {/* NEW: Microphone Listening Toggle Bar (Requested Feature) */}
+      {/* Standalone Architecture Banner */}
+      <div className="phone-standalone-banner">
+        <div className="standalone-banner-text">
+          <span className="standalone-pill">🎧 STANDALONE PHONE EARS</span>
+          <span className="standalone-sub">Listens to laptop speakers · 100% private, zero laptop software needed</span>
+        </div>
+      </div>
+
+      {/* Microphone Listening Toggle Bar */}
       <div className={`phone-mic-control-bar ${isMicListeningActive ? 'mic-bar-active' : 'mic-bar-paused'}`}>
         <div className="phone-mic-left">
           <div className={`phone-mic-icon-circle ${isMicListeningActive ? 'mic-circle-pulse' : ''}`}>
@@ -242,12 +301,12 @@ export function PhoneCompanion({ isStandalone = false }) {
           </div>
           <div className="phone-mic-text">
             <span className="phone-mic-status-label">
-              {isMicListeningActive ? "Mic Listening Active" : "Microphone Paused"}
+              {isMicListeningActive ? "Mic Listening to Laptop Speakers" : "Microphone Paused"}
             </span>
             <span className="phone-mic-sub-text">
               {isMicListeningActive
-                ? (activeTranscript || "Quietly listening for meeting questions...")
-                : "Tap switch to listen with mic"}
+                ? (activeTranscript || "Listening quietly for questions...")
+                : "Tap toggle to listen to laptop audio"}
             </span>
           </div>
         </div>
@@ -281,6 +340,25 @@ export function PhoneCompanion({ isStandalone = false }) {
         </div>
 
         <div className="phone-header-actions">
+          {/* AI Settings Modal button */}
+          <button
+            className="phone-header-action-btn"
+            onClick={onOpenAiSettings}
+            title="AI Model & OpenAI API Key"
+          >
+            <Sparkles size={14} className="text-accent" />
+          </button>
+
+          {/* Notes Drawer button */}
+          <button
+            className="phone-header-action-btn"
+            onClick={onOpenNotes}
+            title="Notes & Executive Memory Brief"
+          >
+            <FileText size={14} />
+          </button>
+
+          {/* Clear / Back button */}
           {isQuestionActive && (
             <button
               className="phone-clear-btn"
@@ -290,13 +368,6 @@ export function PhoneCompanion({ isStandalone = false }) {
               <RotateCcw size={13} />
             </button>
           )}
-          <button
-            className="phone-cheat-toggle"
-            onClick={() => setShowSheetDrawer(!showSheetDrawer)}
-            title="Executive memory brief"
-          >
-            <FileText size={15} />
-          </button>
         </div>
       </div>
 
@@ -305,7 +376,7 @@ export function PhoneCompanion({ isStandalone = false }) {
         <form className="phone-code-input-card animate-fade-in" onSubmit={handleConnectWithCode}>
           <div className="code-input-header">
             <Wifi size={13} className="text-accent" />
-            <span>Pairing Room Code:</span>
+            <span>Optional Laptop Pairing Room:</span>
           </div>
           <div className="code-input-row">
             <input
@@ -320,7 +391,7 @@ export function PhoneCompanion({ isStandalone = false }) {
             </button>
           </div>
           <span className="code-hint-text">
-            Pairs over the internet across any network (cellular or Wi-Fi).
+            Aside runs 100% standalone on this phone, or can pair with a laptop if desired.
           </span>
         </form>
       )}
@@ -340,7 +411,7 @@ export function PhoneCompanion({ isStandalone = false }) {
 
       {/* Main Glanceable Body */}
       <div className="phone-body-content">
-        {/* State 1: User is speaking on Laptop -> SUGGESTION FROZEN (Zero Regeneration) */}
+        {/* State 1: User is speaking on Laptop -> SUGGESTION FROZEN */}
         {isYourTurn && (
           <div className="phone-glance-card phone-frozen animate-fade-in">
             <div className="phone-tag-row">
@@ -405,6 +476,24 @@ export function PhoneCompanion({ isStandalone = false }) {
                 <span className="thinking-title">Thinking opener (say first):</span>
               </div>
               <p className="phone-thinking-quote">“{activeThinkingIntro}”</p>
+              
+              {/* Thinking Opener Chips */}
+              <div className="phone-thinking-chips-row">
+                {THINKING_INTRO_SENTENCES.slice(0, 4).map((intro, idx) => {
+                  const clean = intro.replace(/^[“”"']|[“”"']$/g, '');
+                  const isSel = activeThinkingIntro === clean;
+                  return (
+                    <button
+                      key={idx}
+                      type="button"
+                      className={`phone-mini-chip ${isSel ? 'mini-chip-selected' : ''}`}
+                      onClick={() => setSelectedIntro(clean)}
+                    >
+                      <span>{clean}</span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             {/* Primary Spoken Answer */}
@@ -453,7 +542,7 @@ export function PhoneCompanion({ isStandalone = false }) {
             </div>
             <h3 className="phone-idle-heading">Participant Speaking</h3>
             <p className="phone-idle-sub">
-              {activeTranscript ? `“${activeTranscript}”` : "Analyzing conversation context and anticipating questions..."}
+              {activeTranscript ? `“${activeTranscript}”` : "Analyzing conversation context from laptop speakers..."}
             </p>
           </div>
         )}
@@ -473,16 +562,30 @@ export function PhoneCompanion({ isStandalone = false }) {
                 <MicOff size={18} className="text-tertiary" />
               )}
             </div>
-            
+
             <h3 className="phone-idle-heading">
               {isMicListeningActive ? "aside · listening" : "aside · mic paused"}
             </h3>
-            
+
             <p className="phone-idle-sub">
               {isMicListeningActive
-                ? (activeTranscript ? `“${activeTranscript}”` : "Quiet standby. When a question is directed at you, your prompt appears here.")
+                ? (activeTranscript ? `“${activeTranscript}”` : "Listening to laptop speakers. When someone asks you a question, your cue appears here.")
                 : "Microphone is paused. Tap the switch above or the circle to start listening."}
             </p>
+
+            {/* Ask or Type Question Bar right on mobile */}
+            <form onSubmit={handleMobileSubmit} className="phone-search-box">
+              <input
+                type="text"
+                placeholder="Or type a question directly..."
+                value={mobileCustomInput}
+                onChange={(e) => setMobileCustomInput(e.target.value)}
+                className="phone-search-input"
+              />
+              <button type="submit" className="phone-search-btn" title="Get Answer">
+                <Send size={13} />
+              </button>
+            </form>
 
             {/* Key Strategic Pointers */}
             <div className="phone-cheat-peek-strip">
@@ -502,36 +605,12 @@ export function PhoneCompanion({ isStandalone = false }) {
                     type="button"
                     className="phone-test-chip"
                     onClick={() => {
-                      companionSync.sendActionToLaptop('SELECT_QUESTION', { questionObj: sc });
                       if (context?.selectQuestion) context.selectQuestion(sc);
+                      companionSync.sendActionToLaptop('SELECT_QUESTION', { questionObj: sc });
                     }}
                   >
                     <span>{sc.question}</span>
                   </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Notes Drawer */}
-        {showSheetDrawer && (
-          <div className="phone-sheet-slideout animate-fade-in">
-            <div className="slideout-top">
-              <span>Executive Memory Brief</span>
-              <button onClick={() => setShowSheetDrawer(false)}>×</button>
-            </div>
-            <div className="slideout-body">
-              <strong>Key strategic pointers:</strong>
-              <ul>
-                {(cheatSheet?.thingsToRemember || []).map((r, i) => (
-                  <li key={i}>{r}</li>
-                ))}
-              </ul>
-              <strong style={{ marginTop: '8px', display: 'block' }}>Verified metrics:</strong>
-              <div className="slideout-numbers">
-                {(cheatSheet?.importantNumbers || []).map((n, i) => (
-                  <span key={i} className="num-badge">{n.label}: {n.value}</span>
                 ))}
               </div>
             </div>
