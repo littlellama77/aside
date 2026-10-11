@@ -24,48 +24,63 @@ export function FloatingQuestionTrigger() {
     isGeneratingWithAi
   } = useMeeting();
 
-  const [mousePos, setMousePos] = useState({ x: 24, y: window.innerHeight - 90 });
+  const [mousePos, setMousePos] = useState(() => ({
+    x: typeof window !== 'undefined' ? Math.max(20, window.innerWidth - 270) : 100,
+    y: typeof window !== 'undefined' ? Math.max(20, window.innerHeight - 90) : 100
+  }));
+
   const [pinnedPos, setPinnedPos] = useState(() => {
     try {
       const saved = localStorage.getItem('aside_pinned_trigger_pos');
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // If saved position is stuck in top-left covering the header, place safely at bottom-right
+        if (parsed.y > 65 || parsed.x > 380) {
+          return parsed;
+        }
+      }
     } catch {}
-    return { x: window.innerWidth - 280, y: window.innerHeight - 80 };
+    return {
+      x: typeof window !== 'undefined' ? Math.max(20, window.innerWidth - 270) : 100,
+      y: typeof window !== 'undefined' ? Math.max(20, window.innerHeight - 90) : 100
+    };
   });
 
   const [isDragging, setIsDragging] = useState(false);
   const dragStartRef = useRef({ startX: 0, startY: 0, initialX: 0, initialY: 0 });
   const [isMinimized, setIsMinimized] = useState(false);
+  const isHoveredRef = useRef(false);
 
-  // 1. Follow Mouse Mode: Smoothly track mouse cursor
+  // 1. Follow Mouse Mode: Smoothly track mouse cursor, freeze when hovered so user can click!
   useEffect(() => {
     if (!isFollowCursorEnabled) return;
 
     let animationFrameId;
     const handleMouseMove = (e) => {
+      // Don't move the button while the user is hovering over it to click it!
+      if (isHoveredRef.current) return;
+
       cancelAnimationFrame(animationFrameId);
       animationFrameId = requestAnimationFrame(() => {
-        // Offset so the floating pill hovers comfortably near the cursor without blocking clicks
-        const offsetX = 22;
+        const offsetX = 20;
         const offsetY = 18;
-
-        // Viewport boundary clamping
-        const pillWidth = isManualCaptureActive ? 320 : 210;
-        const pillHeight = 46;
+        const pillWidth = isManualCaptureActive ? 310 : 210;
+        const pillHeight = 44;
 
         let targetX = e.clientX + offsetX;
         let targetY = e.clientY + offsetY;
 
+        // Viewport clamping
         if (targetX + pillWidth > window.innerWidth - 12) {
-          targetX = e.clientX - pillWidth - 10;
+          targetX = e.clientX - pillWidth - 12;
         }
         if (targetY + pillHeight > window.innerHeight - 12) {
-          targetY = e.clientY - pillHeight - 10;
+          targetY = e.clientY - pillHeight - 12;
         }
 
         setMousePos({
-          x: Math.max(10, targetX),
-          y: Math.max(10, targetY)
+          x: Math.max(10, Math.min(window.innerWidth - pillWidth - 10, targetX)),
+          y: Math.max(10, Math.min(window.innerHeight - pillHeight - 10, targetY))
         });
       });
     };
@@ -140,6 +155,8 @@ export function FloatingQuestionTrigger() {
         transform: `translate3d(${currentPos.x}px, ${currentPos.y}px, 0)`,
         pointerEvents: 'auto'
       }}
+      onMouseEnter={() => { isHoveredRef.current = true; }}
+      onMouseLeave={() => { isHoveredRef.current = false; }}
     >
       <div
         className={`floating-trigger-card ${isManualCaptureActive ? 'card-recording' : 'card-idle'}`}
@@ -192,11 +209,24 @@ export function FloatingQuestionTrigger() {
           className="trigger-mode-btn"
           onClick={(e) => {
             e.stopPropagation();
-            setIsFollowCursorEnabled(prev => !prev);
+            setIsFollowCursorEnabled(prev => {
+              const next = !prev;
+              if (next) {
+                setMousePos({
+                  x: Math.min(window.innerWidth - 240, Math.max(20, e.clientX + 20)),
+                  y: Math.min(window.innerHeight - 80, Math.max(20, e.clientY + 20))
+                });
+              }
+              return next;
+            });
           }}
-          title={isFollowCursorEnabled ? "Click to Pin in place" : "Click to Follow cursor"}
+          title={isFollowCursorEnabled ? "Currently following cursor (Click to Pin in corner)" : "Currently pinned (Click to Follow cursor)"}
         >
-          {isFollowCursorEnabled ? <Pin size={12} /> : <MousePointer size={12} />}
+          {isFollowCursorEnabled ? (
+            <Pin size={13} className="text-accent" />
+          ) : (
+            <MousePointer size={13} className="text-accent" />
+          )}
         </button>
       </div>
     </div>

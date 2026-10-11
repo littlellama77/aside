@@ -12,6 +12,7 @@ import { PairingModal } from './components/PairingModal';
 import { NotesDrawer } from './components/NotesDrawer';
 import { AiSettingsModal } from './components/AiSettingsModal';
 import { FloatingQuestionTrigger } from './components/FloatingQuestionTrigger';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import './App.css';
 
 function MainApp() {
@@ -73,8 +74,10 @@ function MainApp() {
 
 export default function App() {
   return (
-    <MeetingProvider>
-      <MainApp />
-    </MeetingProvider>
+    <ErrorBoundary>
+      <MeetingProvider>
+        <MainApp />
+      </MeetingProvider>
+    </ErrorBoundary>
   );
 }

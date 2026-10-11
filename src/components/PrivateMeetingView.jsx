@@ -124,6 +124,7 @@ export function PrivateMeetingView({ onOpenPairingModal }) {
   const isDetailedLoading = Boolean(activeQuestion?.isDetailedLoading);
 
   const isUnknown = activeQuestion?.category === 'unknown';
+  const displayedSay = quickSayText;
 
   return (
     <div className={`clean-copilot-container animate-fade-in ${isCompactMode ? 'compact-copilot-mode' : ''}`}>
@@ -427,7 +428,7 @@ export function PrivateMeetingView({ onOpenPairingModal }) {
             <div className="thinking-intro-chips">
               {THINKING_INTRO_SENTENCES.map((intro, idx) => {
                 const clean = intro.replace(/^[“”"']|[“”"']$/g, '');
-                const isSelected = selectedIntro === clean || (!selectedIntro && displayedSay === clean);
+                const isSelected = selectedIntro === clean || (!selectedIntro && quickSayText === clean);
                 return (
                   <button
                     key={idx}
