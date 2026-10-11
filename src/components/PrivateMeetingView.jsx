@@ -23,14 +23,16 @@ import {
   HelpCircle,
   Lightbulb,
   Hash,
-  Monitor
+  RotateCcw
 } from 'lucide-react';
 
 export function PrivateMeetingView({ onOpenPairingModal }) {
   const {
     meetingConfig,
     activeQuestion,
+    setActiveQuestion,
     isQuestionActive,
+    setIsQuestionActive,
     conversationState,
     frozenSuggestion,
     triggerUserSpeaking,
@@ -52,8 +54,6 @@ export function PrivateMeetingView({ onOpenPairingModal }) {
     isLiveListening,
     toggleLiveListening,
     liveTranscript,
-    isTabAudioCapturing,
-    startTabAudioCapture,
     isCompactMode,
     setIsCompactMode,
     isNotesDrawerOpen,
@@ -64,7 +64,8 @@ export function PrivateMeetingView({ onOpenPairingModal }) {
     setIsAiSettingsOpen,
     isGeneratingWithAi,
     cheatSheet,
-    demoScenarios
+    demoScenarios,
+    selectScenarioByIndex
   } = useMeeting();
 
   const [customInput, setCustomInput] = useState('');
@@ -116,30 +117,19 @@ export function PrivateMeetingView({ onOpenPairingModal }) {
             type="button"
             className={`btn-audio-listen ${isLiveListening ? 'listening-active' : ''}`}
             onClick={toggleLiveListening}
-            title={isLiveListening ? "Click to pause microphone listening" : "Start live listening for questions from your meeting speakers"}
+            title={isLiveListening ? "Microphone listening is active. Click to pause." : "Click to start live microphone listening for meeting questions."}
           >
             {isLiveListening ? (
               <>
                 <Radio size={14} className="animate-pulse text-accent" />
-                <span>Listening to Call...</span>
+                <span>● Listening Active</span>
               </>
             ) : (
               <>
                 <Mic size={14} />
-                <span>Listen with Mic</span>
+                <span>Start Mic Listening</span>
               </>
             )}
-          </button>
-
-          {/* Tab Audio Sharing (DisplayMedia API) */}
-          <button
-            type="button"
-            className={`btn-tab-audio ${isTabAudioCapturing ? 'tab-capturing' : ''}`}
-            onClick={startTabAudioCapture}
-            title="Capture meeting tab audio directly (useful if you are wearing headphones)"
-          >
-            <Monitor size={14} />
-            <span>{isTabAudioCapturing ? "Tab Audio Active" : "Capture Tab Audio"}</span>
           </button>
 
           {/* Notes & Context Drawer Button */}
@@ -223,177 +213,274 @@ export function PrivateMeetingView({ onOpenPairingModal }) {
         </div>
       )}
 
-      {/* 2. THE HERO ANSWER CARD (FRONT AND CENTER) */}
-      <div className="copilot-main-answer-card glass-panel animate-fade-in">
-        {/* Question Header */}
-        <div className="answer-card-header">
-          <div className="header-speaker-tag">
-            <span className="speaker-avatar-circle">💬</span>
-            <div>
-              <span className="speaker-name-badge">
-                {activeQuestion?.speaker || "Meeting Participant"} asked:
-              </span>
-              <h2 className="main-question-text">
-                “{activeQuestion?.question || "Why did campaign performance drop last week?"}”
-              </h2>
+      {/* 2. THE HERO ANSWER CARD OR QUIET STANDBY HUB */}
+      {!activeQuestion ? (
+        <div className="copilot-standby-card glass-panel animate-fade-in">
+          <div className="standby-radar-wrapper">
+            <div className={`standby-pulse-circle ${isLiveListening ? 'pulse-active' : 'pulse-paused'}`}>
+              {isLiveListening ? (
+                <Radio size={36} className="radar-icon text-accent animate-pulse" />
+              ) : (
+                <Mic size={36} className="radar-icon text-secondary" />
+              )}
             </div>
           </div>
 
-          <div className="header-status-indicator">
-            {isYourTurn ? (
-              <span className="turn-frozen-pill">
-                <Mic size={13} className="animate-pulse" />
-                <span>You are speaking (Frozen)</span>
+          <div className="standby-content-box">
+            <div className="standby-badge-row">
+              <span className={`standby-status-badge ${isLiveListening ? 'status-listening-live' : 'status-listening-off'}`}>
+                <span className={`standby-dot ${isLiveListening ? 'live-dot-green' : 'standby-dot-amber'}`}></span>
+                {isLiveListening ? "Active Listening Mode" : "Microphone Paused"}
               </span>
-            ) : (
-              <span className="ready-status-pill">
-                <Sparkles size={13} className="text-accent" />
-                <span>Grounded in your notes</span>
+              <span className="standby-notes-count">
+                📋 Grounded in your notes ({cheatSheet?.importantNumbers?.length || 3} metrics loaded)
               </span>
-            )}
-          </div>
-        </div>
+            </div>
 
-        {/* Primary Answer Section: WHAT TO SAY ALOUD */}
-        <div className={`answer-spoken-box ${isYourTurn ? 'spoken-box-frozen' : ''}`}>
-          <div className="spoken-box-top">
-            <span className="spoken-label">
-              {isYourTurn ? "Your Cue (Frozen during speech):" : "Say This Aloud:"}
-            </span>
+            <h2 className="standby-main-title">
+              {isLiveListening ? "Aside is quietly listening in the background..." : "Ready to listen to your meeting"}
+            </h2>
 
-            <div className="spoken-quick-actions">
+            <p className="standby-description">
+              {isLiveListening
+                ? "Aside stays completely quiet while others speak. When someone directs a question to you in Microsoft Teams, Zoom, or Google Meet, instant talking points and verified figures from your notes will appear right here."
+                : "Turn on your microphone so Aside can hear questions asked in your meeting. You can also paste or type questions below at any time."}
+            </p>
+
+            {/* Standby Actions */}
+            <div className="standby-action-bar">
               <button
                 type="button"
-                className="action-icon-pill"
-                onClick={() => handleCopy(displayedSay)}
-                title="Copy answer to clipboard"
+                className={`btn-standby-listen ${isLiveListening ? 'btn-listening-on' : 'btn-listening-start'}`}
+                onClick={toggleLiveListening}
               >
-                {copied ? <Check size={13} className="text-accent" /> : <Copy size={13} />}
-                <span>{copied ? "Copied" : "Copy"}</span>
+                {isLiveListening ? (
+                  <>
+                    <Radio size={16} className="animate-pulse" />
+                    <span>● Listening to Meeting (Click to Pause)</span>
+                  </>
+                ) : (
+                  <>
+                    <Mic size={16} />
+                    <span>Turn On Microphone Listening</span>
+                  </>
+                )}
+              </button>
+
+              <button
+                type="button"
+                className="btn-standby-demo"
+                onClick={() => selectScenarioByIndex(0)}
+                title="Preview what a live answer card looks like"
+              >
+                <Sparkles size={14} className="text-accent" />
+                <span>Test Sample Question</span>
               </button>
             </div>
-          </div>
 
-          <p className="spoken-phrase-content">
-            “{displayedSay}”
-          </p>
+            {/* Live speech feedback ticker */}
+            <div className="standby-live-hearing-bar">
+              <span className="hearing-label">Hearing Now:</span>
+              <span className="hearing-text">
+                {liveTranscript ? `“${liveTranscript}”` : isLiveListening ? "Listening quietly... waiting for a question to be asked" : "Microphone is off (click above to start)"}
+              </span>
+            </div>
 
-          {/* Turn-Taking Button: Freeze / Done Speaking */}
-          <div className="spoken-turn-controls">
-            {!isYourTurn ? (
-              <button
-                type="button"
-                className="btn-turn-start"
-                onClick={() => triggerUserSpeaking("Yeah, happy to address that. The primary driver...")}
-                title="Click when you start speaking to freeze this answer"
-              >
-                <Mic size={14} />
-                <span>I'm speaking (Freeze answer)</span>
-              </button>
-            ) : (
-              <button
-                type="button"
-                className="btn-turn-done"
-                onClick={triggerUserFinished}
-                title="Click when you finish speaking to return to listening"
-              >
-                <Check size={14} />
-                <span>Done speaking (Return to quiet listening)</span>
-              </button>
-            )}
-
-            {/* Disclosure: Short Glance vs Full Version */}
-            {!isYourTurn && (
-              <button
-                type="button"
-                className="btn-toggle-disclosure"
-                onClick={() => setDisclosureLevel(disclosureLevel === 'expanded' ? 'glance' : 'expanded')}
-              >
-                {disclosureLevel === 'expanded' ? "Show shorter answer" : "+ Full executive version"}
-              </button>
-            )}
+            {/* How Aside Hears Attendees Audio Tip */}
+            <div className="standby-audio-tip-banner">
+              <span className="tip-icon">💡</span>
+              <div className="tip-text">
+                <strong>How Aside hears other attendees:</strong> Meeting audio should play through your laptop/monitor speakers (or set meeting audio output to speakers) so your laptop microphone picks it up. You can also type or paste any question in the input bar below!
+              </div>
+            </div>
           </div>
         </div>
-
-        {/* Key Talking Points & Numbers from Notes */}
-        {activeQuestion?.glanceBullets && activeQuestion.glanceBullets.length > 0 && (
-          <div className="answer-key-points-section">
-            <span className="key-points-label">
-              <Hash size={13} /> Key Points & Metrics (from your notes):
-            </span>
-            <div className="key-points-chips">
-              {activeQuestion.glanceBullets.map((bullet, idx) => (
-                <span key={idx} className="point-chip">
-                  {bullet}
+      ) : (
+        <div className="copilot-main-answer-card glass-panel animate-fade-in">
+          {/* Question Header */}
+          <div className="answer-card-header">
+            <div className="header-speaker-tag">
+              <span className="speaker-avatar-circle">💬</span>
+              <div>
+                <span className="speaker-name-badge">
+                  {activeQuestion?.speaker || "Meeting Participant"} asked:
                 </span>
-              ))}
+                <h2 className="main-question-text">
+                  “{activeQuestion?.question}”
+                </h2>
+              </div>
+            </div>
+
+            <div className="header-status-indicator">
+              {isYourTurn ? (
+                <span className="turn-frozen-pill">
+                  <Mic size={13} className="animate-pulse" />
+                  <span>You are speaking (Frozen)</span>
+                </span>
+              ) : (
+                <span className="ready-status-pill">
+                  <Sparkles size={13} className="text-accent" />
+                  <span>Grounded in your notes</span>
+                </span>
+              )}
+
+              {/* Dismiss / Return to Standby Button */}
+              <button
+                type="button"
+                className="btn-dismiss-answer"
+                onClick={() => {
+                  setActiveQuestion(null);
+                  setIsQuestionActive(false);
+                }}
+                title="Clear this answer and return to quiet listening standby"
+              >
+                <RotateCcw size={13} />
+                <span>Back to Listening</span>
+              </button>
             </div>
           </div>
-        )}
 
-        {/* Extra Information & Strategic Deep Dive */}
-        <div className="answer-extra-info-box">
-          <div className="extra-info-header">
-            <Lightbulb size={14} className="text-accent" />
-            <strong>Extra Information & Context (If they drill deeper):</strong>
-          </div>
-          <p className="extra-info-text">
-            {activeQuestion?.supportingContext ||
-             activeQuestion?.extraInformation ||
-             "Background from your notes: Baseline demand remains healthy on Search (+12% volume lift). Tuesday's test will validate stabilization before scaling budget."}
-          </p>
-        </div>
+          {/* Primary Answer Section: WHAT TO SAY ALOUD */}
+          <div className={`answer-spoken-box ${isYourTurn ? 'spoken-box-frozen' : ''}`}>
+            <div className="spoken-box-top">
+              <span className="spoken-label">
+                {isYourTurn ? "Your Cue (Frozen during speech):" : "Say This Aloud:"}
+              </span>
 
-        {/* Stalling Phrase Display (If user clicked "I need a second") */}
-        {stallingPhrase && (
-          <div className="stalling-alert-box animate-fade-in">
-            <div className="stall-top">
-              <span className="stall-label">Say to buy thinking time:</span>
-              <button className="stall-close-btn" onClick={() => setStallingPhrase(null)}>×</button>
+              <div className="spoken-quick-actions">
+                <button
+                  type="button"
+                  className="action-icon-pill"
+                  onClick={() => handleCopy(displayedSay)}
+                  title="Copy answer to clipboard"
+                >
+                  {copied ? <Check size={13} className="text-accent" /> : <Copy size={13} />}
+                  <span>{copied ? "Copied" : "Copy"}</span>
+                </button>
+              </div>
             </div>
-            <p className="stall-text">“{stallingPhrase}”</p>
-          </div>
-        )}
 
-        {/* Safe Response Recommendation if question is unknown/not in notes */}
-        {isUnknown && (
-          <div className="safe-answer-box animate-fade-in">
-            <div className="safe-badge-tag">
-              <AlertCircle size={13} />
-              <span>Safe Answer (Preserve Credibility — Not in notes)</span>
+            <p className="spoken-phrase-content">
+              “{displayedSay || "Checking your notes for the best talking points..."}”
+            </p>
+
+            {/* Turn-Taking Button: Freeze / Done Speaking */}
+            <div className="spoken-turn-controls">
+              {!isYourTurn ? (
+                <button
+                  type="button"
+                  className="btn-turn-start"
+                  onClick={() => triggerUserSpeaking(displayedSay || "Addressing the question...")}
+                  title="Click when you start speaking to freeze this answer"
+                >
+                  <Mic size={14} />
+                  <span>I'm speaking (Freeze answer)</span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="btn-turn-done"
+                  onClick={triggerUserFinished}
+                  title="Click when you finish speaking to return to listening"
+                >
+                  <Check size={14} />
+                  <span>Done speaking (Return to quiet listening)</span>
+                </button>
+              )}
+
+              {/* Disclosure: Short Glance vs Full Version */}
+              {!isYourTurn && (
+                <button
+                  type="button"
+                  className="btn-toggle-disclosure"
+                  onClick={() => setDisclosureLevel(disclosureLevel === 'expanded' ? 'glance' : 'expanded')}
+                >
+                  {disclosureLevel === 'expanded' ? "Show shorter answer" : "+ Full executive version"}
+                </button>
+              )}
             </div>
-            <p className="safe-text">
-              “I want to be precise and verify the exact audited figure rather than give you an off-the-cuff number. Let me pull that report post-meeting and follow up directly.”
+          </div>
+
+          {/* Key Talking Points & Numbers from Notes */}
+          {activeQuestion?.glanceBullets && activeQuestion.glanceBullets.length > 0 && (
+            <div className="answer-key-points-section">
+              <span className="key-points-label">
+                <Hash size={13} /> Key Points & Metrics (from your notes):
+              </span>
+              <div className="key-points-chips">
+                {activeQuestion.glanceBullets.map((bullet, idx) => (
+                  <span key={idx} className="point-chip">
+                    {bullet}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Extra Information & Strategic Deep Dive */}
+          <div className="answer-extra-info-box">
+            <div className="extra-info-header">
+              <Lightbulb size={14} className="text-accent" />
+              <strong>Extra Information & Context (If they drill deeper):</strong>
+            </div>
+            <p className="extra-info-text">
+              {activeQuestion?.supportingContext ||
+               activeQuestion?.extraInformation ||
+               "Additional strategic context available in your notes."}
             </p>
           </div>
-        )}
 
-        {/* Emergency Rescue Dock */}
-        <div className="answer-card-rescue-bar">
-          <button
-            type="button"
-            className="btn-rescue-stall"
-            onClick={triggerBuyMeASecond}
-            title="Get a natural phrase to buy thinking time"
-          >
-            <Clock size={13} />
-            <span>I need a second</span>
-          </button>
+          {/* Stalling Phrase Display (If user clicked "I need a second") */}
+          {stallingPhrase && (
+            <div className="stalling-alert-box animate-fade-in">
+              <div className="stall-top">
+                <span className="stall-label">Say to buy thinking time:</span>
+                <button className="stall-close-btn" onClick={() => setStallingPhrase(null)}>×</button>
+              </div>
+              <p className="stall-text">“{stallingPhrase}”</p>
+            </div>
+          )}
 
-          <button
-            type="button"
-            className="btn-rescue-panic"
-            onClick={() => triggerImStuck(true)}
-            title="My mind went completely blank — rescue me"
-          >
-            <span>😭 I'm stuck</span>
-          </button>
+          {/* Safe Response Recommendation if question is unknown/not in notes */}
+          {isUnknown && (
+            <div className="safe-answer-box animate-fade-in">
+              <div className="safe-badge-tag">
+                <AlertCircle size={13} />
+                <span>Safe Answer (Preserve Credibility — Not in notes)</span>
+              </div>
+              <p className="safe-text">
+                “I want to be precise and verify the exact audited figure rather than give you an off-the-cuff number. Let me pull that report post-meeting and follow up directly.”
+              </p>
+            </div>
+          )}
 
-          <span className="quiet-guarantee-note">
-            Aside is quiet until needed · Answers freeze when you speak
-          </span>
+          {/* Emergency Rescue Dock */}
+          <div className="answer-card-rescue-bar">
+            <button
+              type="button"
+              className="btn-rescue-stall"
+              onClick={triggerBuyMeASecond}
+              title="Get a natural phrase to buy thinking time"
+            >
+              <Clock size={13} />
+              <span>I need a second</span>
+            </button>
+
+            <button
+              type="button"
+              className="btn-rescue-panic"
+              onClick={() => triggerImStuck(true)}
+              title="My mind went completely blank — rescue me"
+            >
+              <span>😭 I'm stuck</span>
+            </button>
+
+            <span className="quiet-guarantee-note">
+              Aside is quiet until needed · Answers freeze when you speak
+            </span>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* 3. ASK OR HEAR A QUESTION INPUT BAR */}
       <div className="copilot-ask-section glass-panel">

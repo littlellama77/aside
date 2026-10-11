@@ -5439,6 +5439,283 @@
   box-shadow: 0 0 0 2px rgba(223, 105, 81, 0.15);
 }
 
+/* --------------------------------------------------------------------------
+   COPILOT LIVE STANDBY HUB & HERO CARD CONTROLS
+   -------------------------------------------------------------------------- */
+.copilot-standby-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.85rem;
+  padding: 2.25rem 2.5rem;
+  border-radius: var(--radius-xl, 24px);
+  background: var(--bg-card, rgba(255, 255, 255, 0.85));
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border-subtle, rgba(220, 215, 205, 0.5));
+  box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(255, 255, 255, 0.6) inset;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  margin-bottom: 1.25rem;
+}
+
+.standby-radar-wrapper {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.standby-pulse-circle {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.standby-pulse-circle.pulse-active {
+  background: linear-gradient(135deg, rgba(223, 105, 81, 0.12) 0%, rgba(107, 154, 126, 0.15) 100%);
+  border: 1.5px solid rgba(223, 105, 81, 0.3);
+  box-shadow: 0 0 0 0 rgba(223, 105, 81, 0.4);
+  animation: standbyPulseRipple 2.4s infinite cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.standby-pulse-circle.pulse-paused {
+  background: rgba(140, 135, 125, 0.08);
+  border: 1.5px dashed var(--border-subtle, rgba(200, 195, 185, 0.5));
+}
+
+@keyframes standbyPulseRipple {
+  0% {
+    box-shadow: 0 0 0 0 rgba(223, 105, 81, 0.35);
+  }
+  70% {
+    box-shadow: 0 0 0 18px rgba(223, 105, 81, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(223, 105, 81, 0);
+  }
+}
+
+.standby-content-box {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.standby-badge-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.standby-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.status-listening-live {
+  background: rgba(107, 154, 126, 0.15);
+  color: var(--sage-main, #3e7b57);
+  border: 1px solid rgba(107, 154, 126, 0.3);
+}
+
+.status-listening-off {
+  background: rgba(220, 160, 50, 0.12);
+  color: #a46d12;
+  border: 1px solid rgba(220, 160, 50, 0.25);
+}
+
+.standby-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.standby-dot-amber {
+  background-color: #d89824;
+}
+
+.standby-notes-count {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-tertiary, #68645e);
+  padding: 0.28rem 0.65rem;
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 12px;
+}
+
+.standby-main-title {
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: var(--text-main, #242220);
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.standby-description {
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--text-secondary, #58544e);
+  margin: 0;
+  max-width: 680px;
+}
+
+.standby-action-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.35rem;
+}
+
+.btn-standby-listen {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.75rem 1.35rem;
+  border-radius: var(--radius-md, 12px);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.btn-listening-start {
+  background: linear-gradient(135deg, #df6951 0%, #d8573d 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(223, 105, 81, 0.32);
+}
+
+.btn-listening-start:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(223, 105, 81, 0.4);
+}
+
+.btn-listening-on {
+  background: rgba(107, 154, 126, 0.16);
+  color: var(--sage-main, #2b6c47);
+  border: 1px solid rgba(107, 154, 126, 0.4);
+}
+
+.btn-listening-on:hover {
+  background: rgba(107, 154, 126, 0.25);
+}
+
+.btn-standby-demo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.75rem 1.15rem;
+  border-radius: var(--radius-md, 12px);
+  background: var(--bg-subtle, rgba(0, 0, 0, 0.04));
+  border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.08));
+  color: var(--text-main, #333);
+  font-size: 0.86rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-standby-demo:hover {
+  background: rgba(223, 105, 81, 0.08);
+  border-color: rgba(223, 105, 81, 0.25);
+  color: var(--accent-primary, #df6951);
+}
+
+.standby-live-hearing-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.6rem 0.95rem;
+  border-radius: var(--radius-md, 10px);
+  background: rgba(0, 0, 0, 0.025);
+  border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.06));
+  font-size: 0.82rem;
+  margin-top: 0.2rem;
+}
+
+.hearing-label {
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.68rem;
+  letter-spacing: 0.05em;
+  color: var(--accent-primary, #df6951);
+  flex-shrink: 0;
+}
+
+.hearing-text {
+  color: var(--text-main, #333);
+  font-style: italic;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.standby-audio-tip-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md, 12px);
+  background: rgba(223, 105, 81, 0.05);
+  border: 1px solid rgba(223, 105, 81, 0.15);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--text-secondary, #555);
+}
+
+.standby-audio-tip-banner .tip-icon {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.btn-dismiss-answer {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 16px;
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.1));
+  color: var(--text-secondary, #555);
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-left: 0.4rem;
+}
+
+.btn-dismiss-answer:hover {
+  background: rgba(223, 105, 81, 0.1);
+  border-color: rgba(223, 105, 81, 0.25);
+  color: var(--accent-primary, #df6951);
+}
+
+@media (max-width: 768px) {
+  .copilot-standby-card {
+    flex-direction: column;
+    padding: 1.5rem;
+    gap: 1.25rem;
+  }
+  .standby-radar-wrapper {
+    align-self: center;
+  }
+}
+
+
 
 
 

@@ -76,10 +76,10 @@ export function MeetingProvider({ children }) {
   const [conversationHistory, setConversationHistory] = useState(INITIAL_CONVERSATION_HISTORY);
 
   // Active question & frozen suggestion (Section 4: User speech never regenerates!)
-  const [activeQuestion, setActiveQuestion] = useState(DEMO_SCENARIOS[0]);
+  const [activeQuestion, setActiveQuestion] = useState(null);
   const [activeScenarioIndex, setActiveScenarioIndex] = useState(0);
   const [frozenSuggestion, setFrozenSuggestion] = useState(null);
-  const [isQuestionActive, setIsQuestionActive] = useState(true);
+  const [isQuestionActive, setIsQuestionActive] = useState(false);
 
   // Targeting & Confidence metadata (Section 6 & 9)
   const [targetingInfo, setTargetingInfo] = useState({
@@ -158,7 +158,7 @@ export function MeetingProvider({ children }) {
   }, [speechLocale]);
 
   // Meeting Questions Feed (Chronological list of all questions & answers)
-  const [questionsFeed, setQuestionsFeed] = useState(() => DEMO_SCENARIOS.slice(0, 5));
+  const [questionsFeed, setQuestionsFeed] = useState([]);
 
   // Live notification banner (for state machine triggers & targeting alerts)
   const [systemNotice, setSystemNotice] = useState(null);
@@ -480,6 +480,7 @@ export function MeetingProvider({ children }) {
     setTimeout(() => {
       transitionToState(CONVERSATION_STATES.LISTENING, "Natural pause elapsed. Aside is quietly listening.");
       setIsQuestionActive(false);
+      setActiveQuestion(null);
     }, 1200);
   }, [transitionToState, showSystemNotice]);
 
@@ -785,6 +786,13 @@ export function MeetingProvider({ children }) {
   // Start Meeting & Wrap up
   const startMeeting = useCallback(() => {
     setCurrentScreen('meeting');
+    setActiveQuestion(null);
+    setIsQuestionActive(false);
+    companionSync.broadcastStateToPhone({ currentScreen: 'meeting', activeQuestion: null, isQuestionActive: false });
+  }, []);
+
+  const startDemo = useCallback(() => {
+    setCurrentScreen('meeting');
     selectScenarioByIndex(0);
     companionSync.broadcastStateToPhone({ currentScreen: 'meeting' });
   }, [selectScenarioByIndex]);
@@ -920,6 +928,7 @@ export function MeetingProvider({ children }) {
     wrapUpSummary: MEETING_WRAPUP_SUMMARY,
     stallingPhrases: BUY_ME_A_SECOND_PHRASES,
     startMeeting,
+    startDemo,
     wrapUpMeeting
   };
 
