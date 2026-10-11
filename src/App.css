@@ -6920,6 +6920,178 @@
   margin-top: 0.1rem;
 }
 
+/* ==========================================================================
+   MIC VOLUME LEVEL INDICATOR (TOP BAR & STANDBY RADAR)
+   ========================================================================== */
+.mic-volume-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem 0.65rem;
+  background: var(--bg-card-glass, rgba(20, 24, 33, 0.7));
+  border: 1px solid var(--border-glass, rgba(255, 255, 255, 0.15));
+  border-radius: 9999px;
+  backdrop-filter: blur(12px);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-primary, #ffffff);
+}
+
+.volume-dot {
+  font-size: 0.65rem;
+  color: var(--text-tertiary, #64748b);
+  transition: color 0.15s ease;
+}
+
+.volume-dot.dot-active {
+  color: #10b981;
+  text-shadow: 0 0 8px #10b981;
+}
+
+.volume-text {
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+  min-width: 46px;
+}
+
+.volume-meter-track {
+  width: 48px;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+
+.volume-meter-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981, #3b82f6);
+  border-radius: 999px;
+  transition: width 0.08s ease-out;
+}
+
+/* Standby Card Mic Meter Box */
+.standby-mic-meter-box {
+  background: rgba(0, 0, 0, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.standby-meter-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-secondary, #94a3b8);
+}
+
+.standby-meter-header .meter-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.standby-meter-header .meter-val-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.12);
+  padding: 0.15rem 0.5rem;
+  border-radius: 6px;
+}
+
+.standby-meter-track {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.standby-meter-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.08s ease-out, background-color 0.2s ease;
+}
+
+/* ==========================================================================
+   EMPTY CAPTURE FALLBACK CARD
+   ========================================================================== */
+.empty-capture-fallback-card {
+  background: rgba(30, 24, 18, 0.85);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-radius: 14px;
+  padding: 1rem 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.fallback-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  position: relative;
+}
+
+.fallback-header strong {
+  font-size: 0.9rem;
+  color: #f59e0b;
+}
+
+.fallback-header p {
+  font-size: 0.78rem;
+  color: var(--text-secondary, #cbd5e1);
+  margin-top: 0.2rem;
+}
+
+.btn-close-fallback {
+  margin-left: auto;
+  background: transparent;
+  border: none;
+  color: var(--text-tertiary, #94a3b8);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+}
+
+.btn-close-fallback:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.fallback-chips-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0.6rem;
+}
+
+.fallback-chip-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 0.55rem 0.75rem;
+  color: var(--text-primary, #ffffff);
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.fallback-chip-btn:hover {
+  background: rgba(223, 105, 81, 0.18);
+  border-color: var(--accent-primary, #df6951);
+  transform: translateY(-1px);
+}
+
 
 
 

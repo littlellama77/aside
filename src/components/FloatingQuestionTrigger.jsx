@@ -70,7 +70,7 @@ export function FloatingQuestionTrigger() {
         let targetX = e.clientX + offsetX;
         let targetY = e.clientY + offsetY;
 
-        // Viewport clamping
+        // Viewport clamping (keep below top header y >= 75)
         if (targetX + pillWidth > window.innerWidth - 12) {
           targetX = e.clientX - pillWidth - 12;
         }
@@ -80,7 +80,7 @@ export function FloatingQuestionTrigger() {
 
         setMousePos({
           x: Math.max(10, Math.min(window.innerWidth - pillWidth - 10, targetX)),
-          y: Math.max(10, Math.min(window.innerHeight - pillHeight - 10, targetY))
+          y: Math.max(75, Math.min(window.innerHeight - pillHeight - 10, targetY))
         });
       });
     };
@@ -112,7 +112,7 @@ export function FloatingQuestionTrigger() {
       const dy = e.clientY - dragStartRef.current.startY;
       const newPos = {
         x: Math.max(10, Math.min(window.innerWidth - 220, dragStartRef.current.initialX + dx)),
-        y: Math.max(10, Math.min(window.innerHeight - 60, dragStartRef.current.initialY + dy))
+        y: Math.max(75, Math.min(window.innerHeight - 60, dragStartRef.current.initialY + dy))
       };
       setPinnedPos(newPos);
       try {

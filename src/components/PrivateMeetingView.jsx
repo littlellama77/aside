@@ -57,6 +57,7 @@ export function PrivateMeetingView({ onOpenPairingModal }) {
     isLiveListening,
     toggleLiveListening,
     liveTranscript,
+    micVolumeLevel,
     isCompactMode,
     setIsCompactMode,
     isNotesDrawerOpen,
@@ -71,7 +72,9 @@ export function PrivateMeetingView({ onOpenPairingModal }) {
     selectScenarioByIndex,
     isManualCaptureActive,
     manualCapturedTranscript,
-    toggleManualQuestionCapture
+    toggleManualQuestionCapture,
+    lastEmptyCaptureNotice,
+    setLastEmptyCaptureNotice
   } = useMeeting();
 
   const [customInput, setCustomInput] = useState('');
@@ -187,6 +190,17 @@ export function PrivateMeetingView({ onOpenPairingModal }) {
               </>
             )}
           </button>
+
+          {/* Live Mic Volume Level Meter Pill */}
+          {isLiveListening && (
+            <div className="mic-volume-indicator" title={`Live microphone input: ${micVolumeLevel}%`}>
+              <span className={`volume-dot ${micVolumeLevel > 5 ? 'dot-active pulse-green' : ''}`}>●</span>
+              <span className="volume-text">MIC {micVolumeLevel > 0 ? `${micVolumeLevel}%` : 'READY'}</span>
+              <div className="volume-meter-track">
+                <div className="volume-meter-fill" style={{ width: `${Math.max(8, micVolumeLevel)}%` }} />
+              </div>
+            </div>
+          )}
 
           {/* Notes & Context Drawer Button */}
           <button
@@ -338,7 +352,15 @@ export function PrivateMeetingView({ onOpenPairingModal }) {
             <div className="standby-live-hearing-bar">
               <span className="hearing-label">Hearing Now:</span>
               <span className="hearing-text">
-                {liveTranscript ? `“${liveTranscript}”` : isLiveListening ? "Listening quietly... waiting for a question to be asked" : "Microphone is off (click above to start)"}
+                {liveTranscript ? (
+                  `“${liveTranscript}”`
+                ) : micVolumeLevel > 6 ? (
+                  <span className="text-accent font-semibold">🎙️ Voice detected ({micVolumeLevel}%) — speech recognition is listening...</span>
+                ) : isLiveListening ? (
+                  "Listening quietly... waiting for a question to be asked"
+                ) : (
+                  "Microphone is off (click above to start)"
+                )}
               </span>
               {liveTranscript && (
                 <button
@@ -352,6 +374,93 @@ export function PrivateMeetingView({ onOpenPairingModal }) {
                 </button>
               )}
             </div>
+
+            {/* Standby Live Mic Meter */}
+            {isLiveListening && (
+              <div className="standby-mic-meter-box">
+                <div className="standby-meter-header">
+                  <span className="meter-label">
+                    <Mic size={13} className={micVolumeLevel > 6 ? "text-accent animate-pulse" : "text-secondary"} />
+                    <span>Microphone Input Level:</span>
+                  </span>
+                  <span className="meter-val-badge">
+                    {micVolumeLevel > 0 ? `${micVolumeLevel}%` : 'Ready'}
+                  </span>
+                </div>
+                <div className="standby-meter-track">
+                  <div
+                    className="standby-meter-fill"
+                    style={{
+                      width: `${Math.max(4, micVolumeLevel)}%`,
+                      backgroundColor: micVolumeLevel > 15 ? '#10b981' : micVolumeLevel > 5 ? '#eab308' : 'rgba(255,255,255,0.2)'
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Empty Speech Capture Fallback Card (Shows if Space/Stop was clicked but mic didn't catch speech) */}
+            {lastEmptyCaptureNotice && (
+              <div className="empty-capture-fallback-card glass-panel animate-fade-in">
+                <div className="fallback-header">
+                  <AlertCircle size={18} className="text-amber" />
+                  <div>
+                    <strong>Didn't catch audio from microphone?</strong>
+                    <p>Select what was asked below or type it to generate your talking points immediately:</p>
+                  </div>
+                  <button
+                    type="button"
+                    className="btn-close-fallback"
+                    onClick={() => setLastEmptyCaptureNotice(false)}
+                    title="Dismiss"
+                  >
+                    ✕
+                  </button>
+                </div>
+                <div className="fallback-chips-grid">
+                  <button
+                    type="button"
+                    className="fallback-chip-btn"
+                    onClick={() => {
+                      setLastEmptyCaptureNotice(false);
+                      askCustomQuestion("Can you walk me through your background and why you are interested in Crealytics?", "Interviewer");
+                    }}
+                  >
+                    💬 Walk me through your background & why Crealytics
+                  </button>
+                  <button
+                    type="button"
+                    className="fallback-chip-btn"
+                    onClick={() => {
+                      setLastEmptyCaptureNotice(false);
+                      askCustomQuestion("How do you handle underperforming campaigns or tight client ROAS targets?", "Interviewer");
+                    }}
+                  >
+                    💬 Optimizing ROAS & underperforming campaigns
+                  </button>
+                  <button
+                    type="button"
+                    className="fallback-chip-btn"
+                    onClick={() => {
+                      setLastEmptyCaptureNotice(false);
+                      askCustomQuestion("What is your experience with Retail Media Networks and Amazon/Walmart sponsored ads?", "Interviewer");
+                    }}
+                  >
+                    💬 Retail Media & Sponsored Ads expertise
+                  </button>
+                  <button
+                    type="button"
+                    className="fallback-chip-btn"
+                    onClick={() => {
+                      setLastEmptyCaptureNotice(false);
+                      askCustomQuestion("Tell me about a time you handled conflict with a colleague or stakeholder.", "Interviewer");
+                    }}
+                  >
+                    💬 Handling conflict with colleagues / stakeholders
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* How Aside Hears Attendees Audio Tip */}
             <div className="standby-audio-tip-banner">

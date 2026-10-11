@@ -150,6 +150,11 @@ export function MeetingProvider({ children }) {
   const lastTriggeredTextRef = useRef('');
   const lastTriggeredTimeRef = useRef(0);
   const turnTranscriptBufferRef = useRef('');
+  const micStreamRef = useRef(null);
+  const audioContextRef = useRef(null);
+  const restartTimerRef = useRef(null);
+  const [micVolumeLevel, setMicVolumeLevel] = useState(0);
+  const [lastEmptyCaptureNotice, setLastEmptyCaptureNotice] = useState(false);
 
   // Manual Question Capture (Click to Start / Click to Stop & Answer ASAP)
   // Perfect for interruptions, multi-sentence questions, and avoiding premature AI cutoffs
@@ -157,7 +162,7 @@ export function MeetingProvider({ children }) {
   const isManualCaptureActiveRef = useRef(false);
   const [manualCapturedTranscript, setManualCapturedTranscript] = useState('');
   const [isFollowCursorEnabled, setIsFollowCursorEnabled] = useState(() => {
-    return localStorage.getItem('aside_follow_cursor') !== 'false'; // default true
+    return localStorage.getItem('aside_follow_cursor') === 'true'; // default false (docked safely in corner)
   });
 
   useEffect(() => {
@@ -655,6 +660,7 @@ export function MeetingProvider({ children }) {
 
     setActiveQuestion(initialQ);
     setIsQuestionActive(true);
+    setLastEmptyCaptureNotice(false);
     setFrozenSuggestion(null);
     transitionToState(CONVERSATION_STATES.QUESTION_CONFIRMED, `Question detected from ${speakerName}`);
     triggerQuestionDetected(initialQ);
@@ -817,8 +823,8 @@ export function MeetingProvider({ children }) {
     selectQuestionRef.current = selectQuestion;
   }, [selectQuestion]);
 
-  // Live Microphone Listening (Web Speech API for Zoom / Teams / GMeet)
-  const toggleLiveListening = useCallback(() => {
+  // Live Microphone Listening (Web Speech API for Zoom / Teams / GMeet + getUserMedia)
+  const toggleLiveListening = useCallback(async () => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
       setSpeechSupport(false);
@@ -826,30 +832,112 @@ export function MeetingProvider({ children }) {
       return;
     }
 
-    if (isLiveListening) {
+    if (isListeningActiveRef.current) {
+      // 1. TURN OFF
       if (silenceTimerRef.current) {
         clearTimeout(silenceTimerRef.current);
+        silenceTimerRef.current = null;
+      }
+      if (restartTimerRef.current) {
+        clearTimeout(restartTimerRef.current);
+        restartTimerRef.current = null;
       }
       isListeningActiveRef.current = false;
       turnTranscriptBufferRef.current = '';
+
       if (recognitionRef.current) {
+        recognitionRef.current.onend = null;
+        recognitionRef.current.onerror = null;
+        recognitionRef.current.onresult = null;
         try { recognitionRef.current.abort(); } catch (e) {}
         recognitionRef.current = null;
       }
+
+      // Stop & clean up hardware audio stream and analyser
+      if (micStreamRef.current) {
+        try {
+          micStreamRef.current.getTracks().forEach(track => track.stop());
+        } catch (e) {}
+        micStreamRef.current = null;
+      }
+      if (audioContextRef.current) {
+        try {
+          audioContextRef.current.close();
+        } catch (e) {}
+        audioContextRef.current = null;
+      }
+
       setIsLiveListening(false);
       setLiveTranscript('');
+      setMicVolumeLevel(0);
       showSystemNotice("Microphone listening paused.");
     } else {
+      // 2. TURN ON
       isListeningActiveRef.current = true;
       turnTranscriptBufferRef.current = '';
       setIsLiveListening(true);
       setLiveTranscript('');
-      showSystemNotice(`🎙️ Listening to meeting audio (${speechLocale})!`);
+
+      // Background Audio Visualizer (non-blocking so SpeechRecognition starts immediately)
+      if (navigator.mediaDevices?.getUserMedia) {
+        navigator.mediaDevices.getUserMedia({
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: false,
+            autoGainControl: true
+          }
+        }).then(stream => {
+          if (!isListeningActiveRef.current) {
+            stream.getTracks().forEach(t => t.stop());
+            return;
+          }
+          micStreamRef.current = stream;
+
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) {
+            const audioCtx = new AudioCtx();
+            if (audioCtx.state === 'suspended') {
+              audioCtx.resume();
+            }
+            const source = audioCtx.createMediaStreamSource(stream);
+            const analyser = audioCtx.createAnalyser();
+            analyser.fftSize = 256;
+            source.connect(analyser);
+            audioContextRef.current = audioCtx;
+
+            const dataArray = new Uint8Array(analyser.frequencyBinCount);
+            const updateMeter = () => {
+              if (!isListeningActiveRef.current) {
+                setMicVolumeLevel(0);
+                return;
+              }
+              analyser.getByteFrequencyData(dataArray);
+              let sum = 0;
+              for (let i = 0; i < dataArray.length; i++) sum += dataArray[i];
+              const avg = sum / dataArray.length;
+              const level = Math.min(100, Math.round((avg / 128) * 100));
+              setMicVolumeLevel(level);
+              requestAnimationFrame(updateMeter);
+            };
+            requestAnimationFrame(updateMeter);
+          }
+        }).catch(err => {
+          console.warn("Audio meter stream notice:", err);
+          if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+            showSystemNotice("⚠️ Microphone access blocked in Chrome! Please click the lock/camera icon in your address bar to allow.");
+          }
+        });
+      }
+
+      showSystemNotice(`🎙️ Listening to meeting audio (${speechLocale || 'en-US'})!`);
 
       const startSession = () => {
         if (!isListeningActiveRef.current) return;
         try {
           if (recognitionRef.current) {
+            recognitionRef.current.onend = null;
+            recognitionRef.current.onerror = null;
+            recognitionRef.current.onresult = null;
             try { recognitionRef.current.abort(); } catch (e) {}
             recognitionRef.current = null;
           }
@@ -858,33 +946,26 @@ export function MeetingProvider({ children }) {
           recognition.continuous = true;
           recognition.interimResults = true;
           recognition.maxAlternatives = 1;
-          recognition.lang = speechLocale || 'en-US';
+          recognition.lang = speechLocale || (typeof navigator !== 'undefined' ? navigator.language : 'en-US') || 'en-US';
 
           recognition.onstart = () => {
             setIsLiveListening(true);
           };
 
           recognition.onresult = (event) => {
-            let interim = '';
-            let newFinal = '';
-            for (let i = event.resultIndex; i < event.results.length; ++i) {
-              const transcript = event.results[i][0].transcript;
-              if (event.results[i].isFinal) {
-                newFinal += transcript;
+            let sessionFinal = '';
+            let sessionInterim = '';
+            for (let i = 0; i < event.results.length; ++i) {
+              const res = event.results[i];
+              if (res.isFinal) {
+                sessionFinal += res[0].transcript + ' ';
               } else {
-                interim += transcript;
+                sessionInterim += res[0].transcript + ' ';
               }
             }
 
-            if (newFinal.trim()) {
-              turnTranscriptBufferRef.current = (
-                turnTranscriptBufferRef.current + ' ' + newFinal.trim()
-              ).trim();
-            }
-
-            // The full accumulated speech turn across all sentences so far + current live interim
             const currentTurnText = (
-              turnTranscriptBufferRef.current + (interim ? ' ' + interim.trim() : '')
+              turnTranscriptBufferRef.current + ' ' + sessionFinal + sessionInterim
             ).trim();
 
             if (currentTurnText) {
@@ -898,23 +979,16 @@ export function MeetingProvider({ children }) {
               clearTimeout(silenceTimerRef.current);
             }
 
-            // CRITICAL: In manual question capture mode, NEVER auto-trigger!
-            // The user decides when the question ends by clicking or pressing Space.
+            // In manual question capture mode, the user controls when the turn stops
             if (isManualCaptureActiveRef.current) {
               return;
             }
 
-            // Conversational Debounce Watchdog (1500ms):
-            // Natural human conversational pauses and mid-sentence breaths are 400-1000ms.
-            // Never trigger prematurely on intermediate clauses or preambles!
-            // Wait for a 1500ms pause to ensure the speaker has genuinely yielded the floor.
+            // Conversational Debounce Watchdog (1500ms) for automatic listening mode
             if (currentTurnText.length >= 6) {
               silenceTimerRef.current = setTimeout(() => {
                 if (isListeningActiveRef.current && !isManualCaptureActiveRef.current) {
-                  const candidateToProcess = (
-                    turnTranscriptBufferRef.current || currentTurnText
-                  ).trim();
-
+                  const candidateToProcess = currentTurnText.trim();
                   if (candidateToProcess.length >= 6) {
                     if (isMeetingPromptOrQuestion(candidateToProcess) || candidateToProcess.split(/\s+/).length >= 4) {
                       turnTranscriptBufferRef.current = '';
@@ -928,24 +1002,25 @@ export function MeetingProvider({ children }) {
 
           recognition.onerror = (event) => {
             if (event.error === 'not-allowed') {
-              showSystemNotice("Microphone permission denied. Enable microphone in browser settings to transcribe meeting audio.");
+              showSystemNotice("⚠️ Microphone permission denied in Chrome. Please allow microphone access in site settings.");
               setIsLiveListening(false);
               isListeningActiveRef.current = false;
-            } else if (event.error === 'no-speech') {
-              // Normal Chrome timeout after silence; onend will recreate a fresh session
-            } else {
+            } else if (event.error === 'network') {
+              showSystemNotice("⚠️ Chrome speech server timeout. Retrying...");
+            } else if (event.error !== 'no-speech') {
               console.warn("Speech recognition notice:", event.error);
             }
           };
 
           recognition.onend = () => {
-            // Chrome terminates after periods of silence. Always create a FRESH instance on restart!
+            // Cleanly restart session if still listening without creating an abort loop
             if (isListeningActiveRef.current) {
-              setTimeout(() => {
+              if (restartTimerRef.current) clearTimeout(restartTimerRef.current);
+              restartTimerRef.current = setTimeout(() => {
                 if (isListeningActiveRef.current) {
                   startSession();
                 }
-              }, 250);
+              }, 300);
             }
           };
 
@@ -954,7 +1029,8 @@ export function MeetingProvider({ children }) {
         } catch (err) {
           console.error("Speech recognition session start error:", err);
           if (isListeningActiveRef.current) {
-            setTimeout(() => {
+            if (restartTimerRef.current) clearTimeout(restartTimerRef.current);
+            restartTimerRef.current = setTimeout(() => {
               if (isListeningActiveRef.current) startSession();
             }, 1000);
           }
@@ -963,7 +1039,7 @@ export function MeetingProvider({ children }) {
 
       startSession();
     }
-  }, [isLiveListening, speechLocale, askCustomQuestion, showSystemNotice]);
+  }, [speechLocale, askCustomQuestion, showSystemNotice]);
 
   useEffect(() => {
     toggleLiveListeningRef.current = toggleLiveListening;
@@ -971,7 +1047,7 @@ export function MeetingProvider({ children }) {
 
   // Manual Push-to-Listen / Start-End Question Capture (Section 2)
   // Gives user 100% control: Click 1 to start listening -> Click 2 to stop and answer ASAP!
-  const toggleManualQuestionCapture = useCallback(() => {
+  const toggleManualQuestionCapture = useCallback(async () => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
       setSpeechSupport(false);
@@ -986,18 +1062,19 @@ export function MeetingProvider({ children }) {
       setManualCapturedTranscript('');
       turnTranscriptBufferRef.current = '';
       setLiveTranscript('');
+      setLastEmptyCaptureNotice(false);
 
       if (silenceTimerRef.current) {
         clearTimeout(silenceTimerRef.current);
         silenceTimerRef.current = null;
       }
 
-      // If speech recognition isn't running, start it
+      // If speech recognition isn't running, start it right now!
       if (!isListeningActiveRef.current && toggleLiveListeningRef.current) {
-        toggleLiveListeningRef.current();
+        await toggleLiveListeningRef.current();
       }
 
-      showSystemNotice("🔴 Listening for question... Click again (or Space) to stop & get answer ASAP!");
+      showSystemNotice("🔴 Listening for question... Speak now, then click Stop (or Space) to answer ASAP!");
       companionSync.sendActionToPhone('MANUAL_CAPTURE_STARTED');
     } else {
       // 2. STOP LISTENING AND GET ANSWER ASAP
@@ -1010,9 +1087,9 @@ export function MeetingProvider({ children }) {
       }
 
       const capturedText = (
+        manualCapturedTranscript ||
         turnTranscriptBufferRef.current ||
         liveTranscript ||
-        manualCapturedTranscript ||
         ''
       ).trim();
 
@@ -1021,13 +1098,16 @@ export function MeetingProvider({ children }) {
       setManualCapturedTranscript('');
 
       if (capturedText.length >= 3) {
+        setLastEmptyCaptureNotice(false);
         showSystemNotice("⚡ Question captured! Synthesizing answer ASAP...");
         if (askCustomQuestionRef.current) {
           askCustomQuestionRef.current(capturedText, "Interviewer (Captured)");
         }
         companionSync.sendActionToPhone('MANUAL_CAPTURE_FINISHED', { question: capturedText });
       } else {
-        showSystemNotice("⚠️ Didn't catch any speech. Click to try again or click any suggested question!");
+        // Fallback: If no audio was heard or captured was too short, provide a helpful prompt
+        setLastEmptyCaptureNotice(true);
+        showSystemNotice("⚠️ Didn't catch speech from mic. Pick a question below or type to answer immediately!");
         companionSync.sendActionToPhone('MANUAL_CAPTURE_CANCELLED');
       }
     }
@@ -1176,6 +1256,7 @@ export function MeetingProvider({ children }) {
     toggleLiveListening,
     liveTranscript,
     speechSupport,
+    micVolumeLevel,
     isTabAudioCapturing,
     startTabAudioCapture,
     isCompactMode,
@@ -1188,6 +1269,8 @@ export function MeetingProvider({ children }) {
     isManualCaptureActive,
     manualCapturedTranscript,
     toggleManualQuestionCapture,
+    lastEmptyCaptureNotice,
+    setLastEmptyCaptureNotice,
     isFollowCursorEnabled,
     setIsFollowCursorEnabled,
 
