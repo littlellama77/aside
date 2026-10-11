@@ -147,6 +147,19 @@ export function MeetingProvider({ children }) {
   const lastTriggeredTimeRef = useRef(0);
   const turnTranscriptBufferRef = useRef('');
 
+  // Manual Question Capture (Click to Start / Click to Stop & Answer ASAP)
+  // Perfect for interruptions, multi-sentence questions, and avoiding premature AI cutoffs
+  const [isManualCaptureActive, setIsManualCaptureActive] = useState(false);
+  const isManualCaptureActiveRef = useRef(false);
+  const [manualCapturedTranscript, setManualCapturedTranscript] = useState('');
+  const [isFollowCursorEnabled, setIsFollowCursorEnabled] = useState(() => {
+    return localStorage.getItem('aside_follow_cursor') !== 'false'; // default true
+  });
+
+  useEffect(() => {
+    localStorage.setItem('aside_follow_cursor', String(isFollowCursorEnabled));
+  }, [isFollowCursorEnabled]);
+
   // Tab Audio Capture (DisplayMedia API)
   const [isTabAudioCapturing, setIsTabAudioCapturing] = useState(false);
   const tabStreamRef = useRef(null);
@@ -196,6 +209,7 @@ export function MeetingProvider({ children }) {
   const toggleLiveListeningRef = useRef(null);
   const askCustomQuestionRef = useRef(null);
   const selectQuestionRef = useRef(null);
+  const toggleManualQuestionCaptureRef = useRef(null);
 
   useEffect(() => {
     if (speechLocale) {
@@ -228,9 +242,23 @@ export function MeetingProvider({ children }) {
     setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
   };
 
-  // Keyboard shortcut listener: Alt+A or Alt+B to toggle mini assistant
+  // Keyboard shortcuts:
+  // 1. Spacebar (when not typing in an input/textarea) or Alt+Q / Ctrl+Q: Toggle manual question capture!
+  // 2. Alt+A or Alt+B: Toggle mini assistant
   useEffect(() => {
     const handleKeyDown = (e) => {
+      const activeTag = document.activeElement?.tagName?.toLowerCase();
+      const isInputFocused = activeTag === 'input' || activeTag === 'textarea' || document.activeElement?.isContentEditable;
+
+      // Spacebar or Alt+Q to start/stop question listening
+      if ((e.key === ' ' && !isInputFocused) || ((e.altKey || e.ctrlKey) && (e.key === 'q' || e.key === 'Q'))) {
+        e.preventDefault();
+        if (toggleManualQuestionCaptureRef.current) {
+          toggleManualQuestionCaptureRef.current();
+        }
+        return;
+      }
+
       if ((e.altKey || e.ctrlKey) && (e.key === 'a' || e.key === 'A' || e.key === 'b' || e.key === 'B')) {
         e.preventDefault();
         setIsMiniWindowHidden(prev => !prev);
@@ -270,6 +298,8 @@ export function MeetingProvider({ children }) {
           showSystemNotice("📱 Phone Companion paired live over the cloud");
         } else if (msg.action === 'TOGGLE_LISTENING') {
           if (toggleLiveListeningRef.current) toggleLiveListeningRef.current();
+        } else if (msg.action === 'TOGGLE_MANUAL_CAPTURE') {
+          if (toggleManualQuestionCaptureRef.current) toggleManualQuestionCaptureRef.current();
         } else if (msg.action === 'START_LISTENING') {
           if (!isLiveListening && toggleLiveListeningRef.current) toggleLiveListeningRef.current();
         } else if (msg.action === 'STOP_LISTENING') {
@@ -308,6 +338,8 @@ export function MeetingProvider({ children }) {
       cheatSheet,
       isLiveListening,
       liveTranscript,
+      isManualCaptureActive,
+      manualCapturedTranscript,
       timestamp: Date.now()
     });
   }, [
@@ -321,7 +353,9 @@ export function MeetingProvider({ children }) {
     targetingInfo,
     cheatSheet,
     isLiveListening,
-    liveTranscript
+    liveTranscript,
+    isManualCaptureActive,
+    manualCapturedTranscript
   ]);
 
   const sendTestPingToPhone = useCallback(() => {
@@ -835,10 +869,19 @@ export function MeetingProvider({ children }) {
 
             if (currentTurnText) {
               setLiveTranscript(currentTurnText);
+              if (isManualCaptureActiveRef.current) {
+                setManualCapturedTranscript(currentTurnText);
+              }
             }
 
             if (silenceTimerRef.current) {
               clearTimeout(silenceTimerRef.current);
+            }
+
+            // CRITICAL: In manual question capture mode, NEVER auto-trigger!
+            // The user decides when the question ends by clicking or pressing Space.
+            if (isManualCaptureActiveRef.current) {
+              return;
             }
 
             // Conversational Debounce Watchdog (1500ms):
@@ -847,7 +890,7 @@ export function MeetingProvider({ children }) {
             // Wait for a 1500ms pause to ensure the speaker has genuinely yielded the floor.
             if (currentTurnText.length >= 6) {
               silenceTimerRef.current = setTimeout(() => {
-                if (isListeningActiveRef.current) {
+                if (isListeningActiveRef.current && !isManualCaptureActiveRef.current) {
                   const candidateToProcess = (
                     turnTranscriptBufferRef.current || currentTurnText
                   ).trim();
@@ -905,6 +948,74 @@ export function MeetingProvider({ children }) {
   useEffect(() => {
     toggleLiveListeningRef.current = toggleLiveListening;
   }, [toggleLiveListening]);
+
+  // Manual Push-to-Listen / Start-End Question Capture (Section 2)
+  // Gives user 100% control: Click 1 to start listening -> Click 2 to stop and answer ASAP!
+  const toggleManualQuestionCapture = useCallback(() => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      setSpeechSupport(false);
+      showSystemNotice("Speech recognition isn't supported in this browser. Please use Chrome/Edge or type your question below.");
+      return;
+    }
+
+    if (!isManualCaptureActiveRef.current) {
+      // 1. START LISTENING FOR QUESTION
+      isManualCaptureActiveRef.current = true;
+      setIsManualCaptureActive(true);
+      setManualCapturedTranscript('');
+      turnTranscriptBufferRef.current = '';
+      setLiveTranscript('');
+
+      if (silenceTimerRef.current) {
+        clearTimeout(silenceTimerRef.current);
+        silenceTimerRef.current = null;
+      }
+
+      // If speech recognition isn't running, start it
+      if (!isListeningActiveRef.current && toggleLiveListeningRef.current) {
+        toggleLiveListeningRef.current();
+      }
+
+      showSystemNotice("🔴 Listening for question... Click again (or Space) to stop & get answer ASAP!");
+      companionSync.sendActionToPhone('MANUAL_CAPTURE_STARTED');
+    } else {
+      // 2. STOP LISTENING AND GET ANSWER ASAP
+      isManualCaptureActiveRef.current = false;
+      setIsManualCaptureActive(false);
+
+      if (silenceTimerRef.current) {
+        clearTimeout(silenceTimerRef.current);
+        silenceTimerRef.current = null;
+      }
+
+      const capturedText = (
+        turnTranscriptBufferRef.current ||
+        liveTranscript ||
+        manualCapturedTranscript ||
+        ''
+      ).trim();
+
+      turnTranscriptBufferRef.current = '';
+      setLiveTranscript('');
+      setManualCapturedTranscript('');
+
+      if (capturedText.length >= 3) {
+        showSystemNotice("⚡ Question captured! Synthesizing answer ASAP...");
+        if (askCustomQuestionRef.current) {
+          askCustomQuestionRef.current(capturedText, "Interviewer (Captured)");
+        }
+        companionSync.sendActionToPhone('MANUAL_CAPTURE_FINISHED', { question: capturedText });
+      } else {
+        showSystemNotice("⚠️ Didn't catch any speech. Click to try again or click any suggested question!");
+        companionSync.sendActionToPhone('MANUAL_CAPTURE_CANCELLED');
+      }
+    }
+  }, [liveTranscript, manualCapturedTranscript, showSystemNotice]);
+
+  useEffect(() => {
+    toggleManualQuestionCaptureRef.current = toggleManualQuestionCapture;
+  }, [toggleManualQuestionCapture]);
 
   // Tab Audio Capture (DisplayMedia API)
   const startTabAudioCapture = useCallback(async () => {
@@ -1052,6 +1163,13 @@ export function MeetingProvider({ children }) {
     isNotesDrawerOpen,
     setIsNotesDrawerOpen,
     questionsFeed,
+
+    // MANUAL QUESTION CAPTURE (Click to Start / Click to Stop & Answer ASAP)
+    isManualCaptureActive,
+    manualCapturedTranscript,
+    toggleManualQuestionCapture,
+    isFollowCursorEnabled,
+    setIsFollowCursorEnabled,
 
     // OPENAI GPT REAL-TIME ENGINE
     openaiApiKey,

@@ -18,7 +18,9 @@ import {
   Send,
   ExternalLink,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Square,
+  Zap
 } from 'lucide-react';
 
 export function PhoneCompanion({
@@ -89,6 +91,17 @@ export function PhoneCompanion({
   const frozenSuggestion = remoteState ? remoteState.frozenSuggestion : context?.frozenSuggestion;
   const cheatSheet = remoteState ? remoteState.cheatSheet : context?.cheatSheet || {};
   const effectiveStall = localStallPhrase || (remoteState ? remoteState.stallingPhrase : context?.stallingPhrase);
+
+  // Manual Question Capture State & Handler
+  const isManualCaptureActive = remoteState?.isManualCaptureActive ?? context?.isManualCaptureActive ?? false;
+  const manualCapturedTranscript = remoteState?.manualCapturedTranscript ?? context?.manualCapturedTranscript ?? '';
+
+  const handleToggleManualCapture = () => {
+    companionSync.sendActionToLaptop('TOGGLE_MANUAL_CAPTURE');
+    if (context?.toggleManualQuestionCapture) {
+      context.toggleManualQuestionCapture();
+    }
+  };
 
   // Microphone status (active if either phone local mic or laptop mic is active)
   const isRemoteListening = remoteState?.isLiveListening ?? context?.isLiveListening ?? false;
@@ -354,6 +367,35 @@ export function PhoneCompanion({
           <div className="toggle-thumb">
             {isMicListeningActive ? <Mic size={12} className="thumb-icon-on" /> : <MicOff size={12} className="thumb-icon-off" />}
           </div>
+        </button>
+      </div>
+
+      {/* Instant Start / Stop Question Button for Phone (Direct Control) */}
+      <div className="phone-manual-capture-container">
+        <button
+          type="button"
+          className={`phone-instant-capture-btn ${isManualCaptureActive ? 'recording-active' : ''}`}
+          onClick={handleToggleManualCapture}
+        >
+          {isManualCaptureActive ? (
+            <>
+              <Square size={15} className="fill-white" />
+              <div className="btn-capture-text">
+                <span className="btn-capture-main">Stop & Answer ASAP ⚡</span>
+                <span className="btn-capture-sub">
+                  {manualCapturedTranscript ? `"${manualCapturedTranscript.slice(-30)}..."` : "Listening to interviewer..."}
+                </span>
+              </div>
+            </>
+          ) : (
+            <>
+              <Mic size={15} />
+              <div className="btn-capture-text">
+                <span className="btn-capture-main">Tap to Listen for Question</span>
+                <span className="btn-capture-sub">Tap when question starts, tap again when done</span>
+              </div>
+            </>
+          )}
         </button>
       </div>
 

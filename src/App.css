@@ -6266,6 +6266,321 @@
   }
 }
 
+/* ==========================================================================
+   FLOATING QUESTION TRIGGER (Cursor Follower & Manual Instant Answer)
+   ========================================================================== */
+.floating-question-trigger-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 999999;
+  pointer-events: none;
+  will-change: transform;
+  transition: transform 0.04s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.floating-question-trigger-container.pinned {
+  transition: none;
+}
+
+.floating-trigger-card {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: 9999px;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35), 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Idle State */
+.floating-trigger-card.card-idle {
+  background: var(--bg-card-glass, rgba(20, 24, 33, 0.88));
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid var(--border-glass, rgba(255, 255, 255, 0.18));
+  color: var(--text-primary, #ffffff);
+}
+
+.floating-trigger-card.card-idle:hover {
+  transform: translateY(-2px) scale(1.03);
+  border-color: var(--accent-primary, #df6951);
+  box-shadow: 0 12px 35px rgba(223, 105, 81, 0.25), 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Active Recording State (Glowing & Pulsing) */
+.floating-trigger-card.card-recording {
+  background: linear-gradient(135deg, #ef4444, #9333ea);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: #ffffff;
+  animation: pulseRecordingGlow 1.6s infinite ease-in-out;
+}
+
+@keyframes pulseRecordingGlow {
+  0% {
+    box-shadow: 0 0 16px rgba(239, 68, 68, 0.6), 0 8px 30px rgba(0, 0, 0, 0.4);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 28px rgba(239, 68, 68, 0.9), 0 0 40px rgba(147, 51, 234, 0.4), 0 10px 35px rgba(0, 0, 0, 0.45);
+    transform: scale(1.03);
+  }
+  100% {
+    box-shadow: 0 0 16px rgba(239, 68, 68, 0.6), 0 8px 30px rgba(0, 0, 0, 0.4);
+    transform: scale(1);
+  }
+}
+
+.trigger-icon-area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.idle-mic-badge {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(223, 105, 81, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Soundwave Animation */
+.active-soundwave-indicator {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  height: 20px;
+}
+
+.wave-bar {
+  width: 3px;
+  background: #ffffff;
+  border-radius: 2px;
+  animation: soundwaveBounce 0.9s infinite ease-in-out alternate;
+}
+
+.wave-bar.bar-1 { height: 8px; animation-delay: 0.1s; }
+.wave-bar.bar-2 { height: 18px; animation-delay: 0.3s; }
+.wave-bar.bar-3 { height: 12px; animation-delay: 0.2s; }
+
+@keyframes soundwaveBounce {
+  0% { transform: scaleY(0.4); }
+  100% { transform: scaleY(1.3); }
+}
+
+.trigger-text-area {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.trigger-main-row {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.trigger-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.trigger-transcript-preview {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.9);
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-style: italic;
+}
+
+.trigger-transcript-preview .placeholder-text {
+  font-style: normal;
+  opacity: 0.8;
+}
+
+.trigger-hotkey-badge {
+  background: rgba(255, 255, 255, 0.18);
+  color: inherit;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  line-height: 1;
+}
+
+.trigger-mode-btn {
+  background: transparent;
+  border: none;
+  color: inherit;
+  opacity: 0.6;
+  cursor: pointer;
+  padding: 0.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: opacity 0.15s ease, background 0.15s ease;
+}
+
+.trigger-mode-btn:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.floating-trigger-minimized {
+  position: fixed;
+  z-index: 999999;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--bg-card-glass, rgba(20, 24, 33, 0.9));
+  border: 1px solid var(--border-glass, rgba(255, 255, 255, 0.2));
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.floating-trigger-minimized.recording {
+  background: #ef4444;
+  animation: pulseRecordingGlow 1.6s infinite ease-in-out;
+}
+
+/* ==========================================================================
+   DESKTOP TOP BAR & INPUT MANUAL CAPTURE BUTTONS
+   ========================================================================== */
+.btn-manual-capture-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: var(--radius-full, 9999px);
+  background: var(--bg-card-glass, rgba(255, 255, 255, 0.08));
+  border: 1px solid var(--border-glass, rgba(255, 255, 255, 0.16));
+  color: var(--text-primary, #ffffff);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-manual-capture-bar:hover {
+  background: rgba(223, 105, 81, 0.15);
+  border-color: var(--accent-primary, #df6951);
+  transform: translateY(-1px);
+}
+
+.btn-manual-capture-bar.recording-active {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  border-color: rgba(255, 255, 255, 0.4);
+  color: #ffffff;
+  animation: pulseRecordingGlow 1.6s infinite ease-in-out;
+}
+
+.btn-key-tag {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 0.12rem 0.35rem;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  font-weight: 700;
+}
+
+.btn-search-manual-capture {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.85rem;
+  border-radius: var(--radius-md, 8px);
+  background: rgba(223, 105, 81, 0.12);
+  border: 1px solid rgba(223, 105, 81, 0.3);
+  color: var(--accent-primary, #df6951);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.btn-search-manual-capture:hover {
+  background: rgba(223, 105, 81, 0.22);
+  border-color: var(--accent-primary, #df6951);
+}
+
+.btn-search-manual-capture.recording-active {
+  background: #ef4444;
+  border-color: #dc2626;
+  color: #ffffff;
+  animation: pulseRecordingGlow 1.6s infinite ease-in-out;
+}
+
+/* ==========================================================================
+   PHONE MANUAL CAPTURE BAR
+   ========================================================================== */
+.phone-manual-capture-container {
+  padding: 0.55rem 0.75rem;
+  background: var(--bg-card-subtle, rgba(255, 255, 255, 0.03));
+  border-bottom: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+}
+
+.phone-instant-capture-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(223, 105, 81, 0.15), rgba(223, 105, 81, 0.05));
+  border: 1.5px solid var(--accent-primary, #df6951);
+  color: var(--accent-primary, #df6951);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.phone-instant-capture-btn:active {
+  transform: scale(0.98);
+}
+
+.phone-instant-capture-btn.recording-active {
+  background: linear-gradient(135deg, #ef4444, #9333ea);
+  border-color: rgba(255, 255, 255, 0.4);
+  color: #ffffff;
+  animation: pulseRecordingGlow 1.6s infinite ease-in-out;
+}
+
+.btn-capture-text {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.btn-capture-main {
+  font-size: 0.85rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.btn-capture-sub {
+  font-size: 0.7rem;
+  opacity: 0.85;
+  line-height: 1.2;
+  margin-top: 0.1rem;
+}
+
+
 
 
 

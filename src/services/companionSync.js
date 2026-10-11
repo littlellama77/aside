@@ -356,6 +356,45 @@ class CompanionSyncEngine {
     } catch {}
   }
 
+  // =========================================================================
+  // SEND ACTION (Laptop -> Phone)
+  // =========================================================================
+  sendActionToPhone(actionName, data = {}) {
+    const cleanCode = this.getCleanCode(this.pairingCode);
+
+    const action = {
+      type: 'LAPTOP_ACTION',
+      action: actionName,
+      data,
+      timestamp: Date.now()
+    };
+
+    // 1. Send via MQTT Cloud Relay
+    if (this.mqttClient && this.mqttClient.connected) {
+      try {
+        this.mqttClient.publish(
+          `aside/rooms/${cleanCode}/laptop_action`,
+          JSON.stringify(action),
+          { qos: 1 }
+        );
+      } catch (err) {
+        console.warn('MQTT send laptop action failed:', err);
+      }
+    }
+
+    // 2. Send via BroadcastChannel
+    if (this.broadcastChannel) {
+      try {
+        this.broadcastChannel.postMessage(action);
+      } catch {}
+    }
+
+    // 3. Send via localStorage
+    try {
+      localStorage.setItem(`aside_laptop_action_${cleanCode}`, JSON.stringify(action));
+    } catch {}
+  }
+
   // Force simulated connection status (for testing demo flows)
   setSimulatedStatus(isConnected) {
     this.isSimulatedConnected = isConnected;

@@ -66,7 +66,10 @@ export function PrivateMeetingView({ onOpenPairingModal }) {
     isGeneratingWithAi,
     cheatSheet,
     demoScenarios,
-    selectScenarioByIndex
+    selectScenarioByIndex,
+    isManualCaptureActive,
+    manualCapturedTranscript,
+    toggleManualQuestionCapture
   } = useMeeting();
 
   const [customInput, setCustomInput] = useState('');
@@ -128,6 +131,28 @@ export function PrivateMeetingView({ onOpenPairingModal }) {
         </div>
 
         <div className="top-bar-right">
+          {/* Manual Start / Stop Question Trigger (One Click to Start, One Click to Answer ASAP) */}
+          <button
+            type="button"
+            className={`btn-manual-capture-bar ${isManualCaptureActive ? 'recording-active' : ''}`}
+            onClick={toggleManualQuestionCapture}
+            title={isManualCaptureActive ? "Interviewer speaking... Click to stop and get answer immediately! (or tap Space)" : "Click to listen for question or interruption (or tap Space)"}
+          >
+            {isManualCaptureActive ? (
+              <>
+                <Square size={13} className="fill-white" />
+                <span className="btn-manual-title">Stop & Answer ASAP ⚡</span>
+                <span className="btn-key-tag">Space</span>
+              </>
+            ) : (
+              <>
+                <Mic size={14} className="text-accent" />
+                <span className="btn-manual-title">Listen for Question</span>
+                <span className="btn-key-tag">Space</span>
+              </>
+            )}
+          </button>
+
           {/* Live Mic Listening Toggle (Web Speech API) */}
           <button
             type="button"
@@ -601,6 +626,24 @@ export function PrivateMeetingView({ onOpenPairingModal }) {
               className="copilot-ask-input"
             />
           </div>
+          <button
+            type="button"
+            className={`btn-search-manual-capture ${isManualCaptureActive ? 'recording-active' : ''}`}
+            onClick={toggleManualQuestionCapture}
+            title={isManualCaptureActive ? "Stop listening & get answer immediately (Space)" : "Click to listen for question or interruption (Space)"}
+          >
+            {isManualCaptureActive ? (
+              <>
+                <Square size={13} className="fill-white" />
+                <span>Stop & Answer ⚡</span>
+              </>
+            ) : (
+              <>
+                <Mic size={14} />
+                <span>Listen Question</span>
+              </>
+            )}
+          </button>
           <button type="submit" className="btn-submit-question">
             <span>Get Answer</span>
             <Send size={14} />

@@ -11,6 +11,7 @@ import { ImStuckModal } from './components/ImStuckModal';
 import { PairingModal } from './components/PairingModal';
 import { NotesDrawer } from './components/NotesDrawer';
 import { AiSettingsModal } from './components/AiSettingsModal';
+import { FloatingQuestionTrigger } from './components/FloatingQuestionTrigger';
 import './App.css';
 
 function MainApp() {
@@ -63,6 +64,9 @@ function MainApp() {
 
       {/* Phone Pairing QR & Code Modal */}
       <PairingModal isOpen={isPairingOpen} onClose={() => setIsPairingOpen(false)} />
+
+      {/* Floating Instant Question Listener (Follows cursor or pinned) */}
+      <FloatingQuestionTrigger />
     </div>
   );
 }
