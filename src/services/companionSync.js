@@ -2,30 +2,28 @@
  * Aside Companion Synchronization Engine
  * 
  * Supports:
- * 1. WebRTC DataChannel via PeerJS (True internet-accessible peer-to-peer connection
- *    across different networks, e.g. laptop on Wi-Fi and phone on cellular 5G).
- * 2. BroadcastChannel + Storage Events (Instantaneous zero-latency sync for same device,
- *    multi-window, popup, or browser tabs).
- * 3. Simulated Pairing Flow (Guaranteed graceful fallback in offline or restricted environments).
- * 
- * Roles:
- * - Laptop: "Ears + Brain" (processes simulated audio, state machine, targeting, generation).
- * - Phone:  "Private Display Only" (zero audio capture, zero microphone access needed).
+ * 1. MQTT over Secure WebSocket (EMQX / HiveMQ Public Cloud Relay):
+ *    - Real-time internet sync across networks (e.g. laptop on Wi-Fi and phone on 5G cellular).
+ *    - Zero configuration, bypasses corporate firewalls and cellular CGNAT.
+ *    - Retained messages ensure the phone instantly receives the current answer on connect/reload!
+ * 2. BroadcastChannel + Storage Events:
+ *    - Instantaneous zero-latency sync for same device, multi-window, popup, or browser tabs.
+ * 3. Graceful fallback & automatic reconnection.
  */
 
-import { Peer } from 'peerjs';
+import mqtt from 'mqtt';
 
 class CompanionSyncEngine {
   constructor() {
     this.role = null; // 'laptop' | 'phone'
     this.pairingCode = null;
-    this.peer = null;
-    this.peerConnection = null;
+    this.mqttClient = null;
     this.broadcastChannel = null;
     this.connectionStatus = 'disconnected'; // 'disconnected' | 'connecting' | 'connected'
-    this.connectionType = 'none'; // 'webrtc' | 'broadcast' | 'simulated'
+    this.connectionType = 'none'; // 'cloud' | 'broadcast' | 'simulated'
     this.statusListeners = new Set();
     this.messageListeners = new Set();
+    this.lastStatePayload = null;
     this.isSimulatedConnected = false;
   }
 
@@ -56,15 +54,8 @@ class CompanionSyncEngine {
     });
   }
 
-  // Generate a clean sanitized room ID for WebRTC
-  getPeerId(code, role) {
-    const clean = (code || 'aside8492').toLowerCase().replace(/[^a-z0-9]/g, '');
-    return `aside-companion-${clean}-${role}`;
-  }
-
-  getHostPeerId(code) {
-    const clean = (code || 'aside8492').toLowerCase().replace(/[^a-z0-9]/g, '');
-    return `aside-companion-${clean}-laptop`;
+  getCleanCode(code) {
+    return (code || 'ASIDE-8492').toLowerCase().replace(/[^a-z0-9]/g, '');
   }
 
   // =========================================================================
@@ -75,12 +66,18 @@ class CompanionSyncEngine {
     this.pairingCode = code;
     this.notifyStatus('connecting', 'initiating');
 
+    const cleanCode = this.getCleanCode(code);
+
     // 1. Setup local BroadcastChannel
     try {
-      this.broadcastChannel = new BroadcastChannel(`aside_sync_${code}`);
+      if (this.broadcastChannel) {
+        try { this.broadcastChannel.close(); } catch {}
+      }
+      this.broadcastChannel = new BroadcastChannel(`aside_sync_${cleanCode}`);
       this.broadcastChannel.onmessage = (event) => {
         if (event.data?.type === 'PHONE_ACTION') {
           this.notifyMessage(event.data);
+          this.notifyStatus('connected', 'broadcast');
         } else if (event.data?.type === 'PHONE_HELLO') {
           this.notifyStatus('connected', 'broadcast');
         }
@@ -91,105 +88,113 @@ class CompanionSyncEngine {
 
     // 2. Setup LocalStorage event listener
     const storageHandler = (e) => {
-      if (e.key === `aside_phone_action_${code}` && e.newValue) {
+      if (e.key === `aside_phone_action_${cleanCode}` && e.newValue) {
         try {
           const action = JSON.parse(e.newValue);
           this.notifyMessage(action);
-        } catch {
-          // ignore parsing error
-        }
+          this.notifyStatus('connected', 'broadcast');
+        } catch {}
       }
     };
     window.addEventListener('storage', storageHandler);
 
-    // 3. Setup WebRTC Peer (Internet-accessible connection)
-    this.initLaptopWebRTC(code);
-
-    // Default to connected for simulated flow
-    this.isSimulatedConnected = true;
-    setTimeout(() => {
-      if (this.connectionStatus !== 'connected') {
-        this.notifyStatus('connected', 'simulated');
-      }
-    }, 600);
+    // 3. Setup MQTT Cloud Relay over WSS
+    this.initMqttLaptop(cleanCode);
   }
 
-  initLaptopWebRTC(code) {
+  initMqttLaptop(cleanCode) {
     try {
-      const laptopPeerId = this.getHostPeerId(code);
-      // Clean up previous peer
-      if (this.peer) {
-        try { this.peer.destroy(); } catch {}
+      if (this.mqttClient) {
+        try { this.mqttClient.end(true); } catch {}
       }
 
-      this.peer = new Peer(laptopPeerId, {
-        debug: 1,
-        config: {
-          iceServers: [
-            { urls: 'stun:stun.l.google.com:19302' },
-            { urls: 'stun:stun1.l.google.com:19302' }
-          ]
+      const clientId = `aside_lap_${cleanCode}_${Math.random().toString(36).slice(2, 8)}`;
+      const brokerUrl = 'wss://broker.emqx.io:8084/mqtt';
+
+      this.mqttClient = mqtt.connect(brokerUrl, {
+        clientId,
+        clean: true,
+        connectTimeout: 5000,
+        reconnectPeriod: 2000,
+        keepalive: 30
+      });
+
+      this.mqttClient.on('connect', () => {
+        this.notifyStatus('connected', 'cloud');
+        // Laptop subscribes to actions sent from phone
+        this.mqttClient.subscribe(`aside/rooms/${cleanCode}/phone`, { qos: 1 });
+
+        // If laptop already has active state, publish immediately with retain: true
+        if (this.lastStatePayload) {
+          const message = {
+            type: 'STATE_UPDATE',
+            payload: this.lastStatePayload,
+            timestamp: Date.now()
+          };
+          this.mqttClient.publish(
+            `aside/rooms/${cleanCode}/laptop`,
+            JSON.stringify(message),
+            { qos: 1, retain: true }
+          );
         }
       });
 
-      this.peer.on('open', () => {
-        // Laptop peer registered on internet signaling server
-      });
-
-      this.peer.on('connection', (conn) => {
-        this.peerConnection = conn;
-
-        conn.on('open', () => {
-          this.notifyStatus('connected', 'webrtc');
-        });
-
-        conn.on('data', (data) => {
-          this.notifyMessage(data);
-        });
-
-        conn.on('close', () => {
-          this.notifyStatus('connected', 'broadcast'); // fallback
-        });
-      });
-
-      this.peer.on('error', () => {
-        // If peer ID taken or network blocks WebRTC, seamlessly fall back to local/simulated
-        if (this.connectionStatus !== 'connected') {
-          this.notifyStatus('connected', 'simulated');
+      this.mqttClient.on('message', (topic, message) => {
+        try {
+          const parsed = JSON.parse(message.toString());
+          if (parsed && parsed.type === 'PHONE_ACTION') {
+            this.notifyMessage(parsed);
+            this.notifyStatus('connected', 'cloud');
+          }
+        } catch (err) {
+          console.warn('Failed to parse phone action from MQTT:', err);
         }
       });
-    } catch {
-      this.notifyStatus('connected', 'simulated');
+
+      this.mqttClient.on('error', (err) => {
+        console.warn('MQTT laptop client error:', err.message);
+      });
+
+      this.mqttClient.on('close', () => {
+        if (this.connectionType === 'cloud') {
+          this.notifyStatus('connecting', 'cloud');
+        }
+      });
+    } catch (err) {
+      console.warn('Failed to initialize MQTT laptop:', err);
     }
   }
 
   // =========================================================================
-  // PHONE INITIALIZATION ("Private Display Only")
+  // PHONE INITIALIZATION ("Private Display & Remote Mic")
   // =========================================================================
   initPhone(code = 'ASIDE-8492') {
     this.role = 'phone';
     this.pairingCode = code;
     this.notifyStatus('connecting', 'initiating');
 
+    const cleanCode = this.getCleanCode(code);
+
     // 1. Setup local BroadcastChannel
     try {
-      this.broadcastChannel = new BroadcastChannel(`aside_sync_${code}`);
+      if (this.broadcastChannel) {
+        try { this.broadcastChannel.close(); } catch {}
+      }
+      this.broadcastChannel = new BroadcastChannel(`aside_sync_${cleanCode}`);
       this.broadcastChannel.onmessage = (event) => {
-        if (event.data?.type === 'STATE_UPDATE') {
+        if (event.data?.type === 'STATE_UPDATE' && event.data.payload) {
           this.notifyMessage(event.data);
           this.notifyStatus('connected', 'broadcast');
         }
       };
 
-      // Announce phone presence
-      this.broadcastChannel.postMessage({ type: 'PHONE_HELLO', code, timestamp: Date.now() });
-    } catch {
-      // BroadcastChannel fallback
-    }
+      // Announce presence
+      this.broadcastChannel.postMessage({ type: 'PHONE_HELLO', code: cleanCode, timestamp: Date.now() });
+    } catch {}
 
     // 2. Setup LocalStorage event listener
     const storageHandler = (e) => {
-      if (e.key === `aside_state_${code}` && e.newValue) {
+      if (e.key === `aside_state_${cleanCode}` && e.newValue) {
         try {
           const stateData = JSON.parse(e.newValue);
           this.notifyMessage(stateData);
@@ -201,70 +206,75 @@ class CompanionSyncEngine {
 
     // Initial check for cached state in localStorage
     try {
-      const cached = localStorage.getItem(`aside_state_${code}`);
+      const cached = localStorage.getItem(`aside_state_${cleanCode}`);
       if (cached) {
         const parsed = JSON.parse(cached);
         this.notifyMessage(parsed);
-        this.notifyStatus('connected', 'broadcast');
       }
     } catch {}
 
-    // 3. Setup WebRTC Peer (Internet-accessible connection)
-    this.initPhoneWebRTC(code);
-
-    // If no message within 1.2s, mark as connected in simulated flow
-    setTimeout(() => {
-      if (this.connectionStatus === 'connecting') {
-        this.notifyStatus('connected', 'simulated');
-      }
-    }, 1200);
+    // 3. Setup MQTT Cloud Relay over WSS
+    this.initMqttPhone(cleanCode);
   }
 
-  initPhoneWebRTC(code) {
+  initMqttPhone(cleanCode) {
     try {
-      if (this.peer) {
-        try { this.peer.destroy(); } catch {}
+      if (this.mqttClient) {
+        try { this.mqttClient.end(true); } catch {}
       }
 
-      this.peer = new Peer({
-        debug: 1,
-        config: {
-          iceServers: [
-            { urls: 'stun:stun.l.google.com:19302' },
-            { urls: 'stun:stun1.l.google.com:19302' }
-          ]
+      const clientId = `aside_ph_${cleanCode}_${Math.random().toString(36).slice(2, 8)}`;
+      const brokerUrl = 'wss://broker.emqx.io:8084/mqtt';
+
+      this.mqttClient = mqtt.connect(brokerUrl, {
+        clientId,
+        clean: true,
+        connectTimeout: 5000,
+        reconnectPeriod: 2000,
+        keepalive: 30
+      });
+
+      this.mqttClient.on('connect', () => {
+        this.notifyStatus('connected', 'cloud');
+        // Phone subscribes to laptop state updates (receives retained state immediately!)
+        this.mqttClient.subscribe(`aside/rooms/${cleanCode}/laptop`, { qos: 1 });
+
+        // Announce phone presence
+        const hello = {
+          type: 'PHONE_ACTION',
+          action: 'PHONE_CONNECTED',
+          timestamp: Date.now()
+        };
+        this.mqttClient.publish(
+          `aside/rooms/${cleanCode}/phone`,
+          JSON.stringify(hello),
+          { qos: 1 }
+        );
+      });
+
+      this.mqttClient.on('message', (topic, message) => {
+        try {
+          const parsed = JSON.parse(message.toString());
+          if (parsed && parsed.type === 'STATE_UPDATE' && parsed.payload) {
+            this.notifyMessage(parsed);
+            this.notifyStatus('connected', 'cloud');
+          }
+        } catch (err) {
+          console.warn('Failed to parse state from MQTT:', err);
         }
       });
 
-      this.peer.on('open', () => {
-        // Connect to laptop host over the internet
-        const laptopPeerId = this.getHostPeerId(code);
-        const conn = this.peer.connect(laptopPeerId, { reliable: true });
-
-        conn.on('open', () => {
-          this.peerConnection = conn;
-          this.notifyStatus('connected', 'webrtc');
-          conn.send({ type: 'PHONE_CONNECTED', timestamp: Date.now() });
-        });
-
-        conn.on('data', (data) => {
-          this.notifyMessage(data);
-          this.notifyStatus('connected', 'webrtc');
-        });
-
-        conn.on('close', () => {
-          this.notifyStatus('connected', 'simulated');
-        });
+      this.mqttClient.on('error', (err) => {
+        console.warn('MQTT phone client error:', err.message);
       });
 
-      this.peer.on('error', () => {
-        // Graceful fallback to broadcast/simulated
-        if (this.connectionStatus !== 'connected') {
-          this.notifyStatus('connected', 'simulated');
+      this.mqttClient.on('close', () => {
+        if (this.connectionType === 'cloud') {
+          this.notifyStatus('connecting', 'cloud');
         }
       });
-    } catch {
-      this.notifyStatus('connected', 'simulated');
+    } catch (err) {
+      console.warn('Failed to initialize MQTT phone:', err);
     }
   }
 
@@ -272,18 +282,25 @@ class CompanionSyncEngine {
   // SEND STATE (Laptop -> Phone)
   // =========================================================================
   broadcastStateToPhone(payload) {
+    this.lastStatePayload = payload;
+    const cleanCode = this.getCleanCode(this.pairingCode);
+
     const message = {
       type: 'STATE_UPDATE',
       payload,
       timestamp: Date.now()
     };
 
-    // 1. Send via WebRTC if connected
-    if (this.peerConnection && this.peerConnection.open) {
+    // 1. Send via MQTT Cloud Relay (retained so phone gets latest state immediately)
+    if (this.mqttClient && this.mqttClient.connected) {
       try {
-        this.peerConnection.send(message);
+        this.mqttClient.publish(
+          `aside/rooms/${cleanCode}/laptop`,
+          JSON.stringify(message),
+          { qos: 1, retain: true }
+        );
       } catch (err) {
-        console.warn('WebRTC send failed, falling back to local relay:', err);
+        console.warn('MQTT publish state failed:', err);
       }
     }
 
@@ -295,17 +312,17 @@ class CompanionSyncEngine {
     }
 
     // 3. Save to localStorage for cross-tab storage sync
-    if (this.pairingCode) {
-      try {
-        localStorage.setItem(`aside_state_${this.pairingCode}`, JSON.stringify(message));
-      } catch {}
-    }
+    try {
+      localStorage.setItem(`aside_state_${cleanCode}`, JSON.stringify(message));
+    } catch {}
   }
 
   // =========================================================================
   // SEND ACTION (Phone -> Laptop)
   // =========================================================================
   sendActionToLaptop(actionName, data = {}) {
+    const cleanCode = this.getCleanCode(this.pairingCode);
+
     const action = {
       type: 'PHONE_ACTION',
       action: actionName,
@@ -313,11 +330,17 @@ class CompanionSyncEngine {
       timestamp: Date.now()
     };
 
-    // 1. Send via WebRTC
-    if (this.peerConnection && this.peerConnection.open) {
+    // 1. Send via MQTT Cloud Relay
+    if (this.mqttClient && this.mqttClient.connected) {
       try {
-        this.peerConnection.send(action);
-      } catch {}
+        this.mqttClient.publish(
+          `aside/rooms/${cleanCode}/phone`,
+          JSON.stringify(action),
+          { qos: 1 }
+        );
+      } catch (err) {
+        console.warn('MQTT send action failed:', err);
+      }
     }
 
     // 2. Send via BroadcastChannel
@@ -328,11 +351,9 @@ class CompanionSyncEngine {
     }
 
     // 3. Send via localStorage
-    if (this.pairingCode) {
-      try {
-        localStorage.setItem(`aside_phone_action_${this.pairingCode}`, JSON.stringify(action));
-      } catch {}
-    }
+    try {
+      localStorage.setItem(`aside_phone_action_${cleanCode}`, JSON.stringify(action));
+    } catch {}
   }
 
   // Force simulated connection status (for testing demo flows)
@@ -342,8 +363,8 @@ class CompanionSyncEngine {
   }
 
   destroy() {
-    if (this.peer) {
-      try { this.peer.destroy(); } catch {}
+    if (this.mqttClient) {
+      try { this.mqttClient.end(true); } catch {}
     }
     if (this.broadcastChannel) {
       try { this.broadcastChannel.close(); } catch {}

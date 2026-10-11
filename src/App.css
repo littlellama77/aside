@@ -1786,6 +1786,214 @@
   background: var(--bg-card);
 }
 
+/* Microphone Listening Toggle Bar */
+.phone-mic-control-bar {
+  padding: 0.55rem 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-subtle);
+  transition: all 0.25s ease;
+}
+
+.phone-mic-control-bar.mic-bar-active {
+  background: rgba(16, 185, 129, 0.08);
+  border-bottom-color: rgba(16, 185, 129, 0.25);
+}
+
+.phone-mic-control-bar.mic-bar-paused {
+  background: var(--bg-card);
+  border-bottom-color: var(--border-subtle);
+}
+
+.phone-mic-left {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.phone-mic-icon-circle {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-secondary);
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+  transition: all 0.25s ease;
+}
+
+.mic-circle-pulse {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+  animation: pulseGentle 1.8s infinite ease-in-out;
+}
+
+.phone-mic-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.phone-mic-status-label {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--text-main);
+  line-height: 1.2;
+}
+
+.phone-mic-sub-text {
+  font-size: 0.68rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 210px;
+}
+
+/* Modern Pill Toggle Switch */
+.phone-toggle-switch {
+  width: 46px;
+  height: 26px;
+  border-radius: 999px;
+  border: 1.5px solid transparent;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: background-color 0.25s ease, border-color 0.25s ease;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.phone-toggle-switch.toggle-on {
+  background: #10b981;
+  border-color: #059669;
+  justify-content: flex-end;
+}
+
+.phone-toggle-switch.toggle-off {
+  background: var(--bg-tertiary, #cbd5e1);
+  border-color: var(--border-subtle);
+  justify-content: flex-start;
+}
+
+.toggle-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  transition: transform 0.25s ease;
+}
+
+.thumb-icon-on {
+  color: #059669;
+}
+
+.thumb-icon-off {
+  color: #64748b;
+}
+
+.circle-paused {
+  background: var(--bg-secondary) !important;
+  border-color: var(--border-subtle) !important;
+}
+
+/* Thinking card on mobile */
+.phone-thinking-card {
+  background: rgba(254, 243, 199, 0.65);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: var(--radius-md);
+  padding: 0.65rem 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.phone-thinking-top {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.phone-thinking-top .thinking-icon {
+  font-size: 0.85rem;
+}
+
+.phone-thinking-top .thinking-title {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #b45309;
+}
+
+.phone-thinking-quote {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #78350f;
+  line-height: 1.35;
+  font-style: italic;
+}
+
+.phone-clear-btn {
+  background: transparent;
+  border: none;
+  padding: 0.25rem;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.phone-clear-btn:hover {
+  color: var(--text-main);
+  background: var(--bg-secondary);
+}
+
+.phone-quick-test-section {
+  margin-top: 1rem;
+  width: 100%;
+  text-align: left;
+}
+
+.phone-test-chips-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 0.4rem;
+}
+
+.phone-test-chip {
+  text-align: left;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 0.45rem 0.65rem;
+  font-size: 0.78rem;
+  color: var(--text-main);
+  cursor: pointer;
+  line-height: 1.3;
+  transition: all 0.15s ease;
+}
+
+.phone-test-chip:hover,
+.phone-test-chip:active {
+  border-color: var(--accent-primary);
+  background: var(--accent-light);
+}
+
 .phone-header-left {
   display: flex;
   align-items: center;

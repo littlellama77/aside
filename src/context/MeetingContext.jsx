@@ -192,6 +192,10 @@ export function MeetingProvider({ children }) {
     return localStorage.getItem('aside_speech_locale') || 'en-US';
   });
 
+  const toggleLiveListeningRef = useRef(null);
+  const askCustomQuestionRef = useRef(null);
+  const selectQuestionRef = useRef(null);
+
   useEffect(() => {
     if (speechLocale) {
       localStorage.setItem('aside_speech_locale', speechLocale);
@@ -238,7 +242,7 @@ export function MeetingProvider({ children }) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isStuckModalOpen]);
 
-  // Companion Sync Engine: Laptop is "Ears + Brain", Phone is "Private Display Only"
+  // Companion Sync Engine: Laptop is "Ears + Brain", Phone is "Private Display & Remote Mic"
   useEffect(() => {
     const isUrlPhoneMode = window.location.search.includes('view=phone');
     if (isUrlPhoneMode) return;
@@ -262,7 +266,20 @@ export function MeetingProvider({ children }) {
           setStallingPhrase(phrase);
           showSystemNotice("⏱️ Stalling phrase requested from Phone Companion");
         } else if (msg.action === 'PHONE_CONNECTED') {
-          showSystemNotice("📱 Phone Companion paired over the internet (WebRTC)");
+          showSystemNotice("📱 Phone Companion paired live over the cloud");
+        } else if (msg.action === 'TOGGLE_LISTENING') {
+          if (toggleLiveListeningRef.current) toggleLiveListeningRef.current();
+        } else if (msg.action === 'START_LISTENING') {
+          if (!isLiveListening && toggleLiveListeningRef.current) toggleLiveListeningRef.current();
+        } else if (msg.action === 'STOP_LISTENING') {
+          if (isLiveListening && toggleLiveListeningRef.current) toggleLiveListeningRef.current();
+        } else if (msg.action === 'ASK_QUESTION' && msg.data?.question) {
+          if (askCustomQuestionRef.current) askCustomQuestionRef.current(msg.data.question, "Phone Microphone (Transcribed)");
+        } else if (msg.action === 'SELECT_QUESTION' && msg.data?.questionObj) {
+          if (selectQuestionRef.current) selectQuestionRef.current(msg.data.questionObj);
+        } else if (msg.action === 'CLEAR_QUESTION') {
+          setIsQuestionActive(false);
+          setActiveQuestion(null);
         }
       }
     });
@@ -271,7 +288,7 @@ export function MeetingProvider({ children }) {
       unsubStatus();
       unsubMsg();
     };
-  }, [pairingCode, showSystemNotice]);
+  }, [pairingCode, isLiveListening, showSystemNotice]);
 
   // Broadcast state to phone whenever active question, state, or flags change
   useEffect(() => {
@@ -288,6 +305,8 @@ export function MeetingProvider({ children }) {
       disclosureLevel,
       targetingInfo,
       cheatSheet,
+      isLiveListening,
+      liveTranscript,
       timestamp: Date.now()
     });
   }, [
@@ -299,7 +318,9 @@ export function MeetingProvider({ children }) {
     stallingPhrase,
     disclosureLevel,
     targetingInfo,
-    cheatSheet
+    cheatSheet,
+    isLiveListening,
+    liveTranscript
   ]);
 
   const sendTestPingToPhone = useCallback(() => {
@@ -313,6 +334,8 @@ export function MeetingProvider({ children }) {
       disclosureLevel,
       targetingInfo,
       cheatSheet,
+      isLiveListening,
+      liveTranscript,
       timestamp: Date.now()
     });
     showSystemNotice("⚡ State packet beamed to Phone Companion");
@@ -325,6 +348,8 @@ export function MeetingProvider({ children }) {
     disclosureLevel,
     targetingInfo,
     cheatSheet,
+    isLiveListening,
+    liveTranscript,
     showSystemNotice
   ]);
 
@@ -636,6 +661,10 @@ export function MeetingProvider({ children }) {
     triggerQuestionDetected(synthesizedQ);
   }, [openaiApiKey, openaiModel, rawNotes, cheatSheet, speakingStyle, triggerQuestionNotForUser, triggerQuestionDetected, showSystemNotice, conversationHistory]);
 
+  useEffect(() => {
+    askCustomQuestionRef.current = askCustomQuestion;
+  }, [askCustomQuestion]);
+
   // Load a preset template
   const loadTemplate = useCallback((templateId) => {
     const t = PRESET_NOTE_TEMPLATES.find(item => item.id === templateId) || PRESET_NOTE_TEMPLATES[0];
@@ -727,6 +756,10 @@ export function MeetingProvider({ children }) {
     setFrozenSuggestion(null);
     transitionToState(CONVERSATION_STATES.QUESTION_CONFIRMED, `Loaded question from ${q.speaker}`);
   }, [transitionToState]);
+
+  useEffect(() => {
+    selectQuestionRef.current = selectQuestion;
+  }, [selectQuestion]);
 
   // Live Microphone Listening (Web Speech API for Zoom / Teams / GMeet)
   const toggleLiveListening = useCallback(() => {
@@ -843,6 +876,10 @@ export function MeetingProvider({ children }) {
       }
     }
   }, [isLiveListening, askCustomQuestion, showSystemNotice]);
+
+  useEffect(() => {
+    toggleLiveListeningRef.current = toggleLiveListening;
+  }, [toggleLiveListening]);
 
   // Tab Audio Capture (DisplayMedia API)
   const startTabAudioCapture = useCallback(async () => {
