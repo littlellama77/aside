@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useMeeting } from '../context/MeetingContext';
 import { NotesDrawer } from './NotesDrawer';
 import { AiSettingsModal } from './AiSettingsModal';
+import { NATURAL_HUMAN_FILLERS } from '../constants/mockData';
 import {
   Mic,
   MicOff,
@@ -70,6 +71,7 @@ export function PrivateMeetingView({ onOpenPairingModal }) {
 
   const [customInput, setCustomInput] = useState('');
   const [copied, setCopied] = useState(false);
+  const [copiedFiller, setCopiedFiller] = useState(null);
 
   const handleCustomSubmit = (e) => {
     e.preventDefault();
@@ -82,6 +84,13 @@ export function PrivateMeetingView({ onOpenPairingModal }) {
     navigator.clipboard?.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleCopyFiller = (fillerText) => {
+    const clean = fillerText.replace(/^[“”"']|[“”"']$/g, '');
+    navigator.clipboard?.writeText(clean);
+    setCopiedFiller(clean);
+    setTimeout(() => setCopiedFiller(null), 2200);
   };
 
   const isYourTurn = conversationState === 'YOUR_TURN';
@@ -409,6 +418,31 @@ export function PrivateMeetingView({ onOpenPairingModal }) {
                   {disclosureLevel === 'expanded' ? "Show concise summary" : "+ Full in-depth executive version"}
                 </button>
               )}
+            </div>
+          </div>
+
+          {/* Natural Human Fillers & Transition Bridges */}
+          <div className="natural-fillers-bar">
+            <div className="fillers-top-row">
+              <span className="fillers-label">
+                <Sparkles size={12} className="text-accent" /> Natural filler phrases if you pause:
+              </span>
+              <span className="fillers-hint">
+                {copiedFiller ? `✓ Copied: "${copiedFiller}"` : "Click any filler to copy"}
+              </span>
+            </div>
+            <div className="fillers-chips">
+              {NATURAL_HUMAN_FILLERS.map((filler, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  className={`filler-chip ${copiedFiller === filler.replace(/^[“”"']|[“”"']$/g, '') ? 'filler-copied' : ''}`}
+                  onClick={() => handleCopyFiller(filler)}
+                  title="Click to copy or say this natural transition aloud"
+                >
+                  {filler}
+                </button>
+              ))}
             </div>
           </div>
 

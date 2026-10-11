@@ -25,6 +25,16 @@ export const BUY_ME_A_SECOND_PHRASES = [
   "Give me just a moment to pull the verified line item."
 ];
 
+export const NATURAL_HUMAN_FILLERS = [
+  "“And honestly, what made a huge difference there was…”",
+  "“To give you a bit of context on that…”",
+  "“Which sounds pretty simple on paper, but…”",
+  "“And what was so cool to see in the data was…”",
+  "“So yeah, basically…”",
+  "“And looking back at the numbers, the biggest takeaway was…”",
+  "“To be completely fair, the first thing we noticed was…”"
+];
+
 export const PRESET_NOTE_TEMPLATES = [
   {
     id: "crealytics-interview",
