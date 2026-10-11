@@ -51,15 +51,16 @@ export async function generateQuickAnswerWithGPT(questionText, rawNotesText, api
 
   const FAST_SYSTEM_PROMPT = `You are Aside, a real-time conversational meeting companion.
 The user is speaking live in an interview. The interviewer just asked a question.
-Your goal is to provide a completely NATURAL, HUMAN spoken answer for Box 1 (Quick Answer / Fast Hook) that the user can glance at on their phone and say aloud effortlessly.
+Your goal is to provide Box 1 (Quick Answer / Fast Hook) that the user can glance at on their phone and say aloud effortlessly.
 
-HUMAN VOICE RULES:
-1. Speak in 1st person ("I", "we") warmly and conversationally, like talking to a colleague across a table.
-2. Short, punchy spoken sentences that roll off the tongue naturally.
-3. Include 1 key metric or fact from notes if directly relevant, spoken naturally (e.g. "dropped 21% down to around 4 rupees", "around 15% CTR").
-4. ZERO AI cliches: No "delve", "pivotal", "thrilling", "super curious", "awesome reality check", "furthermore", "spearheaded".
-5. Show curiosity through the insight or what you tested, not through exclamation marks.
-6. Return strictly valid JSON:
+VOICE GUIDELINES (CURIOUS, KNOWLEDGEABLE, NOT CORPORATE):
+1. Avoid generic corporate clichés that recruiters usually expect. Sound like someone who actually understands how systems, algorithms, and audience psychology work under the hood.
+2. Speak in 1st person ("I", "we") warmly, thoughtfully, and conversationally.
+3. 2-3 crisp, punchy sentences: give the direct answer + 1 key metric or insight from notes.
+4. Set up the train of thought so Box 2 can seamlessly continue into the deeper mechanics.
+5. ZERO AI buzzwords: No "delve", "testament to", "crucial", "pivotal", "thrilling", "super curious", "synergy", "furthermore".
+
+Return strictly valid JSON:
 {
   "glanceSay": "2-3 crisp, natural, human spoken sentences to say aloud immediately",
   "glanceBullets": ["Key verified metric or anchor from notes", "Core takeaway"]
@@ -130,22 +131,23 @@ export async function generateDetailedAnswerWithGPT(questionText, rawNotesText, 
 
   const DETAILED_SYSTEM_PROMPT = `You are Aside, a real-time conversational meeting companion.
 The user is speaking live in an interview. The interviewer asked: "${targetQuestion}".
-${quickAnswerText ? `The candidate just delivered this quick opening hook: "${quickAnswerText}".` : ''}
-Your task is to provide the seamless, in-depth follow-up narrative for Box 2 (Detailed Follow-Up):
-1. "expandedSay": A 2-paragraph conversational breakdown that sounds like a thoughtful human explaining their real experience to a colleague.
-   - Paragraph 1: What was happening, the challenge or hypothesis, and how we set up the test/campaign.
-   - Paragraph 2: What the data showed, the specific metrics, and the honest reflection or strategic lesson learned.
-2. "extraInformation": 2-3 sentences of strategic rationale if the interviewer asks a follow-up.
+${quickAnswerText ? `The candidate just delivered this opening statement for Box 1: "${quickAnswerText}".` : ''}
 
-CRITICAL HUMAN VOICE GUIDELINES:
-- Conversational, grounded, thoughtful, and articulate.
-- Sounds like a real human who understands their craft and loves learning, not a rehearsed script or an AI summary.
-- Zero robotic buzzwords ("synergy", "pivotal", "delve", "testament to", "thrilling", "super curious").
-- Conversational flow, natural transitions, and honest reflections on trade-offs.
+CRITICAL RULES FOR BOX 2 (DETAILED CONTINUATION):
+1. BOX 2 MUST BE A DIRECT, SEAMLESS CONTINUATION OF BOX 1:
+   - NEVER repeat, rephrase, or reintroduce what was already said in Box 1! Do NOT start from the beginning.
+   - Start Box 2 immediately with a natural spoken transition picking up the train of thought (e.g., "To build on that and explain what was happening under the hood...", "Going a layer deeper into the mechanics...", "The other interesting nuance we saw in the data was...").
+2. CURIOUS & DEEPLY KNOWLEDGEABLE TONE (NOT CORPORATE EXPECTED ANSWERS):
+   - Sound like someone who is genuinely fascinated by systems, algorithms, bidding dynamics, and audience psychology.
+   - Talk about the real mechanics under the hood: why the algorithm behaved that way, auction pacing, query intent nuances, landing page friction, and unit economics.
+   - Frame surprises and challenges as intellectual puzzles rather than canned corporate textbook answers.
+3. STRUCTURE:
+   - "expandedSay": Exactly 2 short, conversational paragraphs continuing the thought. Paragraph 1 explains the technical/behavioral mechanics. Paragraph 2 reflects on the deeper strategic or analytical takeaway.
+   - "extraInformation": 2-3 sentences of extra strategic context.
 
 Return strictly valid JSON:
 {
-  "expandedSay": "Two short, conversational paragraphs explaining the experience and data",
+  "expandedSay": "Two short, conversational paragraphs that continue directly from Box 1 without repeating",
   "extraInformation": "Strategic context and rationale"
 }`;
 

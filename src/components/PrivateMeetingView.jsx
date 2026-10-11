@@ -659,13 +659,13 @@ export function PrivateMeetingView({ onOpenPairingModal }) {
               <div className="box-card-top-row">
                 <div className="box-badge-detailed">
                   <BookOpen size={14} className="badge-icon-book" />
-                  <span className="box-badge-title">2. DETAILED FOLLOW-UP</span>
+                  <span className="box-badge-title">2. CONTINUATION (DEEP DIVE)</span>
                   <span className="box-badge-pill pill-detailed">
                     {isDetailedLoading
                       ? `⚡ Deep Dive Generating (${openaiModel || 'AI'})...`
                       : activeQuestion?.detailedModelName
-                        ? `Comprehensive (${activeQuestion.detailedModelName})`
-                        : "Comprehensive Deep Dive"}
+                        ? `Continues from Box 1 (${activeQuestion.detailedModelName})`
+                        : "Seamless Flow • Continues from Box 1"}
                   </span>
                 </div>
 

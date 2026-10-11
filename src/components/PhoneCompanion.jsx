@@ -499,7 +499,7 @@ export function PhoneCompanion({
                 <div className="phone-box-header-row">
                   <div className="phone-badge-detailed">
                     <BookOpen size={12} />
-                    <span>2. DETAILED FOLLOW-UP</span>
+                    <span>2. CONTINUATION (Picks up from Box 1)</span>
                   </div>
                   {!isDetailedLoadingPhone && (
                     <button

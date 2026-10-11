@@ -343,13 +343,13 @@ export const DEMO_SCENARIOS = [
     babeTag: "babe 👀",
     simplestQuestion: "They're asking why performance dropped.",
     startWithPrompt: "Start with: “Yeah, so the short story is…”",
-    glanceSay: "Mostly the creative change and higher CPC.",
+    glanceSay: "Mostly the creative change and higher CPC during Meta's learning phase, while Search held rock-solid at a 78 quality score with conversion volume up 12% week-over-week.",
     glanceBullets: [
-      "• creative changed mid-week",
-      "• CPC ↑ during learning phase",
-      "• Search held steady at 78"
+      "• Creative rotated mid-week to combat audience fatigue",
+      "• CPC bumped temporarily during algorithm's learning phase",
+      "• Search demand resilient: 78 score, +12% volume lift"
     ],
-    expandedSay: "Yeah, happy to walk through that. We rotated our primary creative mid-week because older assets were fatiguing, which reset Meta's learning phase and pushed CPC up temporarily. The reassuring signal is our baseline held firm—Google Search stayed solid at a 78 quality score with conversion volume up 12% WoW, so this was transient friction from the ad refresh.",
+    expandedSay: "To build on that, the reason CPC spiked is algorithmic: when you introduce new assets, Meta's pacing engine runs exploratory auctions to find high-probability converters, temporarily driving up cost-per-click before settling.\n\nThe search data confirms that user intent never degraded—conversion volume grew 12% without needing higher bids. Our Tuesday test will let the algorithm exit learning mode, and we anticipate CPA returning to target ranges once delivery stabilizes.",
     supportingContext: "Notes: Creative swapped Wednesday after fatigue; 3-day legal delay; Search quality score 78 (+12% volume lift).",
     stuckRecovery: {
       breatheMsg: "okay babe, breathe.",
@@ -374,13 +374,13 @@ export const DEMO_SCENARIOS = [
     babeTag: "babe 👀 unexpected one",
     simplestQuestion: "They're asking why you want to increase the budget.",
     startWithPrompt: "Start with: “I think it makes sense because…”",
-    glanceSay: "Because conversion volume is strong and CPC hasn't risen too much.",
+    glanceSay: "Because conversion velocity on Meta is expanding efficiently and Search proves our baseline unit economics are healthy.",
     glanceBullets: [
-      "• Marcus noted: good conversion volume",
-      "• CPC is stabilizing",
-      "• Scale after Tuesday's creative test"
+      "• Marcus noted: strong conversion volume expansion",
+      "• Search unit economics prove buyer intent is solid",
+      "• Scale after Tuesday's creative test confirms stabilization"
     ],
-    expandedSay: "I think it makes sense to test increasing the budget because conversion volume is strong and CPC hasn't risen too much once creative settles. Marcus mentioned earlier that volume is expanding nicely, and our unit economics on Search prove user intent is healthy.",
+    expandedSay: "To look at the auction timing behind that: increasing budget right now lets us capture available impression share before Q4 seasonal competition drives up CPMs across the board.\n\nTo keep risk low, we only unlock that spend once Tuesday's creative test confirms that CPA has stabilized. That way, we let empirical data earn the capital expansion rather than bidding into auction volatility.",
     supportingContext: "From the conversation: Earlier Marcus confirmed Meta is generating good conversion volume. Combined with stable baseline, scaling makes sense post-test.",
     stuckRecovery: {
       breatheMsg: "Connect the dots: volume is up, CPC stable, scale post-test.",
@@ -405,13 +405,13 @@ export const DEMO_SCENARIOS = [
     babeTag: "They're asking for YOUR recommendation. 👀",
     simplestQuestion: "They want your recommendation on what to do next.",
     startWithPrompt: "Start with: “My recommendation is…”",
-    glanceSay: "I'd probably test a couple more creatives before increasing the budget.",
+    glanceSay: "My recommendation is disciplined patience over the next 72 hours—hold spend steady, run 2 to 3 creative tests on Tuesday, and let empirical stabilization earn the budget increase.",
     glanceBullets: [
-      "• test 2-3 fresh variations Tuesday",
-      "• hold budget steady for 72h",
-      "• let data earn the budget scale"
+      "• Hold budget steady for 72h through Monday",
+      "• Test 2-3 fresh variations on Tuesday",
+      "• Unlock budget expansion only after CPA settles"
     ],
-    expandedSay: "My recommendation is disciplined patience over the next 72 hours. We shouldn't rush to scale budget until Tuesday's creative test confirms efficiency, but once we validate the fresh hooks and see CPC settle, we can unlock spend behind our winning variations with high confidence.",
+    expandedSay: "Going a layer deeper into why I recommend that sequence: if we increase budget while the algorithm is still in learning mode, the bidding engine overpays for impression share.\n\nBy waiting for Tuesday's test to establish a clear conversion baseline, we protect unit economics and ensure every incremental dollar works at peak efficiency.",
     supportingContext: "Based on what you've prepared: Hold off on spend until Tuesday's test proves itself.",
     stuckRecovery: {
       breatheMsg: "Take a second. This is your opinion, not a pop quiz.",
@@ -436,13 +436,13 @@ export const DEMO_SCENARIOS = [
     babeTag: "babe, normal-person translation:",
     simplestQuestion: "“What changed, and what does it mean for our strategy?”",
     startWithPrompt: "Start with: “Yeah, basically, the main change is…”",
-    glanceSay: "Yeah, basically, the main change is we're weighting top clicks more, so direct ROAS looks lower while total sales held steady.",
+    glanceSay: "Yeah, basically, the shift to multi-touch attribution credits early discovery touchpoints rather than just the final click, so while direct Meta ROAS looks softer on paper, our overall sales and blended volume haven't declined at all.",
     glanceBullets: [
-      "• top-of-funnel gets more credit",
-      "• reported ROAS looks lower",
-      "• total sales unchanged"
+      "• Discovery touchpoints get earned credit",
+      "• Direct Meta ROAS appears lower on paper",
+      "• Total blended sales completely unchanged"
     ],
-    expandedSay: "Yeah, basically, the main change is that the new model credits early discovery clicks. It makes last-click ROAS look lower on paper, but our blended customer volume hasn't dropped. It proves our top-of-funnel ads are feeding our search conversions.",
+    expandedSay: "The strategic takeaway from that shift is that we shouldn't cut top-of-funnel ad spend just because its last-click ROAS seems lower.\n\nThose discovery impressions are the feeder engine driving the 12% conversion lift we're seeing downstream in Google Search. The new model actually gives us a much more honest picture of cross-channel lift.",
     supportingContext: "Jargon unpacked: Attribution models shift how revenue is credited between ads, not the actual dollars collected.",
     stuckRecovery: {
       breatheMsg: "Classic corporate jargon. Don't let big words rattle you.",
@@ -467,13 +467,13 @@ export const DEMO_SCENARIOS = [
     babeTag: "babe, I don't have enough info for this one 😭",
     simplestQuestion: "They're asking for a hyper-specific Germany stat not in your notes.",
     startWithPrompt: "Safe response:",
-    glanceSay: "I'm not sure off the top of my head — let me check and get back to you.",
+    glanceSay: "I want to be precise and check the verified report rather than guess an off-the-cuff number—our notes cover our blended benchmarks, but not the isolated Germany breakdown for last Tuesday.",
     glanceBullets: [
-      "• no Germany data in notes",
-      "• don't guess a number",
-      "• offer to follow up"
+      "• No Germany day-level breakout in notes",
+      "• Do not invent or estimate numbers",
+      "• Commit to immediate post-call follow-up"
     ],
-    expandedSay: "I don't have that exact breakdown with me right now. Let me verify the numbers with the finance team after the meeting so I give you the verified figure.",
+    expandedSay: "Let me pull the audited ledger with the finance team right after this call and send over the verified figures so we're working off exact numbers.",
     supportingContext: "Aside fact check: Notes contain blended benchmarks, but zero Germany-specific breakouts. Safe fallback applied.",
     stuckRecovery: {
       breatheMsg: "babe, do NOT guess. It is 100% fine not to know.",
