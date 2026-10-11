@@ -673,51 +673,58 @@ export function MeetingProvider({ children }) {
         .map(item => `${item.speaker}: "${item.text}"`)
         .join('\n');
 
-      // Fast API Model for Box 1 (gpt-4o-mini, short & rapid)
+      // 1. Fast API Model for Box 1 (gpt-4o-mini, short & rapid)
       generateQuickAnswerWithGPT(cleanText, rawNotes, openaiApiKey)
+        .catch(err => {
+          console.warn("Fast API call fallback to instant local synthesizer:", err);
+          return null;
+        })
         .then(fastRes => {
-          if (fastRes.glanceSay) {
+          const quickText = fastRes?.glanceSay || instantQ.glanceSay;
+          if (fastRes?.glanceSay) {
             setActiveQuestion(prev => {
               if (!prev || prev.question !== cleanText) return prev;
               return {
                 ...prev,
                 quickSay: fastRes.glanceSay,
+                glanceSay: fastRes.glanceSay,
                 quickBullets: fastRes.glanceBullets?.length ? fastRes.glanceBullets : prev.quickBullets,
-                fastModelName: 'gpt-4o-mini'
+                glanceBullets: fastRes.glanceBullets?.length ? fastRes.glanceBullets : prev.glanceBullets,
+                fastModelName: 'Fast API (gpt-4o-mini)'
               };
             });
           }
+
+          // 2. Detailed Deep-Dive Model for Box 2 (openaiModel, continues directly from Box 1)
+          return generateDetailedAnswerWithGPT(
+            cleanText,
+            rawNotes,
+            openaiApiKey,
+            openaiModel,
+            recentHistory,
+            quickText
+          );
+        })
+        .then(detailedRes => {
+          if (!detailedRes) return;
+          setIsGeneratingWithAi(false);
+          setActiveQuestion(prev => {
+            if (!prev || prev.question !== cleanText) return prev;
+            return {
+              ...prev,
+              expandedSay: detailedRes.expandedSay || prev.expandedSay,
+              extraInformation: detailedRes.extraInformation || prev.extraInformation,
+              isDetailedLoading: false,
+              detailedModelName: openaiModel || 'gpt-4o'
+            };
+          });
+          showSystemNotice("✓ Detailed continuation loaded!");
         })
         .catch(err => {
-          console.warn("Fast API call fallback to instant local synthesizer:", err);
+          console.warn("AI generation error:", err);
+          setIsGeneratingWithAi(false);
+          setActiveQuestion(prev => prev ? { ...prev, isDetailedLoading: false } : prev);
         });
-
-      // Detailed Deep-Dive Model for Box 2 (openaiModel, comprehensive narrative)
-      generateDetailedAnswerWithGPT(
-        cleanText,
-        rawNotes,
-        openaiApiKey,
-        openaiModel,
-        recentHistory,
-        instantQ.glanceSay
-      ).then(detailedRes => {
-        setIsGeneratingWithAi(false);
-        setActiveQuestion(prev => {
-          if (!prev || prev.question !== cleanText) return prev;
-          return {
-            ...prev,
-            expandedSay: detailedRes.expandedSay || prev.expandedSay,
-            extraInformation: detailedRes.extraInformation || prev.extraInformation,
-            isDetailedLoading: false,
-            detailedModelName: openaiModel || 'gpt-4o'
-          };
-        });
-        showSystemNotice("✓ Detailed follow-up loaded!");
-      }).catch(err => {
-        console.warn("Background detailed model finished with local deep dive:", err);
-        setIsGeneratingWithAi(false);
-        setActiveQuestion(prev => prev ? { ...prev, isDetailedLoading: false } : prev);
-      });
     }
   }, [openaiApiKey, openaiModel, rawNotes, cheatSheet, speakingStyle, triggerQuestionNotForUser, triggerQuestionDetected, showSystemNotice, conversationHistory]);
 

@@ -538,11 +538,14 @@ export function synthesizeLeaderAnswerForCustomQuestion(questionText, rawNotesTe
       matchedScenario = interviewScenarios.find(s => s.id === "crealytics-q6");
     }
 
-    // 5. Why Crealytics / Culture Fit / Profitable Growth
+    // 5. Why Crealytics / Culture Fit / Profitable Growth / Good Fit
     const isWhyCrealytics = !matchedScenario && (
       coreLower.includes("why crealytics") || coreLower.includes("why this role") || coreLower.includes("why us") ||
       coreLower.includes("profitable growth") || coreLower.includes("retail media") || coreLower.includes("what draws you") ||
-      qLower.includes("why crealytics") || qLower.includes("why this role") || qLower.includes("why do you want to work")
+      coreLower.includes("good fit") || coreLower.includes("why you") || coreLower.includes("why should we hire") ||
+      coreLower.includes("fit for") || coreLower.includes("why do you want") ||
+      qLower.includes("why crealytics") || qLower.includes("why this role") || qLower.includes("why do you want to work") ||
+      qLower.includes("good fit") || qLower.includes("why should we hire") || qLower.includes("fit for this role")
     );
     if (isWhyCrealytics) {
       matchedScenario = interviewScenarios.find(s => s.id === "crealytics-q2");
@@ -848,19 +851,19 @@ export function generateQuestionsFromNotes(rawNotesText, templateId = "custom") 
         avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
         question: "Tell me about yourself and your journey into performance marketing.",
         topic: "Candidate Story & Background",
-        babeTag: "babe 👀 editorial to data: deeply curious, eager learner & hands-on",
+        babeTag: "babe 👀 make, take apart, improve + creative to analytical feedback loops",
         simplestQuestion: "Torsten wants to know who you are, what drives your curiosity, and how you got here.",
-        startWithPrompt: "Start with: “I actually started out in editorial at Sportskeeda…”",
-        glanceSay: "I started out in editorial at Sportskeeda, editing over 1,000 articles and writing 600+ pieces covering the NFL. Working on daily deadlines gave me an intuition for audience attention, but what really hooked me was the quantitative side—looking at retention curves, testing why specific hooks drive clicks, and seeing how algorithmic feeds distribute content. That pulled me right into performance marketing at Kraftshala to run hands-on campaigns across Google, Meta, and Amazon, while building AI tools on the side. What drew me to Crealytics specifically is that you operate where performance marketing meets data science and retail media, focusing on real incrementality rather than vanity metrics.",
+        startWithPrompt: "Start with: “I've always been someone who loves making things…”",
+        glanceSay: "I’ve always been someone who loves making things, taking them apart, and figuring out how to make them better. I started out in editorial at Sportskeeda, editing over 1,000 articles and writing 600+ pieces covering the NFL, which trained my sense for audience attention under daily deadlines. But what pulled me into performance marketing was the feedback loop—I love combining the creative side of building a campaign with the analytical rigor of diagnosing what happens after the click.",
         glanceBullets: [
-          "• Sportskeeda: edited 1,000+ pieces, wrote 600+ NFL articles under daily deadlines",
-          "• Curiosity pivot: fascinated by retention curves, hook rates, and algorithmic distribution",
+          "• Sportskeeda editorial: edited 1,000+ pieces, wrote 600+ NFL articles under daily deadlines",
+          "• Curiosity pivot: drawn to things where I can make something, take it apart, and improve it",
           "• Kraftshala hands-on: executed Google Search, Meta Ads, and Amazon PPC campaigns",
-          "• Continuous builder: created 5+ functional AI web prototypes on the side",
-          "• Drawn to Crealytics: retail media tech, algorithmic depth, and true incrementality"
+          "• Continuous builder: built 5+ functional AI web prototypes on the side",
+          "• Drawn to Crealytics: retail media tech, incremental margin, and deep fundamentals"
         ],
-        expandedSay: "To build on that, what really fascinates me about performance marketing is that it's essentially applied psychology with continuous mathematical feedback. In content, you can write a great piece, but you're somewhat blind to the downstream business impact. In performance marketing, every hypothesis has an immediate score: you test query intent, observe how the auction prices the click, and see whether the landing page actually converts.\n\nWhen I was building web prototypes using AI tools like Antigravity and Claude, I realized how much I love breaking down systems and understanding what's happening under the hood. Crealytics looks retailers in the eye and focuses on actual profitable growth—optimizing for margin instead of just burning budget on platform defaults. That analytical rigor is the exact environment where I want to build deep, technical fundamentals.",
-        supportingContext: "Notes Part 1: Sportskeeda (1,000+ edited, 600+ written), Doon University (BA 2020, MA 2022), Kraftshala Launchpad, AI prototypes.",
+        expandedSay: "To build on that, over the past year at Kraftshala and through my own side projects, I’ve been focused on building four distinct muscles: creative, analytical, technical, and human. I ran live campaigns across Google Search, Meta Ads, and Amazon PPC, and started experimenting with AI-assisted tools to build functional web prototypes from scratch.\n\nI’m someone who loves being a beginner, asks lots of questions, and gets genuinely excited by the learning curve. Crealytics immediately stood out to me because you look retailers in the eye and optimize for incremental margin rather than vanity metrics, working with a diverse global team where I can develop deep technical fundamentals.",
+        supportingContext: "Notes Part 1 & 2: Sportskeeda (1,000+ edited, 600+ written), Kraftshala Launchpad, 4 muscles, AI prototypes.",
         stuckRecovery: {
           breatheMsg: "Take a breath babe. Keep it friendly: Sportskeeda → Kraftshala → Crealytics.",
           questionSummary: "Tell me about yourself?",
@@ -874,26 +877,26 @@ export function generateQuestionsFromNotes(rawNotesText, templateId = "custom") 
         category: "expected",
         speaker: "Torsten Christ (Head of HR)",
         avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
-        question: "Why Crealytics specifically, and what draws you to this role?",
-        topic: "Why Crealytics & Culture Fit",
-        babeTag: "babe 👀 passionate about profitable growth, retail media tech & learning from the best",
-        simplestQuestion: "Why Crealytics? Highlight your excitement about retail media, AI, and learning from high standards.",
-        startWithPrompt: "Start with: “What really draws me to Crealytics is…”",
-        glanceSay: "What really draws me to Crealytics is your focus on real, incremental profitability rather than vanity metrics. In so much of the industry, agencies celebrate high ROAS or impression volume even when the ads are just cannibalizing organic sales. Crealytics looks at the actual unit economics and asks whether media spend is driving net new margin. Given that marketing is becoming increasingly algorithmic and data-driven, being on a team that builds its own retail media technology and prioritizes mathematical rigor is where I want to build my career.",
+        question: "Why Crealytics specifically, and why do you think you'd be a good fit for this role?",
+        topic: "Why Crealytics & Candidate Fit",
+        babeTag: "babe 👀 make, take apart, improve + 4 muscles & collaborative hunger",
+        simplestQuestion: "Why Crealytics & fit: making things, taking them apart, and improving them; 4 muscles (creative, analytical, technical, human).",
+        startWithPrompt: "Start with: “I think I’d be a really good fit for this role because…”",
+        glanceSay: "I think I’d be a good fit for this role because I’ve always been drawn to things that let me make something, take it apart, and make it better. That’s what pulled me towards performance marketing in the first place—I like the creative part of building a campaign, the analytical part of figuring out why it worked or didn’t, and the technical side of finding better ways to do it. Crealytics feels like the kind of place where I could keep building all of those muscles while learning from people who make me think differently.",
         glanceBullets: [
-          "• Profitable growth over vanity metrics (incremental margin, not organic cannibalization)",
-          "• Retail Media revolution: first-party point-of-sale data right at purchase intent",
-          "• Technology intersection: proprietary retail media algorithms and data science",
-          "• High-standard culture: eager to absorb deep fundamentals from senior practitioners"
+          "• Core drive: make something, take it apart, and make it better",
+          "• Performance marketing pull: creative campaign build + analytical diagnosis + technical optimization",
+          "• The four muscles: creative, analytical, technical, and human/collaborative",
+          "• Aligned with Crealytics: continuous optimization loop, tech affinity, diverse global team"
         ],
-        expandedSay: "To elaborate on that, what particularly excites me is how retail media networks are fundamentally changing digital advertising. Unlike social media where you're interrupting someone's feed, retail media operates right at the point of purchase with first-party point-of-sale data. But that also introduces complex challenges around attribution, bidding algorithms, and incrementality.\n\nComing from a writing and research background, I love dissecting complex systems and asking the 'why' behind user behavior. But I also want to be in an environment with high standards where I'm constantly learning from experienced practitioners and data engineers. Crealytics feels like the ideal place to bridge analytical curiosity with real-world enterprise scale.",
-        supportingContext: "Notes Part 2: Profitable growth focus; technology + AI integration; writing background brings audience perspective.",
+        expandedSay: "And perhaps most importantly, what drew me to your team is the human side. I want the numbers and the tools, but I also want the conversations, the questions, the disagreements, and learning from people who make me realise I could have built them differently. Over the past year, I’ve been trying to build all of those muscles—creative, analytical, technical, and human—through marketing projects at Kraftshala, data analysis, and experimenting with AI-assisted tools.\n\nI’m still learning, and honestly, that’s part of what makes me even more excited. The JD talks about finding levers to improve in a continuous loop of optimizations and then specializing in technical topics with a global team. Crealytics is the kind of place where I could keep building those muscles while learning from the people around me, and I’d love to bring my curiosity, persistence, and hands-on experience to the company and keep building from there.",
+        supportingContext: "Notes Part 2: Candidate core motivation: make, take apart, improve; 4 muscles; collaborative learning from disagreements.",
         stuckRecovery: {
-          breatheMsg: "Profitable growth + AI + learning environment. You've got this.",
-          questionSummary: "Why Crealytics?",
-          points: ["Profitable growth focus", "Performance marketing + AI", "Great place to build fundamentals"],
-          easySay: "Your focus on incremental margin over vanity metrics and proprietary retail media tech matches exactly what I want to master.",
-          stallSay: "What stood out most to me about Crealytics is how you approach incrementality."
+          breatheMsg: "Make something, take it apart, make it better. 4 muscles. You've got this.",
+          questionSummary: "Why Crealytics & why a good fit?",
+          points: ["Make, take apart, make better", "4 muscles: creative, analytical, technical, human", "Continuous loop of optimizations"],
+          easySay: "I've always loved making things, taking them apart, and making them better. I want to build my creative, analytical, technical, and human muscles here at Crealytics.",
+          stallSay: "What drew me to this role is actually how I approach problem solving from the ground up."
         }
       },
       {
