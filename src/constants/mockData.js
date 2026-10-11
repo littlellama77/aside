@@ -141,11 +141,12 @@ PART 5: GUARDRAILS & REMINDERS
         "Be transparent that Homecrust Amazon PPC improved visibility but faced profitability headwinds with ACoS"
       ],
       anchors: [
-        "Nora Ephron principle: 'Everything is copy' — treat audience attention with respect and candor.",
-        "Disarming honesty: When a campaign underperforms, explain what you learned from the rubble.",
+        "Keep it natural and friendly: speak like a smart person having a great conversation on a video call.",
+        "Drop in the numbers naturally as proof (5.2% to 14.8% CTR, ₹4.21 CPC, 17/19 conversions, 11.04% CTR, ₹29 cost cap).",
+        "Be relaxed and honest about mistakes: Homecrust ACoS proved that clicks mean nothing without conversion readiness.",
         "Point → Example → Learning framework for general questions.",
-        "Objective → My Actions → Results → Learning framework for project questions.",
-        "Take a breath. You did the work, you have the metrics, and you understand profitable growth."
+        "Objective → Actions → Results → Takeaway framework for project questions.",
+        "Take a breath. You did the work, you have the metrics, and you know this inside out."
       ]
     }
   },

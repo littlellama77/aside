@@ -38,9 +38,9 @@ export function PrepareScreen() {
   const [syncedAlert, setSyncedAlert] = useState(null);
 
   const toneOptions = [
-    "Nora Ephron (Warm, Witty & Candid)",
+    "Natural & Light (Human with Numbers)",
+    "Conversational & Friendly",
     "Executive Leader",
-    "Warm Director",
     "Casual Lead",
     "Crisp Strategic",
     "Direct"

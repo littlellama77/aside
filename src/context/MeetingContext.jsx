@@ -67,10 +67,10 @@ export function MeetingProvider({ children }) {
   // User Profile
   const [userName, setUserName] = useState(DEFAULT_USER);
   const [speakingStyle, setSpeakingStyle] = useState({
-    tone: "Nora Ephron (Warm, Witty & Candid)",
+    tone: "Natural & Light (Human with Numbers)",
     depthId: "detailed",
     depth: "Executive Depth (Longer & Detailed)",
-    userQuirks: "Conversational, disarmingly candid, and observant in the style of Nora Ephron. I lead with human stories, treat numbers as narrative clues, and speak with warmth and clarity."
+    userQuirks: "Friendly, natural, down-to-earth, and articulate. I speak like a real human having a great conversation on a video call—light, confident, honest about what worked and what didn't, and weaving real numbers in naturally without sounding pretentious or scripted."
   });
 
   // Pre-Meeting Notes & Executive Memory Brief
