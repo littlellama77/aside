@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useMeeting } from '../context/MeetingContext';
 import { NotesDrawer } from './NotesDrawer';
 import { AiSettingsModal } from './AiSettingsModal';
