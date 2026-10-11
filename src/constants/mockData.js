@@ -18,32 +18,32 @@ export const CONVERSATION_STATES = {
 };
 
 export const BUY_ME_A_SECOND_PHRASES = [
-  "Ooh, that's such a great question to think through—give me one second to frame it.",
-  "Let me think about that for a second—there's actually a really cool story in the data there.",
-  "Wait, let me just check that in my head so I don't give you the wrong number.",
-  "Oh, I love looking at that piece of it—give me two quick seconds on that.",
-  "Give me two seconds on that, just gathering my thoughts because there were a few moving parts."
+  "Give me two seconds on that—just organizing my thoughts.",
+  "Let me think about the best way to frame that for a second.",
+  "That's a really good question—give me a quick second to pull up that context.",
+  "Let me just verify that in my head so I give you the exact picture.",
+  "Give me a quick moment on that, there were a few moving parts."
 ];
 
 export const NATURAL_HUMAN_FILLERS = [
-  "“And honestly, what made me super curious there was…”",
-  "“And what was so exciting to see in the data was…”",
-  "“Which was such a fascinating learning puzzle, because…”",
-  "“To give you a bit of context on why that was so interesting…”",
-  "“And looking back at the numbers, what I really wanted to explore further was…”",
-  "“So yeah, that really sparked my curiosity about…”",
-  "“Which sounds pretty simple on paper, but digging into the math showed us…”"
+  "“And what really stood out in the data was…”",
+  "“To give you a bit of context on why that happened…”",
+  "“And what surprised me most when looking at the numbers was…”",
+  "“So in terms of what we learned from that test…”",
+  "“Which showed us that when you look underneath the top-line numbers…”",
+  "“And honestly, looking back at the results, what I found most interesting was…”",
+  "“To put that into perspective with our initial goals…”"
 ];
 
 export const THINKING_INTRO_SENTENCES = [
-  "“Ooh, I love thinking about that—give me two seconds to frame it…”",
-  "“That’s actually something I got super curious about, let me walk through it…”",
-  "“Honestly, what fascinated me most when digging into that was…”",
-  "“Yeah totally! I was actually so excited when we were testing that…”",
-  "“Hmm, let me think about the best way to explain what we found…”",
-  "“Right! What was really cool in the data was…”",
-  "“Oh that’s such a great question—let me rewind to what we discovered…”",
-  "“Yeah, so the thing that really pulled me in there was…”"
+  "“Yeah, good question—give me two seconds to frame that…”",
+  "“Honestly, what stood out to me most there was…”",
+  "“To give you some quick context on how we approached that…”",
+  "“Yeah, let me walk you through what we saw in the data…”",
+  "“Right, so the main thing we focused on there was…”",
+  "“That’s a great question—let me break down what happened…”",
+  "“Yeah, so the way I look at that is…”",
+  "“Let me give you the quick background on that test…”"
 ];
 
 export const PRESET_NOTE_TEMPLATES = [
