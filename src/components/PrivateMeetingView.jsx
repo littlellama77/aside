@@ -399,14 +399,14 @@ export function PrivateMeetingView({ onOpenPairingModal }) {
                 </button>
               )}
 
-              {/* Disclosure: Short Glance vs Full Version */}
+              {/* Disclosure: Short Glance vs Full In-Depth Version */}
               {!isYourTurn && (
                 <button
                   type="button"
                   className="btn-toggle-disclosure"
                   onClick={() => setDisclosureLevel(disclosureLevel === 'expanded' ? 'glance' : 'expanded')}
                 >
-                  {disclosureLevel === 'expanded' ? "Show shorter answer" : "+ Full executive version"}
+                  {disclosureLevel === 'expanded' ? "Show concise summary" : "+ Full in-depth executive version"}
                 </button>
               )}
             </div>

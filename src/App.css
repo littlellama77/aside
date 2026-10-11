@@ -4182,9 +4182,10 @@
 .spoken-phrase-content {
   font-size: 1.15rem;
   font-weight: 500;
-  line-height: 1.65;
+  line-height: 1.7;
   color: var(--text-main);
   margin: 0.85rem 0 1.1rem;
+  white-space: pre-line;
 }
 
 .spoken-turn-controls {

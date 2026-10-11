@@ -127,7 +127,7 @@ export function MeetingProvider({ children }) {
   // Emergency & Utility Controls
   const [isStuckModalOpen, setIsStuckModalOpen] = useState(false);
   const [stallingPhrase, setStallingPhrase] = useState(null);
-  const [disclosureLevel, setDisclosureLevel] = useState('glance'); // 'glance' | 'expanded' | 'context'
+  const [disclosureLevel, setDisclosureLevel] = useState('expanded'); // 'expanded' (comprehensive) | 'glance' (concise)
   const [speechActive, setSpeechActive] = useState(false);
 
   // Mini Floating Assistant Controls
@@ -392,7 +392,7 @@ export function MeetingProvider({ children }) {
     setActiveQuestion(q);
     setStallingPhrase(null);
     setIsStuckModalOpen(false);
-    setDisclosureLevel('glance');
+    setDisclosureLevel('expanded');
 
     // Step 1: Meeting Audio active
     setMeetingAudio({ isSpeaking: true, speaker: q.speaker, level: 85 });
