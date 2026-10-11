@@ -1,8 +1,4 @@
-/**
- * openaiService.js
- * Real-time OpenAI GPT integration for Aside Conversation Companion.
- * Uses gpt-4o-mini or gpt-4o to synthesize articulate, leader-grade meeting cues.
- */
+import { extractCoreQuestionFromSpeech } from '../utils/notesSynthesizer';
 
 const SYSTEM_PROMPT = `You are Aside, a discreet real-time executive conversation companion for high-stakes meetings, interviews, presentations, and board discussions.
 The user is live in a meeting. An attendee or interviewer just asked a question or gave a prompt.
@@ -26,6 +22,11 @@ DEPTH & DETAIL GUIDELINES:
 9. CREDIBILITY GUARDRAIL: If the question asks for an audited granular number NOT found in notes, do not invent figures. Say: "I want to be precise and check the verified report rather than guess an off-the-cuff number—let me pull that up right after our call."
 10. ACCENTS & SPEECH-TO-TEXT NOISE: Decode phonetically transcribed or unpunctuated questions and bridge them seamlessly into clear, warm answers.
 11. INTERRUPTIONS & FOLLOW-UP QUESTIONS: If interrupted midway, resolve conversational threads gracefully and provide a crisp, balanced answer.
+12. LONG / COMPOUND INTERVIEW QUESTIONS & PREAMBLE:
+   - In interviews, people often speak for several sentences with backstory, company context, or general filler before reaching the actual question.
+   - The actual question is almost always in the closing sentence or clause.
+   - NEVER get distracted or sidetracked by opening backstory, conversational preamble, or general pleasantries!
+   - Anchor your answer directly to the core question being asked, while naturally weaving in the corresponding verified metrics and facts from the user's notes.
 
 Always respond in strictly valid JSON with this schema:
 {
@@ -46,6 +47,8 @@ export async function generateAnswerWithGPT(questionText, rawNotesText, executiv
     throw new Error("No OpenAI API key provided");
   }
 
+  const { coreQuestion, isCompound } = extractCoreQuestionFromSpeech(questionText);
+
   const userPrompt = `Meeting Notes & Strategic Context:
 """
 ${rawNotesText || "General executive meeting context"}
@@ -56,10 +59,14 @@ Recent Conversation Dialogue (Immediate context prior to this question):
 ${recentHistory}
 """
 ` : ''}
-Attendee Question (or Interruption):
+Full Attendee Speech Turn:
 "${questionText}"
+${isCompound && coreQuestion ? `
+Core Question Identified (The actual ask to focus on):
+"${coreQuestion}"
+` : ''}
 
-Synthesize the Aside executive answer card now. Provide a comprehensive, in-depth, rich response with substantial detail, thorough explanations, concrete metrics, and strategic takeaways.`;
+Synthesize the Aside executive answer card now. Directly address the core question with concrete metrics, thorough explanations, human phrasing, and verified notes facts.`;
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 14000);

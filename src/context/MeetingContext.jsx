@@ -145,6 +145,7 @@ export function MeetingProvider({ children }) {
   const silenceTimerRef = useRef(null);
   const lastTriggeredTextRef = useRef('');
   const lastTriggeredTimeRef = useRef(0);
+  const turnTranscriptBufferRef = useRef('');
 
   // Tab Audio Capture (DisplayMedia API)
   const [isTabAudioCapturing, setIsTabAudioCapturing] = useState(false);
@@ -574,6 +575,7 @@ export function MeetingProvider({ children }) {
   const askCustomQuestion = useCallback(async (customText, speakerName = "Meeting Attendee") => {
     if (!customText || !customText.trim()) return;
     const cleanText = customText.trim();
+    turnTranscriptBufferRef.current = '';
 
     // Prevent duplicate triggers within 3 seconds for the exact same text
     if (lastTriggeredTextRef.current === cleanText && Date.now() - lastTriggeredTimeRef.current < 3000) {
@@ -775,6 +777,7 @@ export function MeetingProvider({ children }) {
         clearTimeout(silenceTimerRef.current);
       }
       isListeningActiveRef.current = false;
+      turnTranscriptBufferRef.current = '';
       if (recognitionRef.current) {
         try { recognitionRef.current.abort(); } catch (e) {}
         recognitionRef.current = null;
@@ -784,6 +787,7 @@ export function MeetingProvider({ children }) {
       showSystemNotice("Microphone listening paused.");
     } else {
       isListeningActiveRef.current = true;
+      turnTranscriptBufferRef.current = '';
       setIsLiveListening(true);
       setLiveTranscript('');
       showSystemNotice(`🎙️ Listening to meeting audio (${speechLocale})!`);
@@ -808,46 +812,54 @@ export function MeetingProvider({ children }) {
 
           recognition.onresult = (event) => {
             let interim = '';
-            let final = '';
+            let newFinal = '';
             for (let i = event.resultIndex; i < event.results.length; ++i) {
               const transcript = event.results[i][0].transcript;
               if (event.results[i].isFinal) {
-                final += transcript;
+                newFinal += transcript;
               } else {
                 interim += transcript;
               }
             }
-            const spokenText = (final || interim).trim();
-            if (spokenText) {
-              setLiveTranscript(spokenText);
+
+            if (newFinal.trim()) {
+              turnTranscriptBufferRef.current = (
+                turnTranscriptBufferRef.current + ' ' + newFinal.trim()
+              ).trim();
+            }
+
+            // The full accumulated speech turn across all sentences so far + current live interim
+            const currentTurnText = (
+              turnTranscriptBufferRef.current + (interim ? ' ' + interim.trim() : '')
+            ).trim();
+
+            if (currentTurnText) {
+              setLiveTranscript(currentTurnText);
             }
 
             if (silenceTimerRef.current) {
               clearTimeout(silenceTimerRef.current);
             }
 
-            // Candidate text to evaluate (prioritizes final sentence, or current spoken stream)
-            const candidate = (final.trim() || spokenText).trim();
-
-            if (candidate.length >= 6) {
-              const isPrompt = isMeetingPromptOrQuestion(candidate);
-
-              // 1. If Chrome explicitly finalized the phrase and it's a meeting prompt, trigger immediately!
-              if (final.trim().length >= 6 && isPrompt) {
-                askCustomQuestion(final.trim(), "Meeting Participant (Transcribed)");
-                return;
-              }
-
-              // 2. Set an intelligent 900ms silence watchdog timer:
-              // When the speaker pauses after speaking a prompt (e.g. "hey so tell me about yourself"),
-              // automatically synthesize the answer so no question is ever lost!
+            // Conversational Debounce Watchdog (1500ms):
+            // Natural human conversational pauses and mid-sentence breaths are 400-1000ms.
+            // Never trigger prematurely on intermediate clauses or preambles!
+            // Wait for a 1500ms pause to ensure the speaker has genuinely yielded the floor.
+            if (currentTurnText.length >= 6) {
               silenceTimerRef.current = setTimeout(() => {
-                if (isListeningActiveRef.current && candidate.length >= 6) {
-                  if (isMeetingPromptOrQuestion(candidate) || candidate.split(/\s+/).length >= 4) {
-                    askCustomQuestion(candidate, "Meeting Participant (Transcribed)");
+                if (isListeningActiveRef.current) {
+                  const candidateToProcess = (
+                    turnTranscriptBufferRef.current || currentTurnText
+                  ).trim();
+
+                  if (candidateToProcess.length >= 6) {
+                    if (isMeetingPromptOrQuestion(candidateToProcess) || candidateToProcess.split(/\s+/).length >= 4) {
+                      turnTranscriptBufferRef.current = '';
+                      askCustomQuestion(candidateToProcess, "Meeting Participant (Transcribed)");
+                    }
                   }
                 }
-              }, 900);
+              }, 1500);
             }
           };
 

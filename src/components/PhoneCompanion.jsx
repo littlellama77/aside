@@ -51,6 +51,7 @@ export function PhoneCompanion({
   const recognitionRef = useRef(null);
   const isListeningActiveRef = useRef(false);
   const silenceTimerRef = useRef(null);
+  const turnTranscriptBufferRef = useRef('');
 
   // Initialize phone connection via companionSync
   useEffect(() => {
@@ -98,6 +99,7 @@ export function PhoneCompanion({
   const handleProcessCandidateQuestion = (text, speaker = "Laptop Speaker Audio") => {
     if (!text || text.trim().length < 5) return;
     const clean = text.trim();
+    turnTranscriptBufferRef.current = '';
 
     // 1. Synthesize right on phone via context
     if (context?.askCustomQuestion) {
@@ -127,6 +129,7 @@ export function PhoneCompanion({
 
     if (localIsListening) {
       isListeningActiveRef.current = false;
+      turnTranscriptBufferRef.current = '';
       if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
       if (recognitionRef.current) {
         try { recognitionRef.current.abort(); } catch {}
@@ -136,6 +139,7 @@ export function PhoneCompanion({
       setLocalTranscript('');
     } else {
       isListeningActiveRef.current = true;
+      turnTranscriptBufferRef.current = '';
       setLocalIsListening(true);
       setLocalTranscript('');
 
@@ -159,35 +163,46 @@ export function PhoneCompanion({
 
           recognition.onresult = (event) => {
             let interim = '';
-            let final = '';
+            let newFinal = '';
             for (let i = event.resultIndex; i < event.results.length; ++i) {
               const transcript = event.results[i][0].transcript;
-              if (event.results[i].isFinal) final += transcript;
+              if (event.results[i].isFinal) newFinal += transcript;
               else interim += transcript;
             }
-            const spoken = (final || interim).trim();
-            if (spoken) setLocalTranscript(spoken);
+
+            if (newFinal.trim()) {
+              turnTranscriptBufferRef.current = (
+                turnTranscriptBufferRef.current + ' ' + newFinal.trim()
+              ).trim();
+            }
+
+            const currentTurnText = (
+              turnTranscriptBufferRef.current + (interim ? ' ' + interim.trim() : '')
+            ).trim();
+
+            if (currentTurnText) setLocalTranscript(currentTurnText);
 
             if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
 
-            const candidate = (final.trim() || spoken).trim();
-            if (candidate.length >= 6) {
-              const isPrompt = isMeetingPromptOrQuestion(candidate);
-
-              // Immediate trigger if Chrome marked sentence final & it is a question
-              if (final.trim().length >= 6 && isPrompt) {
-                handleProcessCandidateQuestion(final.trim());
-                return;
-              }
-
-              // Silence watchdog (900ms pause after speaking a prompt)
+            // Conversational Debounce Watchdog (1500ms):
+            // Natural human conversational pauses and mid-sentence breaths are 400-1000ms.
+            // Never trigger prematurely on intermediate clauses or preambles!
+            // Wait for a 1500ms pause to ensure the speaker has genuinely yielded the floor.
+            if (currentTurnText.length >= 6) {
               silenceTimerRef.current = setTimeout(() => {
-                if (isListeningActiveRef.current && candidate.length >= 6) {
-                  if (isMeetingPromptOrQuestion(candidate) || candidate.split(/\s+/).length >= 4) {
-                    handleProcessCandidateQuestion(candidate);
+                if (isListeningActiveRef.current) {
+                  const candidateToProcess = (
+                    turnTranscriptBufferRef.current || currentTurnText
+                  ).trim();
+
+                  if (candidateToProcess.length >= 6) {
+                    if (isMeetingPromptOrQuestion(candidateToProcess) || candidateToProcess.split(/\s+/).length >= 4) {
+                      turnTranscriptBufferRef.current = '';
+                      handleProcessCandidateQuestion(candidateToProcess);
+                    }
                   }
                 }
-              }, 900);
+              }, 1500);
             }
           };
 

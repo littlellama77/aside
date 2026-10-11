@@ -247,12 +247,73 @@ export function normalizeSpokenPhonetics(text) {
 }
 
 /**
+ * Extracts the core question and intent from a long, rambling, or compound speech turn.
+ * In conversational English (and interview questions in particular), speakers often start
+ * with conversational context, preamble, or pleasantries, and place the actual ask in the
+ * final sentence or interrogative clause.
+ */
+export function extractCoreQuestionFromSpeech(fullText) {
+  if (!fullText || typeof fullText !== 'string') {
+    return { coreQuestion: '', fullText: '', isCompound: false };
+  }
+
+  const cleaned = fullText.trim();
+  if (cleaned.length < 15) {
+    return { coreQuestion: cleaned, fullText: cleaned, isCompound: false };
+  }
+
+  // Split into sentences / major clauses
+  const sentences = cleaned
+    .split(/(?<=[.?!;])\s+|\n+/)
+    .map(s => s.trim())
+    .filter(Boolean);
+
+  if (sentences.length <= 1) {
+    return { coreQuestion: cleaned, fullText: cleaned, isCompound: false };
+  }
+
+  // Look from the back towards the front for the sentence that contains an interrogative or meeting prompt
+  const INTERROGATIVE_REGEX = /\b(what|how|why|where|when|who|which|can you|could you|would you|will you|tell me|tell us|walk me|walk us|explain|describe|share|give us|give me|thoughts on|think about|your take|your view|result|outcome|learn|takeaway|scale|handle|manage|approach|evaluate|outcome)\b|\?/i;
+
+  let chosenSentence = '';
+  for (let i = sentences.length - 1; i >= 0; i--) {
+    const s = sentences[i];
+    if (INTERROGATIVE_REGEX.test(s)) {
+      chosenSentence = s;
+      break;
+    }
+  }
+
+  // If no specific sentence matched the interrogative regex, take the last sentence
+  if (!chosenSentence) {
+    chosenSentence = sentences[sentences.length - 1];
+  }
+
+  // If the chosen sentence is very short (< 4 words), combine it with the penultimate sentence
+  if (chosenSentence.split(/\s+/).length < 4 && sentences.length >= 2) {
+    chosenSentence = `${sentences[sentences.length - 2]} ${chosenSentence}`;
+  }
+
+  return {
+    coreQuestion: chosenSentence.trim(),
+    fullText: cleaned,
+    isCompound: true
+  };
+}
+
+/**
  * BM25 / Ranked relevance search across thousands of lines & sections
+ * Gives 3x boost to the closing core question so long preamble never dilutes results!
  */
 export function findTopMatchingSections(query, chunks, maxSections = 3) {
   if (!chunks || chunks.length === 0) return [];
   const normalizedQuery = normalizeSpokenPhonetics(query);
   const qLower = normalizedQuery.toLowerCase();
+
+  // Extract core closing question to prioritize what is actually being asked
+  const { coreQuestion } = extractCoreQuestionFromSpeech(normalizedQuery);
+  const coreLower = (coreQuestion || normalizedQuery).toLowerCase();
+  const coreTokens = coreLower.split(/[^a-z0-9%$\-+]+/).filter(w => w.length > 2 && !STOP_WORDS.has(w));
   const queryTokens = qLower.split(/[^a-z0-9%$\-+]+/).filter(w => w.length > 2 && !STOP_WORDS.has(w));
 
   const scoredChunks = chunks.map(chunk => {
@@ -260,28 +321,44 @@ export function findTopMatchingSections(query, chunks, maxSections = 3) {
     const chunkLower = chunk.text.toLowerCase();
     const titleLower = chunk.title.toLowerCase();
 
-    // 1. Exact phrase match boost (+25)
-    if (chunkLower.includes(qLower)) {
+    // 1. Core question exact phrase match boost (+35)
+    if (coreLower.length > 8 && chunkLower.includes(coreLower)) {
+      score += 35;
+    } else if (chunkLower.includes(qLower)) {
       score += 25;
     }
 
-    // 2. Query words in Title (+12 each)
-    queryTokens.forEach(t => {
+    // 2. Query words in Title: core tokens get +16, general preamble tokens get +6
+    coreTokens.forEach(t => {
       if (titleLower.includes(t)) {
-        score += 12;
+        score += 16;
+      }
+    });
+    queryTokens.forEach(t => {
+      if (!coreTokens.includes(t) && titleLower.includes(t)) {
+        score += 6;
       }
     });
 
-    // 3. Query words in Chunk Body (+4 each)
-    queryTokens.forEach(t => {
+    // 3. Query words in Chunk Body: core tokens get +8, general preamble tokens get +3
+    coreTokens.forEach(t => {
       if (chunk.wordTokens.has(t)) {
-        score += 4;
+        score += 8;
+      }
+    });
+    queryTokens.forEach(t => {
+      if (!coreTokens.includes(t) && chunk.wordTokens.has(t)) {
+        score += 3;
       }
     });
 
     // 4. Metric matches (e.g. searching for a number or label)
     chunk.metrics.forEach(m => {
-      if (qLower.includes(m.label.toLowerCase()) || qLower.includes(m.value.toLowerCase())) {
+      const mLabel = m.label.toLowerCase();
+      const mVal = m.value.toLowerCase();
+      if (coreLower.includes(mLabel) || coreLower.includes(mVal)) {
+        score += 16;
+      } else if (qLower.includes(mLabel) || qLower.includes(mVal)) {
         score += 8;
       }
     });
@@ -384,10 +461,15 @@ export function parseNotesToExecutiveBrief(rawText) {
 
 /**
  * Synthesizes human, leader-like answers for ANY question
- * using BM25 chunk retrieval across even huge amounts of notes!
+ * using intelligent scenario matching and BM25 chunk retrieval across even huge amounts of notes!
  */
 export function synthesizeLeaderAnswerForCustomQuestion(questionText, rawNotesText, executiveBrief, speakingStyle = {}) {
-  const qLower = questionText.toLowerCase();
+  const normalizedQuery = normalizeSpokenPhonetics(questionText);
+  const qLower = normalizedQuery.toLowerCase();
+
+  // Extract core closing question to avoid getting misled by opening preamble
+  const { coreQuestion } = extractCoreQuestionFromSpeech(normalizedQuery);
+  const coreLower = (coreQuestion || normalizedQuery).toLowerCase();
   const chunks = chunkLargeNotes(rawNotesText);
   const topSections = findTopMatchingSections(questionText, chunks, 3);
   const bestSection = topSections[0] || null;
@@ -396,27 +478,133 @@ export function synthesizeLeaderAnswerForCustomQuestion(questionText, rawNotesTe
   const guardrails = executiveBrief?.guardrails || [];
   const rememberItems = executiveBrief?.thingsToRemember || [];
 
-  // Determine intent category
+  // =========================================================================
+  // SMART INTERVIEW SCENARIO MATCHER (Crealytics / Performance Marketing)
+  // Ensures long, compound, or conversational questions map to the exact verified answer
+  // =========================================================================
+  const textLower = (rawNotesText || "").toLowerCase();
+  const isCrealyticsContext = textLower.includes("crealytics") ||
+                             textLower.includes("torsten") ||
+                             textLower.includes("kraftshala") ||
+                             textLower.includes("sportskeeda") ||
+                             textLower.includes("unleavables") ||
+                             textLower.includes("homecrust");
+
+  if (isCrealyticsContext) {
+    const interviewScenarios = generateQuestionsFromNotes(rawNotesText, "crealytics-interview");
+    let matchedScenario = null;
+
+    // Check project & topic matches in order of specificity:
+
+    // 1. Google Search Ads (CTR 5.20%->14.78%, CPC ₹5.33->₹4.21, 17/19 conversions)
+    const isGoogleSearch = (coreLower.includes("google") || coreLower.includes("search ad") || coreLower.includes("search campaign") || coreLower.includes("negative keyword") || coreLower.includes("quality score") || coreLower.includes("cpc") || (coreLower.includes("ctr") && !coreLower.includes("meta") && !coreLower.includes("unleavables"))) ||
+      (qLower.includes("google") || (qLower.includes("search") && qLower.includes("kraftshala")));
+    if (isGoogleSearch) {
+      matchedScenario = interviewScenarios.find(s => s.id === "crealytics-q3");
+    }
+
+    // 2. Unleavables Meta Ads (Cost Cap vs Highest Volume, ₹91->₹29, 11.04% CTR)
+    const isMetaUnleavables = !matchedScenario && (
+      coreLower.includes("unleavables") || coreLower.includes("meta") || coreLower.includes("facebook") ||
+      coreLower.includes("cost cap") || coreLower.includes("highest volume") || coreLower.includes("add to cart") ||
+      qLower.includes("unleavables") || (qLower.includes("meta") && (qLower.includes("bidding") || qLower.includes("cap") || qLower.includes("apparel")))
+    );
+    if (isMetaUnleavables) {
+      matchedScenario = interviewScenarios.find(s => s.id === "crealytics-q4");
+    }
+
+    // 3. Homecrust Amazon PPC / Mistakes / Challenges / What went wrong
+    const isAmazonHomecrust = !matchedScenario && (
+      coreLower.includes("homecrust") || coreLower.includes("amazon") || coreLower.includes("acos") ||
+      coreLower.includes("daypart") || coreLower.includes("173") ||
+      coreLower.includes("didn't work") || coreLower.includes("didn't go") || coreLower.includes("went wrong") ||
+      coreLower.includes("mistake") || coreLower.includes("failed") || coreLower.includes("failure") ||
+      coreLower.includes("challenge") || coreLower.includes("not according to plan") || coreLower.includes("hardest campaign") ||
+      qLower.includes("homecrust") || (qLower.includes("amazon") && qLower.includes("acos")) ||
+      ((qLower.includes("mistake") || qLower.includes("went wrong") || qLower.includes("didn't go") || qLower.includes("not according to plan")) && !qLower.includes("google") && !qLower.includes("meta"))
+    );
+    if (isAmazonHomecrust) {
+      matchedScenario = interviewScenarios.find(s => s.id === "crealytics-q5");
+    }
+
+    // 4. Adaptability / Learning Quickly / NFL from Scratch
+    const isAdaptability = !matchedScenario && (
+      coreLower.includes("comfort zone") || coreLower.includes("new field") || coreLower.includes("new domain") ||
+      coreLower.includes("learn quickly") || coreLower.includes("adapt") || coreLower.includes("unfamiliar") ||
+      coreLower.includes("nfl") || coreLower.includes("football") || coreLower.includes("from scratch") ||
+      qLower.includes("comfort zone") || qLower.includes("learn quickly") || qLower.includes("new domain") || qLower.includes("from scratch")
+    );
+    if (isAdaptability) {
+      matchedScenario = interviewScenarios.find(s => s.id === "crealytics-q6");
+    }
+
+    // 5. Why Crealytics / Culture Fit / Profitable Growth
+    const isWhyCrealytics = !matchedScenario && (
+      coreLower.includes("why crealytics") || coreLower.includes("why this role") || coreLower.includes("why us") ||
+      coreLower.includes("profitable growth") || coreLower.includes("retail media") || coreLower.includes("what draws you") ||
+      qLower.includes("why crealytics") || qLower.includes("why this role") || qLower.includes("why do you want to work")
+    );
+    if (isWhyCrealytics) {
+      matchedScenario = interviewScenarios.find(s => s.id === "crealytics-q2");
+    }
+
+    // 6. Questions for Interviewer (Torsten)
+    const isQuestionsToAsk = !matchedScenario && (
+      coreLower.includes("questions for me") || coreLower.includes("questions for us") || coreLower.includes("anything to ask") ||
+      coreLower.includes("any questions for") || coreLower.includes("have any questions") ||
+      qLower.includes("questions for me") || qLower.includes("questions for us") || qLower.includes("any questions for me")
+    );
+    if (isQuestionsToAsk) {
+      matchedScenario = interviewScenarios.find(s => s.id === "crealytics-q7");
+    }
+
+    // 7. Candidate Story / Background / Tell me about yourself
+    // (Only if it's NOT a specific project question!)
+    const isCandidateStory = !matchedScenario && (
+      coreLower.includes("yourself") || coreLower.includes("background") || coreLower.includes("journey") ||
+      coreLower.includes("who are you") || coreLower.includes("sportskeeda") ||
+      (coreLower.includes("tell me about") && !coreLower.includes("campaign") && !coreLower.includes("project") && !coreLower.includes("time when")) ||
+      qLower.includes("tell me about yourself") || qLower.includes("tell us about yourself") || qLower.includes("walk me through your resume")
+    );
+    if (isCandidateStory) {
+      matchedScenario = interviewScenarios.find(s => s.id === "crealytics-q1");
+    }
+
+    if (matchedScenario) {
+      return {
+        ...matchedScenario,
+        id: `matched-${Date.now()}`,
+        question: questionText, // Keep user's exact spoken question for display!
+        speaker: "Meeting Attendee",
+        stuckRecovery: {
+          ...matchedScenario.stuckRecovery,
+          questionSummary: coreQuestion || questionText
+        }
+      };
+    }
+  }
+
+  // Determine general intent category
   let category = "expected";
   let topic = bestSection?.title || "Meeting Inquiry";
   let babeTag = "babe 👀 executive answer";
   let isUnknown = false;
 
   // Check for personal, introductory, or high-level strategic overview questions
-  const isIntro = qLower.includes("yourself") ||
-                  qLower.includes("tell me about") ||
-                  qLower.includes("tell us about") ||
-                  qLower.includes("introduce") ||
-                  qLower.includes("background") ||
-                  qLower.includes("who are you") ||
-                  qLower.includes("overview");
+  const isIntro = (coreLower.includes("yourself") ||
+                   coreLower.includes("who are you") ||
+                   (coreLower.includes("background") && !coreLower.includes("campaign")) ||
+                   coreLower.includes("introduce yourself")) &&
+                  !coreLower.includes("project") &&
+                  !coreLower.includes("metric") &&
+                  !coreLower.includes("campaign");
 
   if (isIntro) {
     category = "intro";
     topic = "Executive Overview";
     babeTag = "babe 👀 concise executive intro";
-    const glanceSay = "Sure, absolutely. To give you a high-level overview: I'm leading execution across our key initiatives, focusing on performance stability and cross-functional alignment. In our current cycle, our priority is disciplined execution against our core benchmarks while scaling our next milestone.";
-    const expandedSay = "Sure, absolutely. To give you a complete picture: I lead execution across our strategic priorities, partnering closely with cross-functional stakeholders. Currently, my primary focus is ensuring performance stability, protecting core efficiency, and scaling our validated roadmap initiatives. In this meeting, I have our recent performance data and strategic rationale ready to dive into wherever helpful.";
+    const glanceSay = "Sure, absolutely. To give you the high-level picture: I focus on performance marketing and campaign execution, connecting audience psychology with quantitative data. In my recent work, I've managed hands-on campaigns across search, social, and marketplaces, focusing on real business impact and profitable unit economics.";
+    const expandedSay = "Sure, absolutely. To give you a complete picture: I started out in editorial where I learned how to capture audience attention under fast deadlines, and then transitioned into performance marketing to get hands-on with the numbers and experimentation. Across my recent projects, I've focused on testing bidding strategies, refining search intent, and scaling ad efficiency. In this meeting, I have our verified results and campaign learnings ready to walk through wherever helpful.";
     return {
       id: `custom-${Date.now()}`,
       category,
@@ -427,13 +615,13 @@ export function synthesizeLeaderAnswerForCustomQuestion(questionText, rawNotesTe
       simplestQuestion: "They're asking for an introductory overview of your role, focus, and background.",
       glanceSay,
       glanceBullets: [
-        "• Strategic execution lead",
-        "• Focus: performance stability & roadmap delivery",
-        "• Current priority: scaling validated milestones"
+        "• Performance marketing & audience data focus",
+        "• Hands-on across search, social, and marketplaces",
+        "• Core priority: profitable growth and verified metrics"
       ],
       expandedSay,
-      supportingContext: "Executive introduction aligned with your leadership role.",
-      extraInformation: "Grounded in your leadership profile and current project context.",
+      supportingContext: "Executive introduction aligned with your background.",
+      extraInformation: "Grounded in your profile and hands-on experience.",
       isUnknown: false
     };
   }
@@ -446,7 +634,7 @@ export function synthesizeLeaderAnswerForCustomQuestion(questionText, rawNotesTe
     category = "unknown";
     isUnknown = true;
     babeTag = "babe, this isn't in your notes 🔒 (preserve credibility)";
-    const glanceSay = "I want to be precise and not give you an off-the-cuff figure—that specific detail isn't in my notes right now. Let me pull that report post-meeting and follow up directly with the verified numbers.";
+    const glanceSay = "I want to be precise and check the verified report rather than guess an off-the-cuff number—let me pull that up right after our call.";
     const expandedSay = "I want to make sure we're making decisions on verified data rather than an estimate, so I won't guess on that specific breakout off the top of my head. I have our high-level benchmarks in front of me, but let me pull the audited granular data right after we wrap up today and send the exact breakdown over to the team.";
     return {
       id: `custom-${Date.now()}`,
@@ -491,17 +679,17 @@ export function synthesizeLeaderAnswerForCustomQuestion(questionText, rawNotesTe
 
   // Construct Leader Framing
   let opening = "Yeah, happy to address that.";
-  if (qLower.includes("why")) {
+  if (coreLower.includes("why")) {
     opening = "Yeah, happy to walk through the rationale behind that.";
     babeTag = "babe 👀 clear strategic rationale";
-  } else if (qLower.includes("what should") || qLower.includes("recommend") || qLower.includes("opinion") || qLower.includes("next step")) {
+  } else if (coreLower.includes("what should") || coreLower.includes("recommend") || coreLower.includes("opinion") || coreLower.includes("next step")) {
     opening = "Looking at where things stand, my recommendation is very clear.";
-    babeTag = "babe 👀 decisive executive recommendation";
+    babeTag = "babe 👀 decisive recommendation";
     category = "opinion";
-  } else if (qLower.includes("how") || qLower.includes("status")) {
+  } else if (coreLower.includes("how") || coreLower.includes("status")) {
     opening = "To give you a direct status update on that:";
     babeTag = "babe 👀 status & performance update";
-  } else if (qLower.includes("risk") || qLower.includes("delay") || qLower.includes("concern") || qLower.includes("problem")) {
+  } else if (coreLower.includes("risk") || coreLower.includes("delay") || coreLower.includes("concern") || coreLower.includes("problem") || coreLower.includes("mistake")) {
     opening = "That's a fair question, and I want to be upfront about what we ran into.";
     babeTag = "babe 👀 accountability & proactive solution";
     category = "reflective";
@@ -510,25 +698,17 @@ export function synthesizeLeaderAnswerForCustomQuestion(questionText, rawNotesTe
   // Build the Metric Clause
   let metricMention = "";
   if (relevantMetrics.length > 0) {
-    metricMention = relevantMetrics.map(m => `${m.label} is currently at ${m.value}`).join(', and ');
+    metricMention = relevantMetrics.map(m => `${m.label} is at ${m.value}`).join(', and ');
   } else if (metrics.length > 0) {
     const topM = metrics[0];
     metricMention = `${topM.label} is currently holding at ${topM.value}`;
   }
 
-  // Build the Guardrail / Forward Guidance Clause
-  let guardrailMention = "";
-  if (guardrails.length > 0) {
-    guardrailMention = `To ensure we don't overextend, our operating rule is to ${guardrails[0].toLowerCase().replace(/^do not\s+|^don't\s+/, 'hold off on ')}.`;
-  } else {
-    guardrailMention = "Our immediate focus is validating results before making broader structural shifts.";
-  }
-
   // Assemble Glanceable Leader Answer (2-3 sentences, articulate, punchy)
-  const glanceSay = `${opening} ${coreFact}. ${metricMention ? `As a reference point, ${metricMention}. ` : ''}Our next priority is keeping execution steady while we validate the upcoming milestone.`;
+  const glanceSay = `${opening} ${coreFact}. ${metricMention ? `As a reference point, ${metricMention}. ` : ''}And honestly, the key takeaway was validating our data and keeping execution steady.`;
 
   // Assemble Full Expanded Leader Answer (4-6 sentences, structured executive narrative)
-  const expandedSay = `${opening} If we step back and look at the full picture, ${coreFact.toLowerCase().startsWith('i ') ? coreFact : coreFact.charAt(0).toLowerCase() + coreFact.slice(1)}. ${metricMention ? `Specifically, ${metricMention}, which gives us a solid baseline to build on. ` : ''}${guardrailMention} Going forward, the decisive milestone is confirming this week's test results so we can scale with high confidence and keep cross-functional stakeholders aligned.`;
+  const expandedSay = `${opening} If we step back and look at the full picture, ${coreFact.toLowerCase().startsWith('i ') ? coreFact : coreFact.charAt(0).toLowerCase() + coreFact.slice(1)}. ${metricMention ? `Specifically, ${metricMention}, which gives us a solid baseline to build on. ` : ''}Looking back, the decisive lesson was confirming our test results so we could scale with real confidence.`;
 
   // Bullets
   const glanceBullets = [
@@ -553,7 +733,7 @@ export function synthesizeLeaderAnswerForCustomQuestion(questionText, rawNotesTe
       : `Synthesized from your notes: "${coreFact.slice(0, 90)}..."`,
     extraInformation: bestSection && bestSection.lines.length > 2
       ? `Deep-dive context from "${bestSection.title}": ${bestSection.lines.slice(2, 5).join(' ')}`
-      : `${guardrailMention} Strategic rationale: ${coreFact}.`,
+      : `Strategic rationale: ${coreFact}.`,
     isUnknown: false,
     stuckRecovery: {
       breatheMsg: "Take a second babe. Lead with the core point from your notes.",
