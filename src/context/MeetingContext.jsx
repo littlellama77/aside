@@ -821,9 +821,16 @@ export function MeetingProvider({ children }) {
     selectQuestionRef.current = selectQuestion;
   }, [selectQuestion]);
 
-  // Start Hardware Audio Meter (AnalyserNode for real-time 0-100% volume display)
+  // Start Hardware Audio Meter (AnalyserNode for real-time 0-100% volume display on Desktop)
   const startAudioMeter = useCallback(() => {
     if (micStreamRef.current && audioContextRef.current) return;
+    const isMobileDevice = typeof navigator !== 'undefined' && (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth <= 768);
+    if (isMobileDevice) {
+      // On mobile devices (Android/iOS), do NOT hold getUserMedia stream concurrently with SpeechRecognition!
+      // Android audio HAL locks the microphone to MediaStream, which starves SpeechRecognition.
+      return;
+    }
+
     if (navigator.mediaDevices?.getUserMedia) {
       navigator.mediaDevices.getUserMedia({
         audio: {
@@ -920,8 +927,10 @@ export function MeetingProvider({ children }) {
     }
 
     try {
+      const isMobileDevice = typeof navigator !== 'undefined' && (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || (typeof window !== 'undefined' && window.innerWidth <= 768));
       const recognition = new SpeechRecognition();
-      recognition.continuous = true;
+      // On Android mobile, continuous=false avoids immediate service drops; restarts on onend smoothly
+      recognition.continuous = !isMobileDevice;
       recognition.interimResults = true;
       recognition.maxAlternatives = 1;
       recognition.lang = speechLocale || (typeof navigator !== 'undefined' ? navigator.language : 'en-US') || 'en-US';
@@ -1094,10 +1103,12 @@ export function MeetingProvider({ children }) {
       if (capturedText.length >= 3) {
         setLastEmptyCaptureNotice(false);
         showSystemNotice("⚡ Question captured! Synthesizing answer ASAP...");
+        const isMobileDevice = typeof navigator !== 'undefined' && (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth <= 768);
         if (askCustomQuestionRef.current) {
-          askCustomQuestionRef.current(capturedText, "Interviewer (Captured)");
+          askCustomQuestionRef.current(capturedText, isMobileDevice ? "Phone Ears Audio" : "Interviewer (Captured)");
         }
         companionSync.sendActionToPhone('MANUAL_CAPTURE_FINISHED', { question: capturedText });
+        companionSync.sendActionToLaptop('ASK_QUESTION', { question: capturedText });
       } else {
         // Fallback: If no audio was heard or capture was empty, offer quick-pick questions
         setLastEmptyCaptureNotice(true);

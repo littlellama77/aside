@@ -85,36 +85,36 @@ export function PhoneCompanion({
     };
   }, [context?.pairingCode]);
 
-  // Merge remote state with context fallback
-  const isScreenSharing = remoteState ? remoteState.isScreenSharing : context?.isScreenSharing;
-  const conversationState = remoteState ? remoteState.conversationState : context?.conversationState;
-  const activeQuestion = remoteState ? remoteState.activeQuestion : context?.activeQuestion;
-  const isQuestionActive = remoteState ? remoteState.isQuestionActive : context?.isQuestionActive;
-  const frozenSuggestion = remoteState ? remoteState.frozenSuggestion : context?.frozenSuggestion;
-  const cheatSheet = remoteState ? remoteState.cheatSheet : context?.cheatSheet || {};
-  const effectiveStall = localStallPhrase || (remoteState ? remoteState.stallingPhrase : context?.stallingPhrase);
+  // Merge remote state with context fallback — prioritize local phone state when active
+  const isScreenSharing = (remoteState && remoteState.isScreenSharing) ?? context?.isScreenSharing ?? false;
+  const conversationState = (remoteState && remoteState.conversationState) || context?.conversationState || 'LISTENING';
+  const activeQuestion = (context && context.activeQuestion) || (remoteState && remoteState.activeQuestion) || null;
+  const isQuestionActive = Boolean((context && context.isQuestionActive) || (remoteState && remoteState.isQuestionActive) || activeQuestion);
+  const frozenSuggestion = (context && context.frozenSuggestion) || (remoteState && remoteState.frozenSuggestion) || null;
+  const cheatSheet = (context && context.cheatSheet) || (remoteState && remoteState.cheatSheet) || {};
+  const effectiveStall = localStallPhrase || (context && context.stallingPhrase) || (remoteState && remoteState.stallingPhrase);
 
-  // Manual Question Capture State & Handler
-  const isManualCaptureActive = remoteState?.isManualCaptureActive ?? context?.isManualCaptureActive ?? false;
-  const manualCapturedTranscript = remoteState?.manualCapturedTranscript ?? context?.manualCapturedTranscript ?? '';
+  // Manual Question Capture State & Handler (Direct Phone Microphone Operation)
+  const isManualCaptureActive = Boolean(context?.isManualCaptureActive || remoteState?.isManualCaptureActive);
+  const manualCapturedTranscript = context?.manualCapturedTranscript || remoteState?.manualCapturedTranscript || context?.liveTranscript || '';
 
   const handleToggleManualCapture = () => {
-    companionSync.sendActionToLaptop('TOGGLE_MANUAL_CAPTURE');
+    // 1. Direct phone control (runs locally in MeetingContext using the phone's microphone)
     if (context?.toggleManualQuestionCapture) {
       context.toggleManualQuestionCapture();
     }
+    // 2. Also notify laptop if paired
+    companionSync.sendActionToLaptop('TOGGLE_MANUAL_CAPTURE');
   };
 
-  // Microphone status (active if either phone local mic or laptop mic is active)
-  const isRemoteListening = remoteState?.isLiveListening ?? context?.isLiveListening ?? false;
-  const isMicListeningActive = localIsListening || isRemoteListening;
-  const activeTranscript = localTranscript || remoteState?.liveTranscript || (context?.liveTranscript ?? '');
+  // Microphone status (active if phone mic or laptop mic is active)
+  const isMicListeningActive = Boolean(context?.isLiveListening || remoteState?.isLiveListening || isManualCaptureActive);
+  const activeTranscript = context?.liveTranscript || remoteState?.liveTranscript || manualCapturedTranscript || '';
 
   // Process a candidate question locally or via sync
-  const handleProcessCandidateQuestion = (text, speaker = "Laptop Speaker Audio") => {
-    if (!text || text.trim().length < 5) return;
+  const handleProcessCandidateQuestion = (text, speaker = "Phone Ears Audio") => {
+    if (!text || text.trim().length < 3) return;
     const clean = text.trim();
-    turnTranscriptBufferRef.current = '';
 
     // 1. Synthesize right on phone via context
     if (context?.askCustomQuestion) {
@@ -127,128 +127,10 @@ export function PhoneCompanion({
 
   // Toggle Microphone Listening (controls local phone mic & broadcasts to laptop)
   const handleToggleListening = () => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    const nextListeningState = !isMicListeningActive;
-
-    // Broadcast to laptop
-    companionSync.sendActionToLaptop(nextListeningState ? 'START_LISTENING' : 'STOP_LISTENING');
-    if (context?.toggleLiveListening && context.isLiveListening !== nextListeningState) {
+    if (context?.toggleLiveListening) {
       context.toggleLiveListening();
     }
-
-    // Browser speech recognition support
-    if (!SpeechRecognition) {
-      setLocalIsListening(nextListeningState);
-      return;
-    }
-
-    if (localIsListening) {
-      isListeningActiveRef.current = false;
-      turnTranscriptBufferRef.current = '';
-      if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
-      if (recognitionRef.current) {
-        try { recognitionRef.current.abort(); } catch {}
-        recognitionRef.current = null;
-      }
-      setLocalIsListening(false);
-      setLocalTranscript('');
-    } else {
-      isListeningActiveRef.current = true;
-      turnTranscriptBufferRef.current = '';
-      setLocalIsListening(true);
-      setLocalTranscript('');
-
-      const startPhoneSession = () => {
-        if (!isListeningActiveRef.current) return;
-        try {
-          if (recognitionRef.current) {
-            try { recognitionRef.current.abort(); } catch {}
-            recognitionRef.current = null;
-          }
-
-          const recognition = new SpeechRecognition();
-          recognition.continuous = true;
-          recognition.interimResults = true;
-          recognition.maxAlternatives = 1;
-          recognition.lang = context?.speechLocale || 'en-US';
-
-          recognition.onstart = () => {
-            setLocalIsListening(true);
-          };
-
-          recognition.onresult = (event) => {
-            let interim = '';
-            let newFinal = '';
-            for (let i = event.resultIndex; i < event.results.length; ++i) {
-              const transcript = event.results[i][0].transcript;
-              if (event.results[i].isFinal) newFinal += transcript;
-              else interim += transcript;
-            }
-
-            if (newFinal.trim()) {
-              turnTranscriptBufferRef.current = (
-                turnTranscriptBufferRef.current + ' ' + newFinal.trim()
-              ).trim();
-            }
-
-            const currentTurnText = (
-              turnTranscriptBufferRef.current + (interim ? ' ' + interim.trim() : '')
-            ).trim();
-
-            if (currentTurnText) setLocalTranscript(currentTurnText);
-
-            if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
-
-            // Conversational Debounce Watchdog (1500ms):
-            // Natural human conversational pauses and mid-sentence breaths are 400-1000ms.
-            // Never trigger prematurely on intermediate clauses or preambles!
-            // Wait for a 1500ms pause to ensure the speaker has genuinely yielded the floor.
-            if (currentTurnText.length >= 6) {
-              silenceTimerRef.current = setTimeout(() => {
-                if (isListeningActiveRef.current) {
-                  const candidateToProcess = (
-                    turnTranscriptBufferRef.current || currentTurnText
-                  ).trim();
-
-                  if (candidateToProcess.length >= 6) {
-                    if (isMeetingPromptOrQuestion(candidateToProcess) || candidateToProcess.split(/\s+/).length >= 4) {
-                      turnTranscriptBufferRef.current = '';
-                      handleProcessCandidateQuestion(candidateToProcess);
-                    }
-                  }
-                }
-              }, 1500);
-            }
-          };
-
-          recognition.onerror = (e) => {
-            console.warn("Phone speech recognition notice:", e.error);
-          };
-
-          recognition.onend = () => {
-            if (isListeningActiveRef.current) {
-              setTimeout(() => {
-                if (isListeningActiveRef.current) {
-                  startPhoneSession();
-                }
-              }, 250);
-            }
-          };
-
-          recognition.start();
-          recognitionRef.current = recognition;
-        } catch (err) {
-          console.warn('Could not start local phone microphone:', err);
-          if (isListeningActiveRef.current) {
-            setTimeout(() => {
-              if (isListeningActiveRef.current) startPhoneSession();
-            }, 1000);
-          }
-        }
-      };
-
-      startPhoneSession();
-    }
+    companionSync.sendActionToLaptop(!isMicListeningActive ? 'START_LISTENING' : 'STOP_LISTENING');
   };
 
   const handleCopy = (text) => {
@@ -282,6 +164,7 @@ export function PhoneCompanion({
       context.setIsQuestionActive(false);
       context.setActiveQuestion(null);
     }
+    setRemoteState(prev => prev ? { ...prev, isQuestionActive: false, activeQuestion: null } : null);
   };
 
   const handleMobileSubmit = (e) => {
@@ -722,11 +605,39 @@ export function PhoneCompanion({
               ))}
             </div>
 
-            {/* Quick Test Questions Row on Mobile */}
+            {/* Quick 1-Tap Interview Prompt Chips for Mobile */}
             <div className="phone-quick-test-section">
-              <span className="peek-label-mini">TAP TO TEST SAMPLE QUESTIONS:</span>
+              <span className="peek-label-mini">INSTANT ONE-TAP INTERVIEW PROMPTS:</span>
               <div className="phone-test-chips-row">
-                {(context?.demoScenarios || []).slice(0, 4).map((sc, idx) => (
+                <button
+                  type="button"
+                  className="phone-test-chip"
+                  onClick={() => handleProcessCandidateQuestion("Can you walk me through your background and why you are interested in Crealytics?")}
+                >
+                  <span>💬 Walk me through your background & why Crealytics</span>
+                </button>
+                <button
+                  type="button"
+                  className="phone-test-chip"
+                  onClick={() => handleProcessCandidateQuestion("How do you handle underperforming campaigns or tight client ROAS targets?")}
+                >
+                  <span>💬 Optimizing ROAS & underperforming campaigns</span>
+                </button>
+                <button
+                  type="button"
+                  className="phone-test-chip"
+                  onClick={() => handleProcessCandidateQuestion("What is your experience with Retail Media Networks and Amazon/Walmart sponsored ads?")}
+                >
+                  <span>💬 Retail Media & Sponsored Ads expertise</span>
+                </button>
+                <button
+                  type="button"
+                  className="phone-test-chip"
+                  onClick={() => handleProcessCandidateQuestion("Tell me about a time you handled conflict with a colleague or stakeholder.")}
+                >
+                  <span>💬 Handling conflict with colleagues / stakeholders</span>
+                </button>
+                {(context?.demoScenarios || []).slice(0, 3).map((sc, idx) => (
                   <button
                     key={sc.id || idx}
                     type="button"
