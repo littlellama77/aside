@@ -38,6 +38,7 @@ export function PrepareScreen() {
   const [syncedAlert, setSyncedAlert] = useState(null);
 
   const toneOptions = [
+    "Nora Ephron (Warm, Witty & Candid)",
     "Executive Leader",
     "Warm Director",
     "Casual Lead",

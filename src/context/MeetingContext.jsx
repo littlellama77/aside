@@ -67,10 +67,10 @@ export function MeetingProvider({ children }) {
   // User Profile
   const [userName, setUserName] = useState(DEFAULT_USER);
   const [speakingStyle, setSpeakingStyle] = useState({
-    tone: "Executive Leader",
+    tone: "Nora Ephron (Warm, Witty & Candid)",
     depthId: "detailed",
     depth: "Executive Depth (Longer & Detailed)",
-    userQuirks: "Articulate, human, and visionary. I lead with strategic context and stay conversational."
+    userQuirks: "Conversational, disarmingly candid, and observant in the style of Nora Ephron. I lead with human stories, treat numbers as narrative clues, and speak with warmth and clarity."
   });
 
   // Pre-Meeting Notes & Executive Memory Brief
