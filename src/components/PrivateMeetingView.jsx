@@ -25,7 +25,8 @@ import {
   Lightbulb,
   Hash,
   RotateCcw,
-  BookOpen
+  BookOpen,
+  Square
 } from 'lucide-react';
 
 export function PrivateMeetingView({ onOpenPairingModal }) {
