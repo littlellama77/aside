@@ -18,7 +18,11 @@ import {
   generateQuestionsFromNotes,
   synthesizeLeaderAnswerForCustomQuestion
 } from '../utils/notesSynthesizer';
-import { generateAnswerWithGPT } from '../services/openaiService';
+import {
+  generateAnswerWithGPT,
+  generateQuickAnswerWithGPT,
+  generateDetailedAnswerWithGPT
+} from '../services/openaiService';
 import { companionSync } from '../services/companionSync';
 
 const MeetingContext = createContext(null);
@@ -627,74 +631,90 @@ export function MeetingProvider({ children }) {
       return;
     }
 
-    // Instantly set skeleton card with a real spoken opener so user can start talking immediately!
-    const randomIntro = THINKING_INTRO_SENTENCES[Math.floor(Math.random() * THINKING_INTRO_SENTENCES.length)].replace(/^[“”"']|[“”"']$/g, '');
-    const skeletonQ = {
-      id: `q-${Date.now()}`,
-      speaker: speakerName,
-      question: cleanText,
-      topic: "Live Meeting Inquiry",
-      babeTag: "babe 👀 synthesizing answer... (say intro below)",
-      glanceSay: randomIntro,
-      glanceBullets: [
-        "• Synthesizing full answer with verified metrics...",
-        "• Say the natural intro opener aloud while answer loads"
-      ],
-      extraInformation: "Retrieving relevant data points and context...",
-      isSynthesizing: true,
-      isUnknown: false
-    };
-    setActiveQuestion(skeletonQ);
-    setIsQuestionActive(true);
-    setFrozenSuggestion(null);
-    transitionToState(CONVERSATION_STATES.QUESTION_CONFIRMED, `Question detected from ${speakerName}`);
-
-    // Try OpenAI GPT first if API key is active
-    if (openaiApiKey && openaiApiKey.startsWith('sk-')) {
-      try {
-        setIsGeneratingWithAi(true);
-        showSystemNotice(`⚡ Synthesizing answer with ${openaiModel}...`);
-
-        // Format recent conversation turns to resolve pronouns & follow-up interruptions
-        const recentHistory = (conversationHistory || [])
-          .slice(-4)
-          .map(item => `${item.speaker}: "${item.text}"`)
-          .join('\n');
-
-        const gptQ = await generateAnswerWithGPT(
-          cleanText,
-          rawNotes,
-          cheatSheet,
-          openaiApiKey,
-          openaiModel,
-          recentHistory
-        );
-        gptQ.speaker = speakerName;
-        gptQ.question = cleanText;
-        setActiveQuestion(gptQ);
-        triggerQuestionDetected(gptQ);
-        setIsGeneratingWithAi(false);
-        showSystemNotice("✓ Answer ready!");
-        return;
-      } catch (err) {
-        console.warn("OpenAI API call failed, falling back to local engine:", err);
-        showSystemNotice(`GPT offline: using local engine (${err.message.slice(0, 35)})`);
-        setIsGeneratingWithAi(false);
-      }
-    }
-
-    // Fallback: local executive synthesizer
-    const synthesizedQ = synthesizeLeaderAnswerForCustomQuestion(
+    // STAGE 1: IMMEDIATE INSTANT ANSWER (Box 1) in 0 milliseconds!
+    // Uses the rich verified local synthesizer so the candidate sees the quick answer IMMEDIATELY.
+    const instantQ = synthesizeLeaderAnswerForCustomQuestion(
       cleanText,
       rawNotes,
       cheatSheet,
       speakingStyle
     );
 
-    synthesizedQ.speaker = speakerName;
-    synthesizedQ.question = cleanText;
-    setActiveQuestion(synthesizedQ);
-    triggerQuestionDetected(synthesizedQ);
+    const isAiConfigured = Boolean(openaiApiKey && openaiApiKey.startsWith('sk-'));
+
+    const initialQ = {
+      ...instantQ,
+      id: `q-${Date.now()}`,
+      speaker: speakerName,
+      question: cleanText,
+      quickSay: instantQ.glanceSay,
+      quickBullets: instantQ.glanceBullets,
+      isDetailedLoading: isAiConfigured,
+      isSynthesizing: false
+    };
+
+    setActiveQuestion(initialQ);
+    setIsQuestionActive(true);
+    setFrozenSuggestion(null);
+    transitionToState(CONVERSATION_STATES.QUESTION_CONFIRMED, `Question detected from ${speakerName}`);
+    triggerQuestionDetected(initialQ);
+
+    // STAGE 2: SEAMLESS DUAL-BOX PIPELINE (Fast API model for Box 1 + Detailed Model for Box 2)
+    if (isAiConfigured) {
+      setIsGeneratingWithAi(true);
+      showSystemNotice(`⚡ Quick answer live! Deep dive generating in background...`);
+
+      const recentHistory = (conversationHistory || [])
+        .slice(-4)
+        .map(item => `${item.speaker}: "${item.text}"`)
+        .join('\n');
+
+      // Fast API Model for Box 1 (gpt-4o-mini, short & rapid)
+      generateQuickAnswerWithGPT(cleanText, rawNotes, openaiApiKey)
+        .then(fastRes => {
+          if (fastRes.glanceSay) {
+            setActiveQuestion(prev => {
+              if (!prev || prev.question !== cleanText) return prev;
+              return {
+                ...prev,
+                quickSay: fastRes.glanceSay,
+                quickBullets: fastRes.glanceBullets?.length ? fastRes.glanceBullets : prev.quickBullets,
+                fastModelName: 'gpt-4o-mini'
+              };
+            });
+          }
+        })
+        .catch(err => {
+          console.warn("Fast API call fallback to instant local synthesizer:", err);
+        });
+
+      // Detailed Deep-Dive Model for Box 2 (openaiModel, comprehensive narrative)
+      generateDetailedAnswerWithGPT(
+        cleanText,
+        rawNotes,
+        openaiApiKey,
+        openaiModel,
+        recentHistory,
+        instantQ.glanceSay
+      ).then(detailedRes => {
+        setIsGeneratingWithAi(false);
+        setActiveQuestion(prev => {
+          if (!prev || prev.question !== cleanText) return prev;
+          return {
+            ...prev,
+            expandedSay: detailedRes.expandedSay || prev.expandedSay,
+            extraInformation: detailedRes.extraInformation || prev.extraInformation,
+            isDetailedLoading: false,
+            detailedModelName: openaiModel || 'gpt-4o'
+          };
+        });
+        showSystemNotice("✓ Detailed follow-up loaded!");
+      }).catch(err => {
+        console.warn("Background detailed model finished with local deep dive:", err);
+        setIsGeneratingWithAi(false);
+        setActiveQuestion(prev => prev ? { ...prev, isDetailedLoading: false } : prev);
+      });
+    }
   }, [openaiApiKey, openaiModel, rawNotes, cheatSheet, speakingStyle, triggerQuestionNotForUser, triggerQuestionDetected, showSystemNotice, conversationHistory]);
 
   useEffect(() => {

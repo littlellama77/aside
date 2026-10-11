@@ -238,8 +238,8 @@ export function MiniFloatingAssistant() {
   const displayedSay = isYourTurn && frozenSuggestion
     ? frozenSuggestion
     : disclosureLevel === 'expanded'
-      ? (activeQuestion?.expandedSay || activeQuestion?.glanceSay)
-      : activeQuestion?.glanceSay;
+      ? (activeQuestion?.expandedSay || activeQuestion?.quickSay || activeQuestion?.glanceSay)
+      : (activeQuestion?.quickSay || activeQuestion?.glanceSay);
 
   return (
     <div

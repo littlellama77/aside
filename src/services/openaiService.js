@@ -43,6 +43,158 @@ Always respond in strictly valid JSON with this schema:
   "stallingPhrase": "Phrase to buy thinking time"
 }`;
 
+export async function generateQuickAnswerWithGPT(questionText, rawNotesText, apiKey) {
+  if (!apiKey || !apiKey.trim()) {
+    throw new Error("No OpenAI API key provided");
+  }
+
+  const { coreQuestion } = extractCoreQuestionFromSpeech(questionText);
+  const targetQuestion = coreQuestion || questionText;
+
+  const FAST_SYSTEM_PROMPT = `You are Aside, a real-time executive meeting companion.
+The user is speaking live in a high-stakes meeting. An attendee just asked a question.
+Provide an ultra-fast, simple, crisp 2-3 sentence answer to say aloud immediately.
+Guidelines:
+1. Keep it simple, punchy, conversational, and direct to the point.
+2. Voice & Tone: Genuinely curious, excited to learn, humble, warm. Zero corporate jargon.
+3. Include 1 key metric or fact from the notes if directly relevant.
+4. Return strictly valid JSON with this schema:
+{
+  "glanceSay": "2-3 simple, crisp sentences to say aloud right away",
+  "glanceBullets": ["Key verified metric or anchor from notes", "Core takeaway"]
+}`;
+
+  const userPrompt = `Notes Summary:
+"""
+${(rawNotesText || "").slice(0, 3000)}
+"""
+Question:
+"${targetQuestion}"
+
+Provide the fast, simple 2-3 sentence answer to say immediately:`;
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 6000);
+
+  try {
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey.trim()}`
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini", // Faster API model for Box 1
+        messages: [
+          { role: "system", content: FAST_SYSTEM_PROMPT },
+          { role: "user", content: userPrompt }
+        ],
+        response_format: { type: "json_object" },
+        temperature: 0.3,
+        max_tokens: 220
+      }),
+      signal: controller.signal
+    });
+
+    if (!response.ok) {
+      throw new Error(`OpenAI fast model returned ${response.status}`);
+    }
+
+    const data = await response.json();
+    const content = data.choices?.[0]?.message?.content?.trim() || "{}";
+    let parsed = {};
+    try {
+      parsed = JSON.parse(content);
+    } catch {
+      const match = content.match(/\{[\s\S]*\}/);
+      if (match) parsed = JSON.parse(match[0]);
+    }
+
+    return {
+      glanceSay: parsed.glanceSay || parsed.say || parsed.answer || "",
+      glanceBullets: Array.isArray(parsed.glanceBullets) ? parsed.glanceBullets : []
+    };
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+export async function generateDetailedAnswerWithGPT(questionText, rawNotesText, apiKey, model = 'gpt-4o', recentHistory = '', quickAnswerText = '') {
+  if (!apiKey || !apiKey.trim()) {
+    throw new Error("No OpenAI API key provided");
+  }
+
+  const { coreQuestion } = extractCoreQuestionFromSpeech(questionText);
+  const targetQuestion = coreQuestion || questionText;
+
+  const DETAILED_SYSTEM_PROMPT = `You are Aside, a real-time executive meeting companion.
+The user is speaking live in a high-stakes meeting. The attendee asked: "${targetQuestion}".
+${quickAnswerText ? `The candidate just delivered this quick hook: "${quickAnswerText}".` : ''}
+Your task is to provide the seamless, in-depth follow-up answer:
+1. "expandedSay": A comprehensive, articulate 2-3 paragraph deep-dive narrative with granular mechanics, trade-offs, and learnings from notes.
+2. "extraInformation": 3-5 sentences of strategic context or rationale if the interviewer drills deeper.
+Tone: Genuinely curious, excited about learning, warm, grounded in numbers, zero corporate buzzwords.
+Return strictly valid JSON:
+{
+  "expandedSay": "Comprehensive 2-3 paragraph deep dive executive narrative",
+  "extraInformation": "Strategic context and rationale"
+}`;
+
+  const userPrompt = `Meeting Notes:
+"""
+${(rawNotesText || "").slice(0, 4500)}
+"""
+${recentHistory ? `Recent Context:\n${recentHistory}\n` : ''}
+Question: "${targetQuestion}"
+
+Synthesize the in-depth follow-up breakdown now:`;
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 9500);
+
+  try {
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey.trim()}`
+      },
+      body: JSON.stringify({
+        model: model || "gpt-4o",
+        messages: [
+          { role: "system", content: DETAILED_SYSTEM_PROMPT },
+          { role: "user", content: userPrompt }
+        ],
+        response_format: { type: "json_object" },
+        temperature: 0.3,
+        max_tokens: 950
+      }),
+      signal: controller.signal
+    });
+
+    if (!response.ok) {
+      throw new Error(`OpenAI detailed model returned ${response.status}`);
+    }
+
+    const data = await response.json();
+    const content = data.choices?.[0]?.message?.content?.trim() || "{}";
+    let parsed = {};
+    try {
+      parsed = JSON.parse(content);
+    } catch {
+      const match = content.match(/\{[\s\S]*\}/);
+      if (match) parsed = JSON.parse(match[0]);
+    }
+
+    return {
+      expandedSay: parsed.expandedSay || "",
+      extraInformation: parsed.extraInformation || ""
+    };
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
 export async function generateAnswerWithGPT(questionText, rawNotesText, executiveBrief, apiKey, model = 'gpt-4o-mini', recentHistory = '') {
   if (!apiKey || !apiKey.trim()) {
     throw new Error("No OpenAI API key provided");
@@ -70,7 +222,7 @@ Core Question Identified (The actual ask to focus on):
 Synthesize the Aside executive answer card now. Directly address the core question with concrete metrics, thorough explanations, human phrasing, and verified notes facts.`;
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 14000);
+  const timeoutId = setTimeout(() => controller.abort(), 9000);
 
   let response;
   try {
@@ -87,14 +239,14 @@ Synthesize the Aside executive answer card now. Directly address the core questi
           { role: "user", content: userPrompt }
         ],
         response_format: { type: "json_object" },
-        temperature: 0.35,
-        max_tokens: 2000
+        temperature: 0.3,
+        max_tokens: 1200
       }),
       signal: controller.signal
     });
   } catch (err) {
     if (err.name === 'AbortError') {
-      throw new Error("OpenAI request timed out (14s). Falling back to local engine.");
+      throw new Error("OpenAI request timed out (9s). Falling back to local engine.");
     }
     throw err;
   } finally {

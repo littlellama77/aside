@@ -20,7 +20,9 @@ import {
   ChevronDown,
   ChevronUp,
   Square,
-  Zap
+  Zap,
+  BookOpen,
+  Hash
 } from 'lucide-react';
 
 export function PhoneCompanion({
@@ -292,6 +294,14 @@ export function PhoneCompanion({
   const isYourTurn = conversationState === 'YOUR_TURN';
   const isParticipantSpeaking = conversationState === 'OTHER_PERSON_SPEAKING';
   const isUnknown = activeQuestion?.category === 'unknown' || activeQuestion?.isUnknown;
+
+  const quickSayPhone = isYourTurn && frozenSuggestion
+    ? frozenSuggestion
+    : (activeQuestion?.quickSay || activeQuestion?.glanceSay || "Addressing the question...");
+
+  const quickBulletsPhone = activeQuestion?.quickBullets || activeQuestion?.glanceBullets || [];
+  const detailedSayPhone = activeQuestion?.expandedSay || activeQuestion?.glanceSay || "";
+  const isDetailedLoadingPhone = Boolean(activeQuestion?.isDetailedLoading);
 
   const displayedSay = isYourTurn && frozenSuggestion
     ? frozenSuggestion
@@ -570,20 +580,73 @@ export function PhoneCompanion({
               </div>
             </div>
 
-            {/* Primary Spoken Answer */}
-            <div className="phone-say-card">
-              <span className="phone-say-tag">Say Aloud:</span>
-              <p className="phone-spoken-quote">“{displayedSay}”</p>
-            </div>
+            {/* TWO-BOX PROGRESSIVE SYSTEM FOR PHONE */}
+            <div className="phone-two-box-container">
+              {/* Box 1: Quick & Fast Answer */}
+              <div className="phone-two-box-quick">
+                <div className="phone-box-header-row">
+                  <div className="phone-badge-quick">
+                    <Zap size={12} className="text-accent animate-pulse" />
+                    <span>1. QUICK ANSWER (Fast Hook)</span>
+                  </div>
+                  <button
+                    type="button"
+                    className="phone-copy-mini"
+                    onClick={() => handleCopy(quickSayPhone)}
+                    title="Copy quick answer"
+                  >
+                    {copied ? <Check size={11} className="text-accent" /> : <Copy size={11} />}
+                  </button>
+                </div>
 
-            {/* Verified Numbers & Strategic Bullets */}
-            {activeQuestion.glanceBullets && activeQuestion.glanceBullets.length > 0 && (
-              <div className="phone-bullets-group">
-                {activeQuestion.glanceBullets.map((b, i) => (
-                  <span key={i} className="phone-bullet-item">{b}</span>
-                ))}
+                <p className="phone-spoken-quote">“{quickSayPhone}”</p>
+
+                {/* Verified Numbers & Strategic Bullets */}
+                {quickBulletsPhone && quickBulletsPhone.length > 0 && (
+                  <div className="phone-bullets-group">
+                    {quickBulletsPhone.map((b, i) => (
+                      <span key={i} className="phone-bullet-item">{b.replace(/^[•*-]\s*/, '')}</span>
+                    ))}
+                  </div>
+                )}
               </div>
-            )}
+
+              {/* Box 2: Detailed Follow-Up */}
+              <div className={`phone-two-box-detailed ${isDetailedLoadingPhone ? 'phone-detailed-loading' : ''}`}>
+                <div className="phone-box-header-row">
+                  <div className="phone-badge-detailed">
+                    <BookOpen size={12} />
+                    <span>2. DETAILED FOLLOW-UP</span>
+                  </div>
+                  {!isDetailedLoadingPhone && (
+                    <button
+                      type="button"
+                      className="phone-copy-mini"
+                      onClick={() => handleCopy(detailedSayPhone)}
+                      title="Copy detailed answer"
+                    >
+                      <Copy size={11} />
+                    </button>
+                  )}
+                </div>
+
+                {isDetailedLoadingPhone ? (
+                  <div className="phone-loading-deep-dive animate-fade-in">
+                    <Sparkles size={13} className="text-accent animate-pulse" />
+                    <span>Deep dive loading in background... Say Box 1 above!</span>
+                  </div>
+                ) : (
+                  <div className="phone-detailed-text animate-fade-in">
+                    <p>{detailedSayPhone}</p>
+                    {activeQuestion.extraInformation && (
+                      <div className="phone-extra-info-snippet">
+                        <strong>Context:</strong> {activeQuestion.extraInformation}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
 
             {/* Stalling Phrase Display if active */}
             {effectiveStall && (
@@ -595,16 +658,6 @@ export function PhoneCompanion({
                 <p>“{effectiveStall}”</p>
               </div>
             )}
-
-            {/* Progressive Disclosure Toggle */}
-            <div className="phone-progressive-btn-row">
-              <button
-                className="btn-phone-prog"
-                onClick={() => setLocalDisclosure(localDisclosure === 'expanded' ? 'glance' : 'expanded')}
-              >
-                {localDisclosure === 'expanded' ? "- Back to short glance" : "+ Full version"}
-              </button>
-            </div>
           </div>
         )}
 

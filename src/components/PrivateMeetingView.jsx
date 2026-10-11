@@ -24,7 +24,8 @@ import {
   HelpCircle,
   Lightbulb,
   Hash,
-  RotateCcw
+  RotateCcw,
+  BookOpen
 } from 'lucide-react';
 
 export function PrivateMeetingView({ onOpenPairingModal }) {
@@ -73,7 +74,8 @@ export function PrivateMeetingView({ onOpenPairingModal }) {
   } = useMeeting();
 
   const [customInput, setCustomInput] = useState('');
-  const [copied, setCopied] = useState(false);
+  const [copiedQuick, setCopiedQuick] = useState(false);
+  const [copiedDetailed, setCopiedDetailed] = useState(false);
   const [copiedFiller, setCopiedFiller] = useState(null);
   const [selectedIntro, setSelectedIntro] = useState(null);
 
@@ -88,10 +90,18 @@ export function PrivateMeetingView({ onOpenPairingModal }) {
     setCustomInput('');
   };
 
-  const handleCopy = (text) => {
+  const handleCopyQuick = (text) => {
+    if (!text) return;
     navigator.clipboard?.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    setCopiedQuick(true);
+    setTimeout(() => setCopiedQuick(false), 2000);
+  };
+
+  const handleCopyDetailed = (text) => {
+    if (!text) return;
+    navigator.clipboard?.writeText(text);
+    setCopiedDetailed(true);
+    setTimeout(() => setCopiedDetailed(false), 2000);
   };
 
   const handleCopyFiller = (fillerText) => {
@@ -102,13 +112,16 @@ export function PrivateMeetingView({ onOpenPairingModal }) {
   };
 
   const isYourTurn = conversationState === 'YOUR_TURN';
-  const displayedSay = isYourTurn && frozenSuggestion
+  const quickSayText = isYourTurn && frozenSuggestion
     ? frozenSuggestion
-    : selectedIntro && (isGeneratingWithAi || activeQuestion?.isSynthesizing)
+    : selectedIntro && (isGeneratingWithAi || activeQuestion?.isDetailedLoading || activeQuestion?.isSynthesizing)
       ? selectedIntro
-      : disclosureLevel === 'expanded'
-        ? (activeQuestion?.expandedSay || activeQuestion?.glanceSay)
-        : activeQuestion?.glanceSay;
+      : (activeQuestion?.quickSay || activeQuestion?.glanceSay || "That's a really great question — let me break down how I look at that...");
+
+  const quickBullets = activeQuestion?.quickBullets || activeQuestion?.glanceBullets || [];
+  const detailedSayText = activeQuestion?.expandedSay || activeQuestion?.glanceSay || "";
+  const extraInfoText = activeQuestion?.supportingContext || activeQuestion?.extraInformation || "";
+  const isDetailedLoading = Boolean(activeQuestion?.isDetailedLoading);
 
   const isUnknown = activeQuestion?.category === 'unknown';
 
@@ -435,130 +448,177 @@ export function PrivateMeetingView({ onOpenPairingModal }) {
             </div>
           </div>
 
-          {/* Primary Answer Section: WHAT TO SAY ALOUD */}
-          <div className={`answer-spoken-box ${isYourTurn ? 'spoken-box-frozen' : ''} ${isGeneratingWithAi || activeQuestion?.isSynthesizing ? 'spoken-box-synthesizing' : ''}`}>
-            <div className="spoken-box-top">
-              <span className="spoken-label">
-                {isYourTurn
-                  ? "Your Cue (Frozen during speech):"
-                  : (isGeneratingWithAi || activeQuestion?.isSynthesizing)
-                    ? "Say This Intro Aloud Right Now:"
-                    : "Say This Aloud:"}
-              </span>
+          {/* DUAL-BOX PROGRESSIVE ANSWER ARCHITECTURE */}
+          <div className="two-box-architecture-wrapper">
 
-              <div className="spoken-quick-actions">
-                <button
-                  type="button"
-                  className="action-icon-pill"
-                  onClick={() => handleCopy(displayedSay)}
-                  title="Copy answer to clipboard"
-                >
-                  {copied ? <Check size={13} className="text-accent" /> : <Copy size={13} />}
-                  <span>{copied ? "Copied" : "Copy"}</span>
-                </button>
-              </div>
-            </div>
-
-            <p className={`spoken-phrase-content ${isGeneratingWithAi || activeQuestion?.isSynthesizing ? 'spoken-phrase-intro' : ''}`}>
-              “{displayedSay || "That's a really great question — let me break down how I look at that..."}”
-            </p>
-
-            {(isGeneratingWithAi || activeQuestion?.isSynthesizing) && (
-              <div className="synthesizing-live-hint">
-                <Zap size={13} className="text-accent animate-pulse" />
-                <span>Full detailed answer with metrics is synthesizing right now. Say the opener above while it completes!</span>
-              </div>
-            )}
-
-            {/* Turn-Taking Button: Freeze / Done Speaking */}
-            <div className="spoken-turn-controls">
-              {!isYourTurn ? (
-                <button
-                  type="button"
-                  className="btn-turn-start"
-                  onClick={() => triggerUserSpeaking(displayedSay || "Addressing the question...")}
-                  title="Click when you start speaking to freeze this answer"
-                >
-                  <Mic size={14} />
-                  <span>I'm speaking (Freeze answer)</span>
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  className="btn-turn-done"
-                  onClick={triggerUserFinished}
-                  title="Click when you finish speaking to return to listening"
-                >
-                  <Check size={14} />
-                  <span>Done speaking (Return to quiet listening)</span>
-                </button>
-              )}
-
-              {/* Disclosure: Short Glance vs Full In-Depth Version */}
-              {!isYourTurn && (
-                <button
-                  type="button"
-                  className="btn-toggle-disclosure"
-                  onClick={() => setDisclosureLevel(disclosureLevel === 'expanded' ? 'glance' : 'expanded')}
-                >
-                  {disclosureLevel === 'expanded' ? "Show concise summary" : "+ Full in-depth executive version"}
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* Natural Human Fillers & Transition Bridges */}
-          <div className="natural-fillers-bar">
-            <div className="fillers-top-row">
-              <span className="fillers-label">
-                <Sparkles size={12} className="text-accent" /> Natural filler phrases if you pause:
-              </span>
-              <span className="fillers-hint">
-                {copiedFiller ? `✓ Copied: "${copiedFiller}"` : "Click any filler to copy"}
-              </span>
-            </div>
-            <div className="fillers-chips">
-              {NATURAL_HUMAN_FILLERS.map((filler, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  className={`filler-chip ${copiedFiller === filler.replace(/^[“”"']|[“”"']$/g, '') ? 'filler-copied' : ''}`}
-                  onClick={() => handleCopyFiller(filler)}
-                  title="Click to copy or say this natural transition aloud"
-                >
-                  {filler}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Key Talking Points & Numbers from Notes */}
-          {activeQuestion?.glanceBullets && activeQuestion.glanceBullets.length > 0 && (
-            <div className="answer-key-points-section">
-              <span className="key-points-label">
-                <Hash size={13} /> Key Points & Metrics (from your notes):
-              </span>
-              <div className="key-points-chips">
-                {activeQuestion.glanceBullets.map((bullet, idx) => (
-                  <span key={idx} className="point-chip">
-                    {bullet}
+            {/* BOX 1: QUICK & FAST ANSWER (Immediate Simple Hook) */}
+            <div className={`two-box-quick-card ${isYourTurn ? 'spoken-box-frozen' : ''}`}>
+              <div className="box-card-top-row">
+                <div className="box-badge-quick">
+                  <Zap size={14} className="badge-icon-zap animate-pulse" />
+                  <span className="box-badge-title">1. QUICK ANSWER</span>
+                  <span className="box-badge-pill">
+                    {activeQuestion?.fastModelName ? `Fast API (${activeQuestion.fastModelName})` : "Instant • Say Right Away"}
                   </span>
+                </div>
+
+                <div className="box-card-actions">
+                  <button
+                    type="button"
+                    className="action-icon-pill"
+                    onClick={() => handleCopyQuick(quickSayText)}
+                    title="Copy quick answer"
+                  >
+                    {copiedQuick ? <Check size={13} className="text-accent" /> : <Copy size={13} />}
+                    <span>{copiedQuick ? "Copied" : "Copy"}</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Spoken Quote */}
+              <p className="box-quick-quote">
+                “{quickSayText}”
+              </p>
+
+              {/* Fast Metric Bullets & Talking Points */}
+              {quickBullets && quickBullets.length > 0 && (
+                <div className="box-quick-bullets-row">
+                  {quickBullets.map((bullet, idx) => (
+                    <span key={idx} className="box-quick-pill">
+                      <Hash size={11} className="pill-hash-icon" />
+                      <span>{bullet.replace(/^[•*-]\s*/, '')}</span>
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {/* Turn Controls for Quick Answer */}
+              <div className="box-quick-turn-row">
+                {!isYourTurn ? (
+                  <button
+                    type="button"
+                    className="btn-turn-start"
+                    onClick={() => triggerUserSpeaking(quickSayText)}
+                    title="Click when you start speaking to freeze this answer"
+                  >
+                    <Mic size={14} />
+                    <span>I'm speaking (Freeze answer)</span>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className="btn-turn-done"
+                    onClick={triggerUserFinished}
+                    title="Click when you finish speaking to return to listening"
+                  >
+                    <Check size={14} />
+                    <span>Done speaking (Return to quiet listening)</span>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Natural Human Fillers & Transition Bridges */}
+            <div className="natural-fillers-bar">
+              <div className="fillers-top-row">
+                <span className="fillers-label">
+                  <Sparkles size={12} className="text-accent" /> Natural conversational bridges:
+                </span>
+                <span className="fillers-hint">
+                  {copiedFiller ? `✓ Copied: "${copiedFiller}"` : "Click any filler to copy"}
+                </span>
+              </div>
+              <div className="fillers-chips">
+                {NATURAL_HUMAN_FILLERS.map((filler, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    className={`filler-chip ${copiedFiller === filler.replace(/^[“”"']|[“”"']$/g, '') ? 'filler-copied' : ''}`}
+                    onClick={() => handleCopyFiller(filler)}
+                    title="Click to copy or say this natural transition aloud"
+                  >
+                    {filler}
+                  </button>
                 ))}
               </div>
             </div>
-          )}
 
-          {/* Extra Information & Strategic Deep Dive */}
-          <div className="answer-extra-info-box">
-            <div className="extra-info-header">
-              <Lightbulb size={14} className="text-accent" />
-              <strong>Extra Information & Context (If they drill deeper):</strong>
+            {/* BOX 2: DETAILED FOLLOW-UP (Seamless In-Depth Deep Dive) */}
+            <div className={`two-box-detailed-card ${isDetailedLoading ? 'box-detailed-loading' : ''}`}>
+              <div className="box-card-top-row">
+                <div className="box-badge-detailed">
+                  <BookOpen size={14} className="badge-icon-book" />
+                  <span className="box-badge-title">2. DETAILED FOLLOW-UP</span>
+                  <span className="box-badge-pill pill-detailed">
+                    {isDetailedLoading
+                      ? `⚡ Deep Dive Generating (${openaiModel || 'AI'})...`
+                      : activeQuestion?.detailedModelName
+                        ? `Comprehensive (${activeQuestion.detailedModelName})`
+                        : "Comprehensive Deep Dive"}
+                  </span>
+                </div>
+
+                {!isDetailedLoading && (
+                  <div className="box-card-actions">
+                    <button
+                      type="button"
+                      className="action-icon-pill"
+                      onClick={() => handleCopyDetailed(detailedSayText)}
+                      title="Copy detailed answer"
+                    >
+                      {copiedDetailed ? <Check size={13} className="text-accent" /> : <Copy size={13} />}
+                      <span>{copiedDetailed ? "Copied" : "Copy"}</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {isDetailedLoading ? (
+                <div className="detailed-loading-box animate-fade-in">
+                  <div className="loading-headline-row">
+                    <Sparkles size={14} className="text-accent animate-pulse" />
+                    <strong>Deep-dive follow-up is generating in the background...</strong>
+                  </div>
+                  <p className="loading-helper-text">
+                    Start answering using <strong>Box 1</strong> above right now! The in-depth breakdown and strategic context will populate right here seamlessly.
+                  </p>
+                  <div className="skeleton-bar-wrapper">
+                    <div className="skeleton-bar bar-long"></div>
+                    <div className="skeleton-bar bar-medium"></div>
+                    <div className="skeleton-bar bar-short"></div>
+                  </div>
+                </div>
+              ) : (
+                <div className="detailed-body-content animate-fade-in">
+                  <div className="detailed-paragraphs">
+                    {detailedSayText ? (
+                      detailedSayText.split('\n\n').map((paragraph, pIdx) => (
+                        <p key={pIdx} className="detailed-p-text">
+                          {paragraph}
+                        </p>
+                      ))
+                    ) : (
+                      <p className="detailed-p-text">
+                        {activeQuestion?.glanceSay || "Detailed breakdown ready in notes."}
+                      </p>
+                    )}
+                  </div>
+
+                  {extraInfoText && (
+                    <div className="detailed-extra-context-box">
+                      <div className="extra-context-title">
+                        <Lightbulb size={13} className="text-accent" />
+                        <span>Strategic Context & Rationale (If they drill deeper):</span>
+                      </div>
+                      <p className="extra-context-body">
+                        {extraInfoText}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
-            <p className="extra-info-text">
-              {activeQuestion?.supportingContext ||
-               activeQuestion?.extraInformation ||
-               "Additional strategic context available in your notes."}
-            </p>
+
           </div>
 
           {/* Stalling Phrase Display (If user clicked "I need a second") */}
