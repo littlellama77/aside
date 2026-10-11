@@ -272,6 +272,42 @@ export function synthesizeLeaderAnswerForCustomQuestion(questionText, rawNotesTe
   let babeTag = "babe 👀 executive answer";
   let isUnknown = false;
 
+  // Check for personal, introductory, or high-level strategic overview questions
+  const isIntro = qLower.includes("yourself") ||
+                  qLower.includes("tell me about") ||
+                  qLower.includes("tell us about") ||
+                  qLower.includes("introduce") ||
+                  qLower.includes("background") ||
+                  qLower.includes("who are you") ||
+                  qLower.includes("overview");
+
+  if (isIntro) {
+    category = "intro";
+    topic = "Executive Overview";
+    babeTag = "babe 👀 concise executive intro";
+    const glanceSay = "Sure, absolutely. To give you a high-level overview: I'm leading execution across our key initiatives, focusing on performance stability and cross-functional alignment. In our current cycle, our priority is disciplined execution against our core benchmarks while scaling our next milestone.";
+    const expandedSay = "Sure, absolutely. To give you a complete picture: I lead execution across our strategic priorities, partnering closely with cross-functional stakeholders. Currently, my primary focus is ensuring performance stability, protecting core efficiency, and scaling our validated roadmap initiatives. In this meeting, I have our recent performance data and strategic rationale ready to dive into wherever helpful.";
+    return {
+      id: `custom-${Date.now()}`,
+      category,
+      speaker: "Meeting Attendee",
+      question: questionText,
+      topic,
+      babeTag,
+      simplestQuestion: "They're asking for an introductory overview of your role, focus, and background.",
+      glanceSay,
+      glanceBullets: [
+        "• Strategic execution lead",
+        "• Focus: performance stability & roadmap delivery",
+        "• Current priority: scaling validated milestones"
+      ],
+      expandedSay,
+      supportingContext: "Executive introduction aligned with your leadership role.",
+      extraInformation: "Grounded in your leadership profile and current project context.",
+      isUnknown: false
+    };
+  }
+
   // If no sections matched or query asks for completely unrelated details not in notes
   const queryTokens = qLower.split(/[^a-z0-9%$\-+]+/).filter(w => w.length > 2 && !STOP_WORDS.has(w));
   const hasAnyNoteMatch = chunks.some(c => queryTokens.some(t => c.wordTokens.has(t)));

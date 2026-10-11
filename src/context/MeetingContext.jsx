@@ -21,6 +21,42 @@ import { companionSync } from '../services/companionSync';
 
 const MeetingContext = createContext(null);
 
+/**
+ * Robust detection for meeting questions, prompts, requests, and inquiries.
+ * Covers regional accents, unpunctuated speech-to-text, imperatives ("tell me about yourself"),
+ * modals ("can you", "could you"), and general meeting inquiries.
+ */
+export function isMeetingPromptOrQuestion(text) {
+  if (!text || typeof text !== 'string') return false;
+  const cleaned = text.trim();
+  if (cleaned.length < 5) return false;
+  const lower = cleaned.toLowerCase();
+
+  // Explicit question mark
+  if (lower.includes('?')) return true;
+
+  // Interrogative / Question words
+  if (/\b(why|how|what|where|when|who|which|whose|whom)\b/i.test(lower)) return true;
+
+  // Modal / Auxiliary question starters
+  if (/\b(can you|could you|would you|will you|should we|shall we|do you|did you|does it|did we|are you|are we|is there|is it|have you|has anyone|will we|won't we)\b/i.test(lower)) return true;
+
+  // Imperative meeting prompts & directives (crucial for "tell me about yourself", "walk us through", etc.)
+  if (/\b(tell me|tell us|tell everyone|introduce|about yourself|about you|walk me|walk us|walk through|run through|run me through|take us through|explain|describe|give us|give me|share with us|share your|share how|elaborate|clarify|speak to|touch on|address|comment on|break down|brief us)\b/i.test(lower)) return true;
+
+  // Inquiries & opinions
+  if (/\b(thoughts on|think about|your take|your view|your opinion|your perspective|any update|status on|where are we|where do we stand|how are we doing|what's next|next step|what about|how about|could we get|can someone clarify|look into|wondering if|curious about)\b/i.test(lower)) return true;
+
+  // Conversational prompts: any complete phrase with 4+ words that isn't just filler
+  const words = lower.split(/\s+/).filter(w => w.length > 1);
+  const isFiller = /^(um|uh|yeah|yep|okay|ok|thanks|thank you|cool|got it|right|sure|hello|hi|hey)$/i.test(lower);
+  if (words.length >= 4 && !isFiller) {
+    return true;
+  }
+
+  return false;
+}
+
 export function MeetingProvider({ children }) {
   // Navigation & Theme
   const [currentScreen, setCurrentScreen] = useState('welcome'); // 'welcome' | 'prepare' | 'setup' | 'meeting' | 'wrapup'
@@ -104,6 +140,9 @@ export function MeetingProvider({ children }) {
   const [speechSupport, setSpeechSupport] = useState(true);
   const recognitionRef = useRef(null);
   const isListeningActiveRef = useRef(false);
+  const silenceTimerRef = useRef(null);
+  const lastTriggeredTextRef = useRef('');
+  const lastTriggeredTimeRef = useRef(0);
 
   // Tab Audio Capture (DisplayMedia API)
   const [isTabAudioCapturing, setIsTabAudioCapturing] = useState(false);
@@ -506,16 +545,41 @@ export function MeetingProvider({ children }) {
    * Custom Question Input / Voice Answering (Live GPT-4o or Local Synthesizer)
    */
   const askCustomQuestion = useCallback(async (customText, speakerName = "Meeting Attendee") => {
-    if (!customText.trim()) return;
+    if (!customText || !customText.trim()) return;
+    const cleanText = customText.trim();
 
-    // Check targeting cues
-    const isDirected = !customText.toLowerCase().includes("does anyone want") &&
-                       !customText.toLowerCase().includes("anyone need a bio break");
-
-    if (!isDirected) {
-      triggerQuestionNotForUser(speakerName, customText);
+    // Prevent duplicate triggers within 3 seconds for the exact same text
+    if (lastTriggeredTextRef.current === cleanText && Date.now() - lastTriggeredTimeRef.current < 3000) {
       return;
     }
+    lastTriggeredTextRef.current = cleanText;
+    lastTriggeredTimeRef.current = Date.now();
+
+    // Check targeting cues
+    const isDirected = !cleanText.toLowerCase().includes("does anyone want") &&
+                       !cleanText.toLowerCase().includes("anyone need a bio break");
+
+    if (!isDirected) {
+      triggerQuestionNotForUser(speakerName, cleanText);
+      return;
+    }
+
+    // Instantly set skeleton card so user sees Aside responded immediately!
+    const skeletonQ = {
+      id: `q-${Date.now()}`,
+      speaker: speakerName,
+      question: cleanText,
+      topic: "Live Meeting Inquiry",
+      babeTag: "babe 👀 formulating answer...",
+      glanceSay: "Synthesizing answer from your notes...",
+      glanceBullets: ["• Formulating key talking points", "• Connecting to your notes"],
+      extraInformation: "Retrieving relevant data points and context...",
+      isUnknown: false
+    };
+    setActiveQuestion(skeletonQ);
+    setIsQuestionActive(true);
+    setFrozenSuggestion(null);
+    transitionToState(CONVERSATION_STATES.QUESTION_CONFIRMED, `Question detected from ${speakerName}`);
 
     // Try OpenAI GPT first if API key is active
     if (openaiApiKey && openaiApiKey.startsWith('sk-')) {
@@ -524,13 +588,13 @@ export function MeetingProvider({ children }) {
         showSystemNotice(`⚡ Synthesizing answer with ${openaiModel}...`);
 
         // Format recent conversation turns to resolve pronouns & follow-up interruptions
-        const recentHistory = conversationHistory
+        const recentHistory = (conversationHistory || [])
           .slice(-4)
           .map(item => `${item.speaker}: "${item.text}"`)
           .join('\n');
 
         const gptQ = await generateAnswerWithGPT(
-          customText,
+          cleanText,
           rawNotes,
           cheatSheet,
           openaiApiKey,
@@ -538,8 +602,11 @@ export function MeetingProvider({ children }) {
           recentHistory
         );
         gptQ.speaker = speakerName;
+        gptQ.question = cleanText;
+        setActiveQuestion(gptQ);
         triggerQuestionDetected(gptQ);
         setIsGeneratingWithAi(false);
+        showSystemNotice("✓ Answer ready!");
         return;
       } catch (err) {
         console.warn("OpenAI API call failed, falling back to local engine:", err);
@@ -550,15 +617,17 @@ export function MeetingProvider({ children }) {
 
     // Fallback: local executive synthesizer
     const synthesizedQ = synthesizeLeaderAnswerForCustomQuestion(
-      customText,
+      cleanText,
       rawNotes,
       cheatSheet,
       speakingStyle
     );
 
     synthesizedQ.speaker = speakerName;
+    synthesizedQ.question = cleanText;
+    setActiveQuestion(synthesizedQ);
     triggerQuestionDetected(synthesizedQ);
-  }, [openaiApiKey, openaiModel, rawNotes, cheatSheet, speakingStyle, triggerQuestionNotForUser, triggerQuestionDetected, showSystemNotice]);
+  }, [openaiApiKey, openaiModel, rawNotes, cheatSheet, speakingStyle, triggerQuestionNotForUser, triggerQuestionDetected, showSystemNotice, conversationHistory]);
 
   // Load a preset template
   const loadTemplate = useCallback((templateId) => {
@@ -650,6 +719,9 @@ export function MeetingProvider({ children }) {
     }
 
     if (isLiveListening) {
+      if (silenceTimerRef.current) {
+        clearTimeout(silenceTimerRef.current);
+      }
       isListeningActiveRef.current = false;
       if (recognitionRef.current) {
         try { recognitionRef.current.stop(); } catch (e) {}
@@ -682,32 +754,37 @@ export function MeetingProvider({ children }) {
               interim += transcript;
             }
           }
-          const text = (final || interim).trim();
-          setLiveTranscript(text);
+          const spokenText = (final || interim).trim();
+          if (spokenText) {
+            setLiveTranscript(spokenText);
+          }
 
-          // Robust question detection for accents, mumbling, and conversational filler
-          if (final.trim().length > 8) {
-            const lower = final.toLowerCase();
-            const isQuestion = lower.includes('?') ||
-              /\b(why|how|what|where|when|who|which)\b/.test(lower) ||
-              /\b(can you|could you|would you|should we|do you|did we|are we|is there|have you|will we)\b/.test(lower) ||
-              /\b(where are we|where do we stand|any update|walk us through|break down|thoughts on|look into|tell us about|can someone clarify)\b/.test(lower);
+          if (silenceTimerRef.current) {
+            clearTimeout(silenceTimerRef.current);
+          }
 
-            if (isQuestion) {
+          // Candidate text to evaluate (prioritizes final sentence, or current spoken stream)
+          const candidate = (final.trim() || spokenText).trim();
+
+          if (candidate.length >= 6) {
+            const isPrompt = isMeetingPromptOrQuestion(candidate);
+
+            // 1. If Chrome explicitly finalized the phrase and it's a meeting prompt, trigger immediately!
+            if (final.trim().length >= 6 && isPrompt) {
               askCustomQuestion(final.trim(), "Meeting Participant (Transcribed)");
-            } else {
-              setConversationHistory(prev => [
-                ...prev,
-                {
-                  id: `transcribed-${Date.now()}`,
-                  speaker: "Meeting Participant",
-                  text: final.trim(),
-                  timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                  isUser: false,
-                  type: "statement"
-                }
-              ]);
+              return;
             }
+
+            // 2. Set an intelligent 900ms silence watchdog timer:
+            // When the speaker pauses after speaking a prompt (e.g. "hey so tell me about yourself"),
+            // automatically synthesize the answer so no question is ever lost!
+            silenceTimerRef.current = setTimeout(() => {
+              if (isListeningActiveRef.current && candidate.length >= 6) {
+                if (isMeetingPromptOrQuestion(candidate) || candidate.split(/\s+/).length >= 4) {
+                  askCustomQuestion(candidate, "Meeting Participant (Transcribed)");
+                }
+              }
+            }, 900);
           }
         };
 

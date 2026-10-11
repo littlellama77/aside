@@ -284,6 +284,17 @@ export function PrivateMeetingView({ onOpenPairingModal }) {
               <span className="hearing-text">
                 {liveTranscript ? `“${liveTranscript}”` : isLiveListening ? "Listening quietly... waiting for a question to be asked" : "Microphone is off (click above to start)"}
               </span>
+              {liveTranscript && (
+                <button
+                  type="button"
+                  className="btn-hearing-instant-ask"
+                  onClick={() => askCustomQuestion(liveTranscript, "Meeting Participant")}
+                  title="Generate answer for what was just heard right now"
+                >
+                  <Zap size={12} className="text-accent" />
+                  <span>Get Answer</span>
+                </button>
+              )}
             </div>
 
             {/* How Aside Hears Attendees Audio Tip */}
