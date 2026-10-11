@@ -19,36 +19,166 @@ const STOP_WORDS = new Set([
 ]);
 
 /**
- * Extracts numbers, metrics, currency, percentages, and data points from text
+ * Extracts numbers, metrics, currency, percentages, ratios, and data points from text
+ * Fully supports INR (₹), USD ($), EUR (€), percentage ranges (5.20% to 14.78%),
+ * comma counts (1,252 impressions, 1,000 articles), ratios (17 of 19), and project stats.
  */
 export function extractNumbersAndMetrics(text) {
   if (!text) return [];
   const metrics = [];
+  const seen = new Set();
   const lines = text.split('\n');
 
-  lines.forEach(line => {
-    // Check for "Label: Value" or "Label = Value" or "Metric was 78" or "+12%" or "$50k"
-    const labelMatch = line.match(/([A-Za-z\s]+)[:=]\s*([+\-]?[\d\w%$.]+(?:\s*(?:days|weeks|months|users|YoY|WoY|WoW|lift|score|NPS|CPA|CAC|ROAS|CTR))?)/i);
+  lines.forEach(rawLine => {
+    const line = rawLine.replace(/^[●•\-\*#>\s]+/, '').trim();
+    if (!line || line.length < 3) return;
+
+    // Pattern 1: Explicit Label: Value or Label = Value
+    const labelMatch = line.match(/^([A-Za-z\s\-_/]+)[:=]\s*([+\-]?[₹$€£]?\s*[\d,]+(?:\.\d+)?%?(?:\s*(?:to|-)\s*[₹$€£]?\s*[\d,]+(?:\.\d+)?%?)?(?:\s*(?:days|weeks|months|hours|users|YoY|WoY|WoW|lift|score|NPS|CPA|CAC|ROAS|CTR|clicks|impressions|sales|orders|articles|conversions))?)/i);
     if (labelMatch) {
-      metrics.push({
-        label: labelMatch[1].trim(),
-        value: labelMatch[2].trim(),
-        context: line.trim()
-      });
-      return;
+      let label = labelMatch[1].replace(/[:=]$/, '').trim();
+      let val = labelMatch[2].replace(/[.,\s]+$/, '').trim();
+      const key = (label + val).toLowerCase();
+      if (!seen.has(key) && label.length > 1) {
+        seen.add(key);
+        metrics.push({ label, value: val, context: line });
+        return;
+      }
     }
 
-    // Look for percentages, currency ($10k, $5M), or numbers with context
-    const numberMatch = line.match(/([+\-]?\$?\d+(?:\.\d+)?%?|\d+\s*(?:days|weeks|months|hours|sprints|users|points|score))/i);
-    if (numberMatch && line.length < 120) {
-      const parts = line.split(numberMatch[0]);
-      const potentialLabel = (parts[0] || parts[1] || 'Metric').replace(/[-*•#>\s]+/g, ' ').trim();
-      if (potentialLabel.length > 2 && potentialLabel.length < 40) {
-        metrics.push({
-          label: potentialLabel,
-          value: numberMatch[0].trim(),
-          context: line.trim()
-        });
+    // Pattern 2: Currency comparisons / ranges: e.g. 'CPC decreased from ₹5.33 to ₹4.21...', 'from ₹91 to ₹29'
+    const currRangeMatch = line.match(/(.+?)(?:decreased|increased|dropped|from)?\s*([₹$€£]\s*[\d,]+(?:\.\d+)?\s*(?:to|-)\s*[₹$€£]?\s*[\d,]+(?:\.\d+)?(?:\s*,\s*[^.]*)?)/i);
+    if (currRangeMatch) {
+      let label = currRangeMatch[1].replace(/^(cpc|cpa|ctr|cost|spend|budget)\s*(?:decreased|increased|from)?/i, '$1').trim();
+      label = label.replace(/(?:decreased|increased|from)\s*$/i, '').replace(/costper/i, 'Cost per').replace(/[:=.,]+$/, '').trim() || 'Cost / CPC';
+      let val = currRangeMatch[2].replace(/[.,\s]+$/, '').trim();
+      const key = (label + val).toLowerCase();
+      if (!seen.has(key) && label.length > 1) {
+        seen.add(key);
+        metrics.push({ label, value: val, context: line });
+        return;
+      }
+    }
+
+    // Pattern 3: Percentage ranges: e.g. 'CTR increased from 5.20% to 14.78%', 'from 0.80% to 1.06%', '155.56% to 173.59%'
+    const pctRangeMatch = line.match(/(.+?)(?:increased|decreased|from|rose|dropped)?\s*([\d.]+\s*%\s*(?:to|-)\s*[\d.]+\s*%(?:\s*,\s*[^.]*)?)/i);
+    if (pctRangeMatch) {
+      let label = pctRangeMatch[1].replace(/(?:increased|decreased|from)\s*$/i, '').replace(/[:=.,]+$/, '').trim() || 'Rate Change';
+      let val = pctRangeMatch[2].replace(/[.,\s]+$/, '').trim();
+      const key = (label + val).toLowerCase();
+      if (!seen.has(key) && label.length > 1) {
+        seen.add(key);
+        metrics.push({ label, value: val, context: line });
+        return;
+      }
+    }
+
+    // Pattern 4: Number ranges: e.g. 'Impressions increased from 5,681 to 5,955', 'Clicks increased from 45 to 63'
+    const numRangeMatch = line.match(/(.+?)(?:increased|decreased|from)?\s*([\d,]+\s*(?:to|-)\s*[\d,]+(?:\s*,\s*[^.]*)?)/i);
+    if (numRangeMatch && !numRangeMatch[0].includes('2020') && !numRangeMatch[0].includes('2024') && !numRangeMatch[0].includes('2025')) {
+      let label = numRangeMatch[1].replace(/(?:increased|decreased|from)\s*$/i, '').replace(/[:=.,]+$/, '').trim();
+      let val = numRangeMatch[2].replace(/[.,\s]+$/, '').trim();
+      const key = (label + val).toLowerCase();
+      if (!seen.has(key) && label.length > 2 && label.length < 50) {
+        seen.add(key);
+        metrics.push({ label, value: val, context: line });
+        return;
+      }
+    }
+
+    // Pattern 5: Ratio / target achieved: e.g. '17 of 19 planned conversions achieved'
+    const ratioMatch = line.match(/(\d+\s*of\s*\d+)\s*(.+)/i);
+    if (ratioMatch) {
+      const val = ratioMatch[1].trim();
+      let label = ratioMatch[2].replace(/(?:achieved|planned|completed|\.)/gi, '').trim() || 'Conversions Achieved';
+      label = label.charAt(0).toUpperCase() + label.slice(1);
+      const key = (label + val).toLowerCase();
+      if (!seen.has(key)) {
+        seen.add(key);
+        metrics.push({ label, value: val, context: line });
+        return;
+      }
+    }
+
+    // Pattern 6: Currency spent / budget comparison: e.g. '₹777 spent from an ₹800 planned budget'
+    const spendBudgetMatch = line.match(/([₹$€£]\s*[\d,]+(?:\.\d+)?)\s*(?:spent from(?:\s*an)?|of)\s*([₹$€£]\s*[\d,]+(?:\.\d+)?)/i);
+    if (spendBudgetMatch) {
+      const val = `${spendBudgetMatch[1]} / ${spendBudgetMatch[2]}`;
+      const label = "Campaign Spend / Budget";
+      const key = (label + val).toLowerCase();
+      if (!seen.has(key)) {
+        seen.add(key);
+        metrics.push({ label, value: val, context: line });
+        return;
+      }
+    }
+
+    // Pattern 7: Single currency values: e.g. '₹54.52 overall cost per add-to-cart', '₹857 in sales', '₹700 budget'
+    const currMatch = line.match(/([₹$€£]\s*[\d,]+(?:\.\d+)?)/);
+    if (currMatch) {
+      const val = currMatch[1].trim();
+      let label = line.replace(val, '').replace(/[-*•#>\s]+/g, ' ').replace(/\b(in|spent|planned|overall|listed|my|CV)\b/gi, '').replace(/[.:=]+$/, '').trim();
+      if (!label || label.length < 2) label = 'Spend / Budget';
+      label = label.replace(/\s+/g, ' ').trim();
+      label = label.charAt(0).toUpperCase() + label.slice(1);
+      const key = (label + val).toLowerCase();
+      if (!seen.has(key)) {
+        seen.add(key);
+        metrics.push({ label, value: val, context: line });
+        return;
+      }
+    }
+
+    // Pattern 8: Single percentages: e.g. '11.04% CTR', '+12% conversion volume', '21% reduction'
+    const pctMatch = line.match(/([+\-]?\d+(?:\.\d+)?\s*%)/);
+    if (pctMatch) {
+      const val = pctMatch[1].trim();
+      let label = line.replace(val, '').replace(/[-*•#>\s]+/g, ' ').replace(/[.:=]+$/, '').trim() || 'Percentage';
+      label = label.charAt(0).toUpperCase() + label.slice(1);
+      const key = (label + val).toLowerCase();
+      if (!seen.has(key) && label.length > 1 && label.length < 60) {
+        seen.add(key);
+        metrics.push({ label, value: val, context: line });
+        return;
+      }
+    }
+
+    // Pattern 9: Quantities with whitelisted units (impressions, clicks, conversions, articles, etc.)
+    const METRIC_UNITS = /(?:articles|writers|managers|prototypes|impressions|clicks|conversions|orders|add-to-carts|hours|minutes|days|weeks|months|sprints|score|benchmark|cpa|cpc|ctr|roas|acos|users)/i;
+    const countMatches = Array.from(line.matchAll(/(?:over|more than|approximately)?\s*([\d,]+)\s+([a-zA-Z\-_]+)/gi));
+    if (countMatches && countMatches.length > 0) {
+      countMatches.forEach(cm => {
+        const num = cm[1].trim();
+        const unit = cm[2].trim();
+        if (!METRIC_UNITS.test(unit)) return;
+        if (num.match(/^(2020|2022|2024|2025|2026)$/)) return;
+        const label = unit.charAt(0).toUpperCase() + unit.slice(1);
+        const val = cm[0].trim();
+        const key = (label + val).toLowerCase();
+        if (!seen.has(key)) {
+          seen.add(key);
+          metrics.push({ label, value: val, context: line });
+        }
+      });
+    }
+
+    // Pattern 10: Word numbers with units (e.g. 'Two orders generated', 'more than five web prototypes', 'nine hours of dayparting')
+    const wordNumMatch = line.match(/(?:built\s+(?:more\s+than\s+)?)?(?:approximately\s+)?\b(one|two|three|four|five|six|seven|eight|nine|ten)\b\s+([a-zA-Z\-_]+(?:\s+[a-zA-Z\-_]+)?)/i);
+    if (wordNumMatch) {
+      const word = wordNumMatch[1].toLowerCase();
+      const unitPhrase = wordNumMatch[2].toLowerCase();
+      const WORD_TO_NUM = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10 };
+      if (METRIC_UNITS.test(unitPhrase) || /order|prototype|hour|daypart/i.test(unitPhrase)) {
+        let label = unitPhrase.replace(/(?:generated|built|of|using|assisted|web|functional|\.)/gi, '').trim();
+        if (label.length >= 3) {
+          label = label.charAt(0).toUpperCase() + label.slice(1);
+          const val = `${WORD_TO_NUM[word] || word} ${label.toLowerCase()}`.trim();
+          const key = (label + val).toLowerCase();
+          if (!seen.has(key)) {
+            seen.add(key);
+            metrics.push({ label, value: val, context: line });
+          }
+        }
       }
     }
   });
@@ -452,6 +582,202 @@ export function generateQuestionsFromNotes(rawNotesText, templateId = "custom") 
 
   // Extract candidate themes from notes
   const textLower = rawNotesText.toLowerCase();
+
+  // If this matches Crealytics interview template (Torsten Christ, Performance Marketing Associate, Sportskeeda, Kraftshala)
+  if (templateId === "crealytics-interview" || textLower.includes("crealytics") || textLower.includes("torsten") || textLower.includes("kraftshala") || textLower.includes("sportskeeda") || textLower.includes("unleavables") || textLower.includes("homecrust")) {
+    return [
+      {
+        id: "crealytics-q1",
+        category: "expected",
+        speaker: "Torsten Christ (Head of HR)",
+        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+        question: "Tell me about yourself and your journey into performance marketing.",
+        topic: "Candidate Story & Background",
+        babeTag: "babe 👀 Point → Example → Learning",
+        simplestQuestion: "Torsten wants your 60-75 second intro story connecting editing to marketing.",
+        startWithPrompt: "Start with: “Hi Torsten, I'm Garima…”",
+        glanceSay: "Hi Torsten, I'm Garima. I started my career in sports media at Sportskeeda, editing over 1,000 articles and writing over 600 articles covering NFL and college football. Working with headlines and audience engagement made me curious about why certain messages resonate and how their impact can be measured. That curiosity led me to Kraftshala's Marketing Launchpad, where I executed hands-on projects across Google Search Ads, Meta Ads, and Amazon PPC. Now, I'm excited to bring my editorial rigor, data analysis, and technical curiosity together in a performance marketing role at Crealytics.",
+        glanceBullets: [
+          "• 1,000+ articles edited & 600+ articles authored at Sportskeeda",
+          "• Transitioned from sports journalism to measurable audience science",
+          "• Hands-on campaign execution at Kraftshala: Google Search, Meta Ads, Amazon PPC",
+          "• Built >5 AI prototypes; eager to drive profitable growth at Crealytics"
+        ],
+        expandedSay: "Hi Torsten, thank you for having me. I'd describe myself as someone who's endlessly curious about people and why certain ideas resonate with them. I started my career in sports media at Sportskeeda, where I edited over 1,000 articles, collaborated with over 20 writers, and authored over 600 articles covering NFL and college football. Over time, I became fascinated by the data side of communication—why certain headlines attracted higher CTR and what made content perform. That led me to Kraftshala's Marketing Launchpad, where I've managed real ad budgets across Google Search Ads, Meta Ads, and Amazon PPC. Along the way, I've also been building AI-assisted web prototypes. I'm now looking to bring those experiences together in a performance marketing role at Crealytics, where I can contribute to real campaigns and learn alongside experienced practitioners.",
+        supportingContext: "Notes Part 1: Sportskeeda (1,000+ edited, 600+ written), Doon University (BA 2020, MA 2022), Kraftshala Launchpad, AI prototypes.",
+        stuckRecovery: {
+          breatheMsg: "Take a breath babe. You know your journey: Sportskeeda → Kraftshala → Crealytics.",
+          questionSummary: "Tell me about yourself?",
+          points: ["1,000+ articles edited", "Moved from writing to data & ads", "Kraftshala campaigns + AI prototypes"],
+          easySay: "I started in sports media editing over 1,000 articles, became fascinated by how communication is measured, and transitioned into performance marketing at Kraftshala.",
+          stallSay: "I'd love to walk you through my journey from media into performance marketing."
+        }
+      },
+      {
+        id: "crealytics-q2",
+        category: "expected",
+        speaker: "Torsten Christ (Head of HR)",
+        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+        question: "Why Crealytics specifically, and what draws you to this role?",
+        topic: "Why Crealytics & Culture Fit",
+        babeTag: "babe 👀 highlight profitable growth + AI",
+        simplestQuestion: "Why Crealytics instead of other marketing agencies?",
+        startWithPrompt: "Start with: “What really excites me about Crealytics is…”",
+        glanceSay: "What really excites me about Crealytics is the intersection of performance marketing, technology, and AI—especially your focus on profitable growth. Too many agencies stop at surface metrics like clicks or CTR, but Crealytics connects campaign decisions directly to real business margins. I've also been building AI-assisted web prototypes myself, so joining a team that uses technology to solve large-scale marketing problems while building strong fundamentals is exactly where I want to grow.",
+        glanceBullets: [
+          "• Focus on profitable growth beyond vanity clicks",
+          "• Intersection of performance marketing, technology, and AI",
+          "• Personal interest: built >5 AI prototypes to explore workflow automation",
+          "• Eager to learn from experienced teammates who challenge assumptions"
+        ],
+        expandedSay: "What really interests me about Crealytics is the combination of performance marketing, technology, and AI. I'm at a point in my career where I'm excited by understanding not just how to run campaigns, but why certain things work and how technology can help us make better decisions. The focus on profitable growth particularly stood out to me, because it means looking beyond whether an ad gets clicks and asking whether it's actually helping the business grow. I've also been experimenting with AI-assisted development tools and building functional web prototypes myself, so joining a company that applies AI to marketing at scale feels like a natural match for what I'm already curious about.",
+        supportingContext: "Notes Part 2: Profitable growth focus; technology + AI integration; writing background brings audience perspective.",
+        stuckRecovery: {
+          breatheMsg: "Profitable growth + AI + learning environment. You've got this.",
+          questionSummary: "Why Crealytics?",
+          points: ["Profitable growth focus", "Performance marketing + AI", "Great place to build fundamentals"],
+          easySay: "Your focus on profitable growth and combining performance marketing with AI matches exactly what I'm curious about.",
+          stallSay: "What stood out most to me about Crealytics is how you approach profitable growth."
+        }
+      },
+      {
+        id: "crealytics-q3",
+        category: "expected",
+        speaker: "Torsten Christ (Head of HR)",
+        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+        question: "Can you walk me through your Google Search Ads project and your key results?",
+        topic: "Google Search Ads Project",
+        babeTag: "babe 👀 share the numbers: CTR 5.2%→14.8%, CPC ₹5.33→₹4.21",
+        simplestQuestion: "Torsten wants to hear your Google Search project metrics and learnings.",
+        startWithPrompt: "Start with: “In my Google Search Ads project…”",
+        glanceSay: "In my Google Search Ads project at Kraftshala, I focused on improving campaign performance through intent-based ad groups and keyword refinement. Over the campaign, CTR jumped from 5.20% to 14.78%, while CPC decreased from ₹5.33 down to ₹4.21—roughly a 21% reduction in cost. We achieved 17 of our 19 planned conversions within a ₹777 spend from an ₹800 budget. The big takeaway was seeing how tighter campaign structure directly unlocked both higher engagement and cost efficiency.",
+        glanceBullets: [
+          "• 1,252 impressions and 185 clicks",
+          "• CTR surged: 5.20% → 14.78%",
+          "• CPC reduced: ₹5.33 → ₹4.21 (approx 21% reduction)",
+          "• Conversions: 17 of 19 achieved within ₹777 spend (₹800 budget)",
+          "• Intent-based ad groups, bid adjustments, pausing underperformers"
+        ],
+        expandedSay: "In my Google Search Ads project at Kraftshala, I worked on improving campaign performance through keyword and targeting optimization. I focused on creating more intent-based ad groups, refining negative keywords, adjusting bids and locations, and pausing underperforming areas. By the end of the project, CTR had increased from 5.20% to 14.78%, while CPC decreased from ₹5.33 to ₹4.21—approximately a 21% reduction. We achieved 17 of the 19 planned conversions within a ₹777 spend from an ₹800 budget. What I found most valuable was learning to evaluate multiple metrics together: seeing how intent-driven structure can simultaneously improve engagement and cost efficiency.",
+        supportingContext: "Notes Part 4: Google Search Ads — 1,252 impressions, 185 clicks, CTR 5.20% to 14.78%, CPC ₹5.33 to ₹4.21, 17 of 19 conversions, ₹777/₹800 spend.",
+        stuckRecovery: {
+          breatheMsg: "You have all the numbers: 1,252 impressions, CTR 14.78%, CPC down 21% to ₹4.21.",
+          questionSummary: "Google Search Ads project results?",
+          points: ["CTR 5.20% to 14.78%", "CPC ₹5.33 to ₹4.21 (-21%)", "17 of 19 conversions on ₹777 spend"],
+          easySay: "We increased CTR from 5.20% to 14.78% and reduced CPC by 21% to ₹4.21, hitting 17 of 19 planned conversions on a ₹777 spend.",
+          stallSay: "I'd love to walk through the metrics from that Google Search project."
+        }
+      },
+      {
+        id: "crealytics-q4",
+        category: "expected",
+        speaker: "Torsten Christ (Head of HR)",
+        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+        question: "In your Unleavables Meta Ads project, what did you test and what were the outcomes?",
+        topic: "Unleavables Meta Ads Project",
+        babeTag: "babe 👀 highlight bidding test: Cost Cap vs Highest Volume",
+        simplestQuestion: "What did you test on Meta and what did the data show?",
+        startWithPrompt: "Start with: “For Unleavables, I ran an A/B bidding test…”",
+        glanceSay: "For Unleavables, a custom apparel brand, I tested bidding strategies between Cost Cap and Highest Volume alongside audience segmentation. During the test period, Cost Cap proved significantly more cost-efficient, dropping cost per add-to-cart from ₹91 down to ₹29, with an overall 11.04% CTR and 15 add-to-carts. It reinforced the value of testing bidding strategies empirically rather than assuming default volume delivery is best.",
+        glanceBullets: [
+          "• 11.04% CTR achieved, 15 add-to-carts generated",
+          "• Cost per add-to-cart decreased from ₹91 to ₹29 in test period",
+          "• Cost Cap proved more efficient than Highest Volume",
+          "• Overall CV cost per add-to-cart: ₹54.52"
+        ],
+        expandedSay: "One project I worked on was a Meta Ads campaign for Unleavables, a direct-to-consumer custom apparel brand. The project involved audience segmentation, competitor analysis, and creative decisions. Crucially, I also compared bidding strategies between Cost Cap and Highest Volume. During the test period, Cost Cap proved significantly more efficient, bringing the cost per add-to-cart down from ₹91 to ₹29. Overall, the campaign delivered an 11.04% CTR and 15 add-to-carts, with a blended ₹54.52 cost per add-to-cart across the full run. It was a great learning experience in validating hypotheses with data rather than intuition.",
+        supportingContext: "Notes Part 4: Unleavables Meta Ads — 11.04% CTR, 15 add-to-carts, ₹54.52 CV benchmark, ₹91 to ₹29 test cost.",
+        stuckRecovery: {
+          breatheMsg: "Cost Cap vs Highest Volume. Dropped ₹91 to ₹29. 11.04% CTR.",
+          questionSummary: "Unleavables Meta Ads project?",
+          points: ["Cost Cap beat Highest Volume", "Cost/ATC dropped ₹91 to ₹29", "11.04% CTR & 15 ATCs"],
+          easySay: "Cost Cap reduced cost per add-to-cart from ₹91 to ₹29 during testing, delivering an 11.04% CTR and 15 add-to-carts.",
+          stallSay: "In that project, the core experiment was comparing bidding strategies."
+        }
+      },
+      {
+        id: "crealytics-q5",
+        category: "opinion",
+        speaker: "Torsten Christ (Head of HR)",
+        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+        question: "In your Homecrust Amazon campaign, clicks rose by 40% but ACoS increased to 173%. How do you evaluate that?",
+        topic: "Homecrust Amazon PPC & Honest Analysis",
+        babeTag: "babe 👀 be honest about what worked and what didn't",
+        simplestQuestion: "Why did ACoS increase despite higher clicks, and what would you optimize next?",
+        startWithPrompt: "Start with: “I appreciate that question because…”",
+        glanceSay: "I appreciate that question because it shows that more clicks don't automatically mean a profitable campaign. We successfully expanded visibility—impressions grew 5% and clicks rose 40% with CTR improving from 0.80% to 1.06%, generating ₹857 in sales. However, conversion rate decreased from 2.20% to 1.58% and ACoS rose to 173.59%. If I were optimizing this next, I'd investigate product-page conversion barriers, search term relevance, and per-unit margins rather than assuming more clicks alone equals success.",
+        glanceBullets: [
+          "• Impressions: 5,681 → 5,955 (+5%), Clicks: 45 → 63 (+40%)",
+          "• CTR improved: 0.80% → 1.06%, 2 orders, ₹857 sales",
+          "• Conversion rate dipped: 2.20% → 1.58%, ACoS rose: 155.56% → 173.59%",
+          "• Key takeaway: Clicks ≠ Profitability; next step is auditing product page & search term intent"
+        ],
+        expandedSay: "I worked on an Amazon Sponsored Products campaign for Homecrust, a home and kitchen brand, optimizing a ₹700 budget using negative targeting, placement adjustments, and dayparting. The campaign generated clear improvements in visibility and engagement: impressions grew by about 5%, clicks increased by 40%, and CTR rose from 0.80% to 1.06%, generating two orders and ₹857 in sales. However, our conversion rate dropped from 2.20% to 1.58%, and ACoS climbed from 155.56% to 173.59%. That taught me that more clicks don't automatically mean a better campaign. If I were running the next iteration, I would analyze the search term report to eliminate non-converting queries, audit product listing copy and pricing, and examine order economics before committing more budget.",
+        supportingContext: "Notes Part 4 & 6: Homecrust — 5,681 to 5,955 impressions, 45 to 63 clicks, ACoS 155.56% to 173.59%, ₹700 budget.",
+        stuckRecovery: {
+          breatheMsg: "This shows mature analytical thinking. Honest about ACoS, clear on next steps.",
+          questionSummary: "Why did Homecrust ACoS rise?",
+          points: ["Clicks up 40%, sales ₹857", "Conversion rate dipped to 1.58%", "Audit product page & search term intent"],
+          easySay: "Clicks grew 40% and CTR improved, but conversion rate dropped, pushing ACoS to 173%. It proved that more clicks don't equal profitability without conversion alignment.",
+          stallSay: "That project gave me a really valuable lesson about the difference between traffic and profitability."
+        }
+      },
+      {
+        id: "crealytics-q6",
+        category: "reflective",
+        speaker: "Torsten Christ (Head of HR)",
+        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+        question: "Tell me about a time you had to learn something quickly or adapt to a new domain.",
+        topic: "Adaptability & Fast Learning",
+        babeTag: "babe 👀 Sportskeeda NFL story (600+ articles from zero)",
+        simplestQuestion: "Share how you mastered American football writing from scratch.",
+        startWithPrompt: "Start with: “One clear example is…”",
+        glanceSay: "One clear example is moving into NFL and college football writing at Sportskeeda when I had little prior knowledge of American football. I had to learn the game rules, terminology, and key storylines on tight publishing deadlines. By researching systematically, learning from editor feedback, and building domain knowledge article by article, I went on to publish over 600 articles. That experience showed me that not knowing something yet isn't a barrier—I genuinely enjoy starting as a beginner and mastering new domains through disciplined research.",
+        glanceBullets: [
+          "• Stepped into NFL and college football with zero prior background",
+          "• Researched game terminology, roster trends, and rules under tight deadlines",
+          "• Authored over 600 articles applying SEO principles",
+          "• Demonstrates high adaptability, coachability, and research rigor"
+        ],
+        expandedSay: "A defining experience for me was transitioning into NFL and college football coverage at Sportskeeda. I had very little prior knowledge of American football, but I was tasked with producing timely, accurate content for an informed audience under strict publishing deadlines. I approached it with structured discipline: I studied the terminology and schemes, reviewed game footage, paid close attention to editor feedback, and cross-referenced reputable sources. Over time, I authored over 600 articles and developed real comfort covering the sport. That experience taught me that being adaptable and curious is far more valuable than only sticking to familiar topics, and that exact mindset has accelerated my learning in performance marketing.",
+        supportingContext: "Notes Part 3 & 5: Question 19 & 29 — moved into NFL writing from scratch, authored 600+ articles.",
+        stuckRecovery: {
+          breatheMsg: "600+ NFL articles from scratch. You can learn anything quickly.",
+          questionSummary: "Time you learned something quickly?",
+          points: ["Started NFL writing with zero knowledge", "Systematic research & editor feedback", "Authored over 600 articles"],
+          easySay: "I moved into NFL writing with no prior knowledge, researched the sport systematically, and went on to write over 600 articles.",
+          stallSay: "A great example is when I started writing about American football."
+        }
+      },
+      {
+        id: "crealytics-q7",
+        category: "opinion",
+        speaker: "Torsten Christ (Head of HR)",
+        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+        question: "Do you have any questions for me today?",
+        topic: "Questions to Ask Torsten",
+        babeTag: "babe 👀 ask thoughtful culture & role questions",
+        simplestQuestion: "Ask Torsten about 3-6 month success and PPC development.",
+        startWithPrompt: "Start with: “Yes, thank you Torsten…”",
+        glanceSay: "Yes, thank you Torsten! I'd love to ask: What would success look like for someone in this role during their first three to six months? And how does Crealytics help new associates develop deep expertise across PPC and algorithmic campaign optimization?",
+        glanceBullets: [
+          "• 1. What does success look like in the first 3–6 months?",
+          "• 2. How does Crealytics help associates develop PPC & optimization expertise?",
+          "• 3. How closely does the associate team collaborate with technical & AI squads?",
+          "• 4. What are the next steps in the interview process?"
+        ],
+        expandedSay: "Yes, thank you Torsten, I do have a couple of questions. First, what would success look like for someone joining as a Performance Marketing Associate during their first three to six months? Second, given Crealytics' strong focus on technology and AI, how is the training and mentorship structured to help associates build deep fundamentals in PPC and campaign optimization? And third, how closely does the associate team collaborate with your data and technical squads on daily client work?",
+        supportingContext: "Notes Part 7: Questions to Ask Torsten (success in 3-6 months, PPC development, team structure, next steps).",
+        stuckRecovery: {
+          breatheMsg: "Ask about 3-6 month success and learning PPC.",
+          questionSummary: "Questions to ask Torsten?",
+          points: ["3-6 month success definition", "How Crealytics trains PPC & AI", "Next steps in interview"],
+          easySay: "What would success look like in the first 3 to 6 months, and how does Crealytics support associates in developing deep PPC expertise?",
+          stallSay: "I have a few questions about the role and team structure."
+        }
+      }
+    ];
+  }
 
   // If this matches the default marketing template, return the premium upgraded marketing questions
   if (templateId === "marketing-q3" || (textLower.includes("meta") && textLower.includes("search") && textLower.includes("creative"))) {

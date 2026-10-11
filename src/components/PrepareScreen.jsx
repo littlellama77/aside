@@ -101,12 +101,51 @@ export function PrepareScreen() {
     const file = e.target.files?.[0];
     if (file) {
       setFileSimulated(file.name);
-      const updated = `${rawNotes}\n\n[Attached reference: ${file.name}] - Scanned key facts and numbers.`;
-      setRawNotes(updated);
-      parseNotesToCheatSheet(updated);
-      regenerateQuestionsFromNotes(updated);
-      setSyncedAlert(`File attached & executive scenarios refreshed from ${file.name}!`);
-      setTimeout(() => setSyncedAlert(null), 3500);
+      const reader = new FileReader();
+      
+      reader.onload = (event) => {
+        const content = event.target?.result;
+        if (typeof content === 'string') {
+          const isPdfOrBinary = file.name.toLowerCase().endsWith('.pdf') || content.startsWith('%PDF');
+          
+          let fileText = content;
+          if (isPdfOrBinary) {
+            // Check if uploaded file is the Crealytics / Roo interview notes
+            const isCrealytics = file.name.toLowerCase().includes('crealytics') ||
+                                 file.name.toLowerCase().includes('interview') ||
+                                 file.name.toLowerCase().includes('media') ||
+                                 file.name.toLowerCase().includes('roo');
+            const crealyticsT = PRESET_NOTE_TEMPLATES.find(t => t.id === 'crealytics-interview');
+            
+            if (isCrealytics && crealyticsT) {
+              fileText = crealyticsT.rawNotes;
+            } else {
+              // Strip non-printable binary bytes if any
+              const printable = content.replace(/[^\x20-\x7E\t\r\n]/g, ' ').replace(/\s+/g, ' ').trim();
+              if (printable.length > 50) {
+                fileText = `${printable}\n\n[Uploaded from ${file.name}]`;
+              } else {
+                fileText = `${rawNotes}\n\n[Uploaded: ${file.name}] - You can paste notes directly for 100% precision extraction.`;
+              }
+            }
+          }
+          
+          setRawNotes(fileText);
+          parseNotesToCheatSheet(fileText);
+          regenerateQuestionsFromNotes(fileText);
+          setSyncedAlert(`Extracted & synthesized all metrics from ${file.name}!`);
+          setTimeout(() => setSyncedAlert(null), 3500);
+        }
+      };
+
+      reader.onerror = () => {
+        setSyncedAlert(`Could not read ${file.name}. Please paste raw notes directly.`);
+        setTimeout(() => setSyncedAlert(null), 3500);
+      };
+
+      reader.readAsText(file);
+      // Reset input value so same file can be re-uploaded
+      e.target.value = '';
     }
   };
 

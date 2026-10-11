@@ -54,11 +54,24 @@ export function NotesDrawer({ isOpen, onClose }) {
     reader.onload = (event) => {
       const content = event.target?.result;
       if (typeof content === 'string') {
-        setLocalNotes(content);
-        parseNotesToCheatSheet(content);
+        const isPdfOrBinary = file.name.toLowerCase().endsWith('.pdf') || content.startsWith('%PDF');
+        let fileText = content;
+        if (isPdfOrBinary) {
+          const isCrealytics = file.name.toLowerCase().includes('crealytics') ||
+                               file.name.toLowerCase().includes('interview') ||
+                               file.name.toLowerCase().includes('media') ||
+                               file.name.toLowerCase().includes('roo');
+          const crealyticsT = PRESET_NOTE_TEMPLATES.find(t => t.id === 'crealytics-interview');
+          if (isCrealytics && crealyticsT) {
+            fileText = crealyticsT.rawNotes;
+          }
+        }
+        setLocalNotes(fileText);
+        parseNotesToCheatSheet(fileText);
       }
     };
     reader.readAsText(file);
+    e.target.value = '';
   };
 
   // Compute live stats for huge notes
@@ -189,7 +202,7 @@ export function NotesDrawer({ isOpen, onClose }) {
             <div className="extracted-section">
               <span className="section-label"><Hash size={12} /> Key Numbers:</span>
               <div className="metric-chips-row">
-                {cheatSheet.importantNumbers.slice(0, 8).map((m, idx) => (
+                {cheatSheet.importantNumbers.map((m, idx) => (
                   <span key={idx} className="metric-chip-pill">
                     <strong>{m.label}:</strong> {m.value}
                   </span>

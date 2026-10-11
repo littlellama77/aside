@@ -27,6 +27,127 @@ export const BUY_ME_A_SECOND_PHRASES = [
 
 export const PRESET_NOTE_TEMPLATES = [
   {
+    id: "crealytics-interview",
+    title: "Crealytics Interview — The Roo Edition ♡",
+    type: "Interview",
+    topic: "Performance Marketing Associate (HR / Culture Fit with Torsten Christ)",
+    attendees: ["Torsten Christ (Head of HR, Crealytics)", "Garima (Roo)"],
+    rawNotes: `CREALYTICS INTERVIEW NOTES — THE ROO EDITION ♡
+Role: Performance Marketing Associate
+Interview: HR / Culture Fit Interview
+Interviewer: Torsten Christ, Head of HR
+Date: Monday, 12 October 2026
+Duration: Approximately 30 minutes
+
+PART 1: MY STORY & EXPERIENCE
+• Edited and fact-checked over 1,000 articles at Sportskeeda as U.S. Sports Editor (April 2024–January 2025).
+• Coordinated with more than 20 writers and managers across departments.
+• Authored over 600 articles covering NFL and college football (November 2024–October 2025) applying SEO principles.
+• Completed Bachelor's in 2020 and Master's in 2022 in Media and Communication at Doon University.
+• Editorial internship at The Times of India (August–October 2020).
+• Built more than 5 functional web prototypes using AI-assisted development tools.
+• Kraftshala Marketing Launchpad (October 2025–September 2026): hands-on campaign execution across Google Search Ads, Meta Ads, Amazon Sponsored Products, and programmatic advertising.
+
+PART 2: MARKETING PROJECTS & VERIFIED RESULTS
+1. Google Search Ads Project (Kraftshala):
+• 1,252 impressions and 185 clicks.
+• CTR increased from 5.20% to 14.78%.
+• CPC decreased from ₹5.33 to ₹4.21, approximately a 21% reduction.
+• 17 of 19 planned conversions achieved.
+• ₹777 spent from an ₹800 planned budget.
+• Focused on intent-based ad groups, keyword refinement, location expansion, bid adjustments, and pausing underperforming areas.
+
+2. Unleavables Meta Ads Project:
+• 11.04% CTR achieved.
+• 15 add-to-carts.
+• ₹54.52 overall cost per add-to-cart listed in my CV.
+• Cost per add-to-cart decreased from ₹91 to ₹29 during the test period.
+• Cost Cap proved more efficient than Highest Volume during the test.
+• Audience segmentation, competitor analysis, and creative strategy.
+
+3. Homecrust Amazon Sponsored Products Project:
+• Impressions increased from 5,681 to 5,955, approximately 5%.
+• Clicks increased from 45 to 63, or 40%.
+• CTR increased from 0.80% to 1.06%.
+• 2 orders generated.
+• ₹857 in sales.
+• Conversion rate decreased from 2.20% to 1.58%.
+• ACoS increased from 155.56% to 173.59%.
+• ₹700 budget with approximately 9 hours of dayparting.
+• Key learning: Visibility improved, but profitability remained a challenge; need to investigate product-page performance, targeting quality, and order economics before scaling.
+
+PART 3: WHY CREALYTICS & FIT
+• Focus on profitable growth: Looking beyond clicks or CTR to whether campaigns drive actual business growth.
+• Intersection of performance marketing, technology, and AI: Excited about combining creative messaging with data-driven experimentation.
+• Background in editing and journalism brings audience-first thinking and deep research rigor.
+
+PART 4: QUESTIONS TO ASK TORSTEN
+• What would success look like for someone in this role during their first three to six months?
+• How does Crealytics help people develop their expertise in performance marketing, particularly in PPC and campaign optimisation?
+• How is the Performance Marketing Associate's work typically structured, and how closely would they collaborate with other teams?
+• Could you tell me a little about the next stages of the interview process?
+
+PART 5: GUARDRAILS & REMINDERS
+• Do NOT invent challenges or claim results I cannot support.
+• Do NOT sound like a corporate brochure; explain thoughts clearly and humanly.
+• Use numbers to support answers, not replace the explanation behind them.
+• Remember: I don't have to know everything to be a good candidate for an associate role.`,
+    cheatSheet: {
+      coreNarrative: "Performance marketer with editorial rigor from Sportskeeda (1,000+ articles, 20+ writers) and hands-on campaign results at Kraftshala across Google Search (CTR: 5.20%→14.78%, CPC: ₹5.33→₹4.21), Meta Ads (₹91→₹29 cost/ATC), and Amazon PPC.",
+      thingsToRemember: [
+        "Google Search Ads: 1,252 impressions, 185 clicks, CTR 5.20% → 14.78%, CPC ₹5.33 → ₹4.21 (-21%), 17 of 19 conversions, ₹777/₹800 spend",
+        "Unleavables Meta Ads: 11.04% CTR, 15 add-to-carts, Cost/ATC dropped ₹91 → ₹29 (₹54.52 overall CV benchmark), Cost Cap won",
+        "Homecrust Amazon PPC: Impressions 5,681 → 5,955 (+5%), Clicks 45 → 63 (+40%), CTR 0.80% → 1.06%, 2 orders, ₹857 sales, ACoS 155.56% → 173.59%",
+        "Sportskeeda Editorial: Edited 1,000+ articles, managed 20+ writers, authored 600+ NFL/college football articles",
+        "Prototypes & Tech: Built >5 functional web prototypes experimenting with AI development tools",
+        "Education: Bachelor's (2020) & Master's (2022) in Media and Communication from Doon University"
+      ],
+      thingsToAsk: [
+        "What would success look like for someone in this role during their first 3 to 6 months?",
+        "How does Crealytics help people develop their expertise in performance marketing, particularly in PPC and campaign optimisation?",
+        "How is the Performance Marketing Associate's work typically structured and how closely do they collaborate with other teams?",
+        "Could you tell me a little about the next stages of the interview process?"
+      ],
+      importantNumbers: [
+        { label: "Search Impressions", value: "1,252" },
+        { label: "Search Clicks", value: "185" },
+        { label: "Search CTR", value: "5.20% → 14.78%" },
+        { label: "Search CPC", value: "₹5.33 → ₹4.21 (-21%)" },
+        { label: "Conversions Achieved", value: "17 of 19" },
+        { label: "Search Spend / Budget", value: "₹777 / ₹800" },
+        { label: "Meta CTR", value: "11.04%" },
+        { label: "Meta Add-to-Carts", value: "15" },
+        { label: "Meta Cost/ATC Test", value: "₹91 → ₹29" },
+        { label: "Meta Cost/ATC (CV)", value: "₹54.52" },
+        { label: "Amazon Impressions", value: "5,681 → 5,955 (+5%)" },
+        { label: "Amazon Clicks", value: "45 → 63 (+40%)" },
+        { label: "Amazon CTR", value: "0.80% → 1.06%" },
+        { label: "Amazon Orders", value: "2 orders" },
+        { label: "Amazon Sales", value: "₹857" },
+        { label: "Amazon Conversion Rate", value: "2.20% → 1.58%" },
+        { label: "Amazon ACoS", value: "155.56% → 173.59%" },
+        { label: "Amazon Budget", value: "₹700" },
+        { label: "Dayparting Window", value: "9 hours" },
+        { label: "Articles Edited", value: "1,000+" },
+        { label: "Writers Coordinated", value: "20+" },
+        { label: "Articles Authored", value: "600+" },
+        { label: "AI Prototypes Built", value: "5+" },
+        { label: "Interview Duration", value: "~30 min" }
+      ],
+      guardrails: [
+        "Do NOT invent challenges or claim results I cannot support with campaign data",
+        "Do NOT sound like a corporate brochure; speak conversationally and humanly",
+        "Use numbers to support answers, not replace the strategic explanation behind them",
+        "Be transparent that Homecrust Amazon PPC improved visibility but faced profitability headwinds with ACoS"
+      ],
+      anchors: [
+        "Point → Example → Learning framework for general questions.",
+        "Objective → My Actions → Results → Learning framework for project questions.",
+        "Take a breath. You did the work, you have the metrics, and you understand profitable growth."
+      ]
+    }
+  },
+  {
     id: "marketing-q3",
     title: "Marketing Campaign Review",
     type: "Work",

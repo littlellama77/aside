@@ -74,15 +74,15 @@ export function MeetingProvider({ children }) {
   });
 
   // Pre-Meeting Notes & Executive Memory Brief
-  const [selectedTemplateId, setSelectedTemplateId] = useState('marketing-q3');
+  const [selectedTemplateId, setSelectedTemplateId] = useState('crealytics-interview');
   const [rawNotes, setRawNotes] = useState(PRESET_NOTE_TEMPLATES[0].rawNotes);
   const [cheatSheet, setCheatSheet] = useState(PRESET_NOTE_TEMPLATES[0].cheatSheet);
 
   // Meeting Configuration
   const [meetingConfig, setMeetingConfig] = useState({
-    name: "Q3 Acquisition & Performance Review",
-    type: "Work",
-    topic: "Marketing campaign performance",
+    name: "Crealytics HR / Culture Fit Interview",
+    type: "Interview",
+    topic: "Performance Marketing Associate",
     tone: "Executive Leader"
   });
 
@@ -635,7 +635,19 @@ export function MeetingProvider({ children }) {
     setSelectedTemplateId(t.id);
     setRawNotes(t.rawNotes);
     const brief = parseNotesToExecutiveBrief(t.rawNotes);
-    setCheatSheet(brief);
+    const mergedNumbers = [...(brief.importantNumbers || [])];
+    if (t.cheatSheet?.importantNumbers) {
+      t.cheatSheet.importantNumbers.forEach(m => {
+        if (!mergedNumbers.some(existing => existing.label.toLowerCase() === m.label.toLowerCase())) {
+          mergedNumbers.push(m);
+        }
+      });
+    }
+    setCheatSheet({
+      ...brief,
+      ...t.cheatSheet,
+      importantNumbers: mergedNumbers.length > 0 ? mergedNumbers : (t.cheatSheet?.importantNumbers || brief.importantNumbers)
+    });
     setMeetingConfig(prev => ({
       ...prev,
       name: t.title,
