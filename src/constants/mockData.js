@@ -53,81 +53,113 @@ export const PRESET_NOTE_TEMPLATES = [
     type: "Interview",
     topic: "Performance Marketing Associate (HR / Culture Fit with Torsten Christ)",
     attendees: ["Torsten Christ (Head of HR, Crealytics)", "Garima (Roo)"],
-    rawNotes: `CREALYTICS INTERVIEW NOTES — THE ROO EDITION ♡
-Role: Performance Marketing Associate
-Interview: HR / Culture Fit Interview
+    rawNotes: `CREALYTICS INTERVIEW PREPARATION — PERSONAL, BEHAVIOURAL, SITUATIONAL & COMMERCIAL
+Role: Performance Marketing Associate — Remote India
 Interviewer: Torsten Christ, Head of HR
-Date: Monday, 12 October 2026
 Duration: Approximately 30 minutes
 
-PART 1: MY STORY & EXPERIENCE
-• Edited and fact-checked over 1,000 articles at Sportskeeda as U.S. Sports Editor (April 2024–January 2025).
-• Coordinated with more than 20 writers and managers across departments.
-• Authored over 600 articles covering NFL and college football (November 2024–October 2025) applying SEO principles.
-• Completed Bachelor's in 2020 and Master's in 2022 in Media and Communication at Doon University.
-• Editorial internship at The Times of India (August–October 2020).
-• Built more than 5 functional web prototypes using AI-assisted development tools.
-• Kraftshala Marketing Launchpad (October 2025–September 2026): hands-on campaign execution across Google Search Ads, Meta Ads, Amazon Sponsored Products, and programmatic advertising.
+SECTION 1: TELL ME ABOUT YOURSELF
+• Background: Writing, editing and research.
+• Transition: Formal marketing training and practical campaigns.
+• Strengths: Detail, analysis, communication and curiosity.
+• Next step: Learning and contributing in performance marketing.
+• Editorial at Sportskeeda: NFL and College Football Writer & U.S. Sports Editor. Wrote over 600 articles, edited more than 1,000 pieces of content, coordinated with over 20 writers and managers across departments under daily deadlines.
+• Education: Bachelor's (2020) and Master's (2022) in Media and Communication at Doon University; Editorial internship at The Times of India (2020).
+• Hands-on Marketing at Kraftshala: Google Search Ads, Meta Ads, Amazon Sponsored Products campaigns, and programmatic advertising. Completed Google Data Analytics training and explored AI-assisted development.
+• Personal Initiative: Built more than 5 functional web prototypes using AI tools (Antigravity & Claude).
 
-PART 2: MARKETING PROJECTS & VERIFIED RESULTS
-1. Google Search Ads Project (Kraftshala):
+SECTION 2: MOTIVATION AND COMPANY FIT
+• Why Crealytics: Combination of data, technology and real business outcomes. Focus on profitable growth and incrementality rather than vanity metrics. Opportunity to work with international e-commerce at scale and learn from a team where analytical thinking and continuous improvement matter.
+• Why Performance Marketing rather than Content/Brand: Adds another layer—examining how marketing decisions translate into measurable outcomes. Involves both analytical thinking and experimentation. Content background brings audience-first messaging, user intent, and creative testing.
+• Why should we hire you: Unique combination of analytical curiosity, communication skills, and editorial attention to detail (fact-checking 1,000+ pieces, tight deadlines). Willingness to learn, ask questions, investigate problems, and use evidence to guide decisions.
+• What interests you most: End-to-end nature of the role—campaign setup, monitoring performance, analysing KPIs, testing improvements, reporting, and continuous optimisation.
+• 3–5 Year Vision: Become a well-rounded performance marketer who can independently manage campaigns, interpret performance data confidently, and explain optimisation reasoning. Develop deep expertise in paid search, automation, and retail media analytics.
+
+SECTION 3: STRENGTHS, WEAKNESSES AND SELF-AWARENESS
+• Greatest Strengths: Attention to detail, research rigor, and clear communication. Fact-checking and editing 1,000+ articles; writing 600+ articles; coordinating with 20+ writers/managers.
+• Genuine Weakness: Becoming more confident when approaching something unfamiliar—sometimes wanting to understand all details before moving forward. Learning to balance thoroughness with taking action: identifying what to know first, asking focused questions, and testing iteratively.
+• Constructive Criticism: Editorial experience made revisions a normal, healthy part of work. Focus on what needs to improve rather than taking it personally; understand the reasoning and apply the learning.
+• What Motivates Me: Understanding how things work and finding ways to make them better—moving from noticing something isn't working to understanding why and testing a solution.
+
+SECTION 4: CV DEEP-DIVE CAMPAIGNS
+1. Google Search Ads Project (Unleavables):
 • 1,252 impressions and 185 clicks.
-• CTR increased from 5.20% to 14.78%.
-• CPC decreased from ₹5.33 to ₹4.21, approximately a 21% reduction.
-• 17 of 19 planned conversions achieved.
-• ₹777 spent from an ₹800 planned budget.
-• Focused on intent-based ad groups, keyword refinement, location expansion, bid adjustments, and pausing underperforming areas.
+• CTR improved from 5.20% to 14.78%.
+• CPC decreased from ₹5.33 to ₹4.21 (approx. 21% reduction).
+• 17 out of 19 planned conversions achieved on ₹777 spend (₹800 budget).
+• Optimisation: Intent-based ad group restructuring, negative keywords sculpting, location expansion, bid adjustments, and pausing low-performing areas.
+• Key Learning: Looking at metrics together rather than in isolation; high CTR does not automatically mean profitability.
+• If CTR rises but conversions drop: Investigate search terms quality, landing page relevance/speed, conversion tracking health, and audience segmentation.
 
-2. Unleavables Meta Ads Project:
-• 11.04% CTR achieved.
-• 15 add-to-carts.
-• ₹54.52 overall cost per add-to-cart listed in my CV.
-• Cost per add-to-cart decreased from ₹91 to ₹29 during the test period.
-• Cost Cap proved more efficient than Highest Volume during the test.
-• Audience segmentation, competitor analysis, and creative strategy.
+2. Meta Ads Project (Unleavables):
+• 11.04% CTR achieved; 15 add-to-carts generated.
+• Cost per add-to-cart listed in CV: ₹54.52 blended.
+• Live Bidding Test: Cost Cap vs Highest Volume. Cost per add-to-cart reduced from ₹91 to ₹29 during test period.
+• Key Learning: Cost Cap controls average cost per result around a target to protect unit economics, whereas Highest Volume prioritises volume. Performance depends on targets, conversion volume, and auction conditions.
 
-3. Homecrust Amazon Sponsored Products Project:
-• Impressions increased from 5,681 to 5,955, approximately 5%.
-• Clicks increased from 45 to 63, or 40%.
-• CTR increased from 0.80% to 1.06%.
-• 2 orders generated.
-• ₹857 in sales.
-• Conversion rate decreased from 2.20% to 1.58%.
-• ACoS increased from 155.56% to 173.59%.
-• ₹700 budget with approximately 9 hours of dayparting.
-• Key learning: Visibility improved, but profitability remained a challenge; need to investigate product-page performance, targeting quality, and order economics before scaling.
+3. Amazon Sponsored Products Project (Homecrust):
+• ₹700 budget, 9-hour dayparting window, negative targeting, placement adjustments.
+• Impressions increased from 5,681 to 5,955 (+5%).
+• Clicks increased from 45 to 63 (+40%); CTR improved from 0.80% to 1.06%.
+• Generated 2 orders and ₹857 in sales.
+• Conversion rate decreased from 2.20% to 1.58%; ACoS increased from 155.56% to 173.59%.
+• Honest Commercial Takeaway: Campaign improved visibility but was NOT a profitability success. Increased clicks without listing readiness burned spend; need to investigate product page conversion friction, price elasticity, and search term intent.
 
-PART 3: WHY CREALYTICS & FIT
-• Focus on profitable growth: Looking beyond clicks or CTR to whether campaigns drive actual business growth.
-• Intersection of performance marketing, technology, and AI: Excited about combining creative messaging with data-driven experimentation.
-• Background in editing and journalism brings audience-first thinking and deep research rigor.
+SECTION 5: BEHAVIOURAL & SITUATIONAL EXPERIENCE
+• Working under pressure: Sportskeeda publishing cycles; maintaining factual accuracy and editorial quality under tight deadlines.
+• Difficult stakeholder: Coordinating with writers, editors, and managers; understanding individual constraints, transparent communication, and focusing on shared standards.
+• Accountability & Mistakes: Homecrust ACoS increase—understanding the difference between generating activity and generating economically valuable results.
+• Learning quickly: Transitioning from writing to performance marketing; mastering Google Ads, Meta Ads, Amazon Ads, and AI prototyping by applying concepts directly to real projects.
+• When a campaign spends without converting: Verify tracking and landing page, audit search terms, evaluate audience and bidding, pause wasteful areas, and communicate transparently.
 
-PART 4: QUESTIONS TO ASK TORSTEN
-• What would success look like for someone in this role during their first three to six months?
-• How does Crealytics help people develop their expertise in performance marketing, particularly in PPC and campaign optimisation?
-• How is the Performance Marketing Associate's work typically structured, and how closely would they collaborate with other teams?
-• Could you tell me a little about the next stages of the interview process?
+SECTION 6: COMMERCIAL JUDGMENT
+• High ROAS but low volume: Do NOT scale automatically. Check marginal returns, available search volume/demand, and budget constraints; scale budget gradually while monitoring efficiency.
+• Same conversion rate, different CPCs: Look beyond CPC to cost per conversion, average order value (AOV), margins, and statistical sample size.
+• Revenue increases but ROAS drops: Evaluate incremental profit contribution after advertising costs. If additional revenue drives net profit and supports client goals, it is worthwhile; if it destroys profitability, reconsider.
+• Client wants more sales with no extra budget: Focus on efficiency—eliminate search term waste, negative targeting, bid adjustments, ad copy testing, and landing page conversion rate.
+• When to pause, optimise, or scale: Pause on serious waste or broken tracking; optimise when there is a specific testable opportunity; scale when campaign consistently hits business goals with positive incremental returns.
 
-PART 5: GUARDRAILS & REMINDERS
-• Do NOT invent challenges or claim results I cannot support.
-• Do NOT sound like a corporate brochure; explain thoughts clearly and humanly.
-• Use numbers to support answers, not replace the explanation behind them.
-• Remember: I don't have to know everything to be a good candidate for an associate role.`,
+SECTION 7: PERSONAL INTERVIEW NOTES — THE HUMAN BEHIND THE CV
+• Dehradun Perspective: Hometown offering a balance of nature, education, and growing talent. Remote work allows ambitious professionals to build international careers without relocating.
+• Expanding to Dehradun: Explore local talent pool and educational partnerships; test remote hiring pilot before committing to a physical office.
+• Outside Interests: Sci-fi and fantasy enthusiast (*The Martian*, *Red Rising*, *Gideon the Ninth*, *Ninth House*, *The Raven Boys*). Loves stories that explore systems, characters, and what happens when plans stop working. Also enjoys painting, swimming, and being outdoors.
+• AI-Assisted App Prototyping: Built functional web prototypes using Antigravity and Claude. Tested a productivity app prototype with 6 friends; feedback was that it felt clunky and overcomplicated. Learned: don't confuse effort with effectiveness; building more features doesn't make a product better—focus on user friction and clarity.
+• Creative vs Analytical: Creative by instinct, actively developing analytical side. Both work together—creativity generates hypotheses, analysis validates them with data.
+
+SECTION 8: QUESTIONS TO ASK TORSTEN & THE TEAM
+1. What would success look like for someone in this role during their first three months?
+2. How is training structured for someone joining at the associate level?
+3. How does the team approach experimentation and optimisation across different retail clients?
+4. What tools and reporting workflows would I use most frequently?
+5. How does the team balance independent ownership with reviews and collaboration?
+6. What distinguishes someone who performs well in this role from someone who is exceptionally good at it?
+
+SECTION 9: NATURAL LINES IN BACK POCKET
+• When you don't know something: "I'm not completely sure of the answer, so I wouldn't want to guess. My first step would be to understand the issue, check the relevant data, and work through it systematically."
+• When discussing an underperforming campaign: "I think it's important to distinguish between what improved and what still needs work. The result wasn't perfect, but it gave me something concrete to learn from."
+• When asked about a new tool: "I enjoy experimenting with new tools, but I'm also learning that the tool itself isn't the goal. What matters is whether it solves the problem effectively."
+• When asked about learning style: "I learn best when I can connect the concept to something practical. Once I've tried it myself, it's much easier for me to understand why it works."
+• On pressure: "Staying organised is much more useful than simply trying to do everything at once."
+• The Golden Rule: A candidate who can say, 'This is what I tried, this is what happened, and this is what I'd do differently,' is a lot more convincing than someone who claims every project was a smashing success. ♡`,
     cheatSheet: {
-      coreNarrative: "Performance marketer driven by deep analytical curiosity and editorial storytelling instincts. Hands-on across Google Search (CTR: 5.20%→14.78%, CPC: ₹5.33→₹4.21), Meta Ads (₹91→₹29 cost/ATC), and Amazon PPC (ACoS 173% learning puzzle). Constantly tinkering with tech (built 5+ AI prototypes) and genuinely excited to learn from Crealytics' algorithmic standards.",
+      coreNarrative: "Performance marketer with a strong foundation in editorial research, communication, and human psychology. Deeply curious and eager to learn, combining creative intuition with rigorous data across Google Search (CTR 5.20%→14.78%, CPC ₹5.33→₹4.21), Meta Ads (Cost Cap test ₹91→₹29), and Amazon PPC (ACoS 173% conversion puzzle). Passionate about systems and experimentation—from building AI prototypes to reading sci-fi—and genuinely excited to master retail media tech at Crealytics.",
       thingsToRemember: [
-        "Google Search Ads: 1,252 impressions, 185 clicks, CTR 5.20% → 14.78%, CPC ₹5.33 → ₹4.21 (-21%), 17 of 19 conversions, ₹777/₹800 spend",
-        "Unleavables Meta Ads: 11.04% CTR, 15 add-to-carts, Cost/ATC dropped ₹91 → ₹29 (₹54.52 overall CV benchmark), Cost Cap won",
-        "Homecrust Amazon PPC: Impressions 5,681 → 5,955 (+5%), Clicks 45 → 63 (+40%), CTR 0.80% → 1.06%, 2 orders, ₹857 sales, ACoS 155.56% → 173.59%",
-        "Sportskeeda Editorial: Edited 1,000+ articles, managed 20+ writers, authored 600+ NFL/college football articles",
-        "Prototypes & Tech: Built >5 functional web prototypes experimenting with AI development tools",
-        "Education: Bachelor's (2020) & Master's (2022) in Media and Communication from Doon University"
+        "Google Search Ads: 1,252 impressions, 185 clicks, CTR 5.20% → 14.78%, CPC ₹5.33 → ₹4.21 (-21%), 17/19 conversions, ₹777/₹800 spend",
+        "Meta Ads (Unleavables): 11.04% CTR, 15 add-to-carts, Cost Cap test dropped cost/ATC from ₹91 → ₹29 (₹54.52 blended CV benchmark)",
+        "Amazon Ads (Homecrust): Impressions 5,681 → 5,955, Clicks 45 → 63 (+40%), CTR 0.80% → 1.06%, 2 orders, ₹857 sales, ACoS 155.56% → 173.59% (commercial honesty)",
+        "Editorial Background: Edited 1,000+ articles, coordinated 20+ writers/managers, authored 600+ NFL/college football articles at Sportskeeda",
+        "AI Prototypes & Tech: Built 5+ web prototypes with Antigravity & Claude; tested productivity app with 6 friends; learned not to confuse effort with effectiveness",
+        "Dehradun & Remote Work: Hometown balance of nature and education; remote work connects local talent with global career opportunities",
+        "Personal Interests: Sci-fi & fantasy (The Martian, Red Rising, Gideon the Ninth, Ninth House, The Raven Boys), painting, swimming",
+        "Commercial Judgment: High ROAS != auto-scale; examine marginal returns, incremental profit, and full-funnel conversion leakage"
       ],
       thingsToAsk: [
-        "What would success look like for someone in this role during their first 3 to 6 months?",
-        "How does Crealytics help people develop their expertise in performance marketing, particularly in PPC and campaign optimisation?",
-        "How is the Performance Marketing Associate's work typically structured and how closely do they collaborate with other teams?",
-        "Could you tell me a little about the next stages of the interview process?"
+        "What would success look like for someone in this role during their first three months?",
+        "How is training structured for someone joining at the associate level?",
+        "How does the team approach experimentation and optimisation across different retail clients?",
+        "What tools and reporting workflows would I use most frequently?",
+        "How does the team balance independent ownership with reviews and collaboration?",
+        "What distinguishes someone who performs well in this role from someone who is exceptionally good at it?"
       ],
       importantNumbers: [
         { label: "Search Impressions", value: "1,252" },
@@ -153,21 +185,22 @@ PART 5: GUARDRAILS & REMINDERS
         { label: "Writers Coordinated", value: "20+" },
         { label: "Articles Authored", value: "600+" },
         { label: "AI Prototypes Built", value: "5+" },
+        { label: "App Prototype User Test", value: "6 friends" },
         { label: "Interview Duration", value: "~30 min" }
       ],
       guardrails: [
-        "Do NOT invent challenges or claim results I cannot support with campaign data",
-        "Do NOT sound like a corporate brochure; speak conversationally and humanly",
-        "Use numbers to support answers, not replace the strategic explanation behind them",
+        "Do NOT invent challenges or claim results you cannot support with campaign data",
+        "Do NOT sound like a corporate brochure; speak conversationally, naturally, and warmly",
+        "Don't pretend to know everything — if you don't know, explain how you would investigate systematically",
+        "Don't confuse effort with effectiveness — focus on user impact and commercial outcomes",
         "Be transparent that Homecrust Amazon PPC improved visibility but faced profitability headwinds with ACoS"
       ],
       anchors: [
-        "Keep it natural and friendly: speak like a smart person having a great conversation on a video call.",
+        "Sound like a person, not a presentation: speak like a smart, warm person having an authentic conversation on a video call.",
         "Drop in the numbers naturally as proof (5.2% to 14.8% CTR, ₹4.21 CPC, 17/19 conversions, 11.04% CTR, ₹29 cost cap).",
-        "Be relaxed and honest about mistakes: Homecrust ACoS proved that clicks mean nothing without conversion readiness.",
-        "Point → Example → Learning framework for general questions.",
-        "Objective → Actions → Results → Takeaway framework for project questions.",
-        "Take a breath. You did the work, you have the metrics, and you know this inside out."
+        "Show commercial judgment: Homecrust ACoS proved that clicks mean nothing without conversion readiness and unit economics.",
+        "When in doubt: 'I'm not completely sure of the answer, so I wouldn't want to guess. My first step would be to understand the issue, check the data, and test systematically.'",
+        "Remember: A candidate who can say 'This is what I tried, this is what happened, and this is what I'd do differently' is the most convincing. ♡"
       ]
     }
   },

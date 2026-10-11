@@ -558,7 +558,68 @@ export function synthesizeLeaderAnswerForCustomQuestion(questionText, rawNotesTe
       matchedScenario = interviewScenarios.find(s => s.id === "crealytics-q7");
     }
 
-    // 7. Candidate Story / Background / Tell me about yourself
+    // 7. Outside Interests / Books / Sci-Fi / AI Prototypes / Not on CV
+    const isPersonalInterests = !matchedScenario && (
+      coreLower.includes("outside work") || coreLower.includes("outside of work") || coreLower.includes("free time") ||
+      coreLower.includes("books") || coreLower.includes("reading") || coreLower.includes("sci-fi") || coreLower.includes("science fiction") ||
+      coreLower.includes("martian") || coreLower.includes("red rising") || coreLower.includes("gideon") ||
+      coreLower.includes("hobbies") || coreLower.includes("painting") || coreLower.includes("swimming") ||
+      coreLower.includes("prototype") || coreLower.includes("antigravity") || coreLower.includes("claude") ||
+      coreLower.includes("personal project") || coreLower.includes("not on your cv") || coreLower.includes("isn't on your cv") ||
+      coreLower.includes("something interesting about yourself") ||
+      qLower.includes("outside of work") || qLower.includes("outside work") || qLower.includes("books") || qLower.includes("not on your cv") || qLower.includes("prototype")
+    );
+    if (isPersonalInterests) {
+      matchedScenario = interviewScenarios.find(s => s.id === "crealytics-q8");
+    }
+
+    // 8. Strengths & Weaknesses / Self-Awareness / Why Hire You
+    const isStrengthsWeaknesses = !matchedScenario && (
+      coreLower.includes("strength") || coreLower.includes("weakness") || coreLower.includes("greatest strength") ||
+      coreLower.includes("biggest weakness") || coreLower.includes("area to improve") || coreLower.includes("working on improving") ||
+      coreLower.includes("what are you working on") || coreLower.includes("why should we hire you") ||
+      qLower.includes("strength") || qLower.includes("weakness") || qLower.includes("why should we hire you")
+    );
+    if (isStrengthsWeaknesses) {
+      matchedScenario = interviewScenarios.find(s => s.id === "crealytics-q9");
+    }
+
+    // 9. Commercial Judgment / Strategy / Scaling / CTR up but Conversions down
+    const isCommercialJudgment = !matchedScenario && (
+      coreLower.includes("scale") || coreLower.includes("scaling") || coreLower.includes("roas") ||
+      coreLower.includes("high roas") || coreLower.includes("conversions decreased") || coreLower.includes("sales declining") ||
+      coreLower.includes("ctr increased but") || coreLower.includes("ctr increasing but") || coreLower.includes("spend money but not") ||
+      coreLower.includes("limited budget") || coreLower.includes("allocate budget") || coreLower.includes("worse roas") ||
+      coreLower.includes("same conversion rate") || coreLower.includes("commercial judgment") ||
+      qLower.includes("scale") || qLower.includes("roas") || qLower.includes("ctr increased but") || qLower.includes("limited budget")
+    );
+    if (isCommercialJudgment) {
+      matchedScenario = interviewScenarios.find(s => s.id === "crealytics-q10");
+    }
+
+    // 10. Dehradun / Remote Work & Distributed Teams
+    const isDehradunRemote = !matchedScenario && (
+      coreLower.includes("dehradun") || coreLower.includes("remote") || coreLower.includes("work from home") ||
+      coreLower.includes("international team") || coreLower.includes("stay organised") || coreLower.includes("stay organized") ||
+      coreLower.includes("prioritise competing") || coreLower.includes("competing deadlines") ||
+      qLower.includes("dehradun") || qLower.includes("remote") || qLower.includes("international team")
+    );
+    if (isDehradunRemote) {
+      matchedScenario = interviewScenarios.find(s => s.id === "crealytics-q11");
+    }
+
+    // 11. Pressure / Constructive Feedback / Disagreement / Difficult Situations
+    const isBehaviouralPressure = !matchedScenario && (
+      coreLower.includes("pressure") || coreLower.includes("criticism") || coreLower.includes("difficult feedback") ||
+      coreLower.includes("disagree") || coreLower.includes("disagreement") || coreLower.includes("difficult stakeholder") ||
+      coreLower.includes("under pressure") || coreLower.includes("tight deadline") || coreLower.includes("constructive feedback") ||
+      qLower.includes("pressure") || qLower.includes("feedback") || qLower.includes("disagree") || qLower.includes("stakeholder")
+    );
+    if (isBehaviouralPressure) {
+      matchedScenario = interviewScenarios.find(s => s.id === "crealytics-q12");
+    }
+
+    // 12. Candidate Story / Background / Tell me about yourself
     // (Only if it's NOT a specific project question!)
     const isCandidateStory = !matchedScenario && (
       coreLower.includes("yourself") || coreLower.includes("background") || coreLower.includes("journey") ||
@@ -958,6 +1019,142 @@ export function generateQuestionsFromNotes(rawNotesText, templateId = "custom") 
           points: ["3-6 month success definition", "How Crealytics trains PPC & AI", "Next steps in interview"],
           easySay: "What would success look like in the first 3 to 6 months, and how does Crealytics support associates in developing deep PPC expertise?",
           stallSay: "I have a few questions about the role and team structure."
+        }
+      },
+      {
+        id: "crealytics-q8",
+        category: "reflective",
+        speaker: "Torsten Christ (Head of HR)",
+        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+        question: "Tell me something about yourself that isn't on your CV — your outside interests and personal projects.",
+        topic: "Outside Interests, Books & AI Prototypes",
+        babeTag: "babe 👀 sci-fi systems curiosity, painting & building AI prototypes",
+        simplestQuestion: "Share your love for sci-fi books, creative hobbies, and building AI prototypes with Antigravity & Claude.",
+        startWithPrompt: "Start with: “Outside of my resume, I'm someone who's just endlessly curious about how systems work…”",
+        glanceSay: "Outside of my resume, I'm someone who's just endlessly curious about how systems work! I'm a huge science fiction and fantasy fan—books like The Martian, Red Rising, and Gideon the Ninth—because I love watching characters analyze complex problems and figure things out when their initial plans fall apart. Outside of reading and painting, I've recently been having so much fun using AI tools like Antigravity and Claude to build functional little web prototypes. I actually built a productivity app prototype and tested it with six friends. They gave me really honest feedback that it felt clunky and overcomplicated, which was an amazing reality check! It taught me never to confuse effort with effectiveness—building more features doesn't help if there's user friction. That mindset of testing ideas and learning from real user feedback is honestly what makes me so drawn to performance marketing.",
+        glanceBullets: [
+          "• Sci-fi & fantasy enthusiast (The Martian, Red Rising, Gideon the Ninth) fascinated by complex systems",
+          "• Creative outside work: love painting, swimming, and being outdoors",
+          "• Built functional web prototypes using Antigravity and Claude",
+          "• Tested productivity app with 6 friends; learned to avoid feature creep and user friction",
+          "• Core takeaway: never confuse effort with effectiveness; let real feedback guide iterations"
+        ],
+        expandedSay: "Outside of my resume, I'd say I'm someone with a deep natural curiosity for how systems and human psychology connect. I'm a big reader of sci-fi and fantasy—I love The Martian, Red Rising, Ninth House, and The Raven Boys. What draws me to those stories is seeing how characters navigate unfamiliar worlds, test hypotheses, and adapt when things go wrong.\n\nOn the creative side, I enjoy painting and swimming, but recently I've also been building little functional web apps using AI tools like Antigravity and Claude. I love taking an idea from my head and making it into something interactive. For example, I built a productivity tool to help people organize tasks and shared it with six friends. They were very honest and told me it felt complicated and clunky! While I wanted them to love it, it was such an eye-opening lesson: an idea can make total sense to the creator but still create friction for the user. It taught me not to confuse effort with effectiveness—whether in product design or marketing campaigns, you have to prioritize the user's experience and let real data guide your iterations.",
+        supportingContext: "Notes Section 7: Personal Interview Notes (sci-fi books, painting, AI prototypes with Antigravity & Claude, 6 friends test feedback).",
+        stuckRecovery: {
+          breatheMsg: "Sci-fi books + AI prototypes + 6 friends feedback lesson. Keep it warm and fun!",
+          questionSummary: "What's not on your CV?",
+          points: ["Sci-fi enthusiast (The Martian, Red Rising)", "Built web prototypes with Antigravity & Claude", "Tested with 6 friends: don't confuse effort with effectiveness"],
+          easySay: "I'm a huge sci-fi reader and love building AI app prototypes on the side—recently tested one with 6 friends, which taught me to never confuse effort with effectiveness.",
+          stallSay: "I'd love to share that—outside of work, I'm really curious about systems, books, and experimenting with tech."
+        }
+      },
+      {
+        id: "crealytics-q9",
+        category: "expected",
+        speaker: "Torsten Christ (Head of HR)",
+        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+        question: "What are your greatest strengths, and what is an area you're actively working to improve?",
+        topic: "Strengths, Weaknesses & Self-Awareness",
+        babeTag: "babe 👀 research rigor & editorial discipline + balancing thoroughness with action",
+        simplestQuestion: "Detail, research, and communication as strengths; wanting 100% data before acting as the weakness you're actively balancing.",
+        startWithPrompt: "Start with: “I'd say my greatest strengths are attention to detail, research rigor, and communication…”",
+        glanceSay: "I'd say my biggest strengths are attention to detail, research rigor, and clear communication. In my editorial work, I fact-checked and edited over 1,000 articles, wrote 600+ pieces, and coordinated with 20+ writers and managers under tight deadlines. In performance marketing, that means I don't just skim data—I investigate anomalies and communicate clearly. In terms of an area I'm actively working on, because I value accuracy so much, I can sometimes want to know every single detail before making a move in unfamiliar territory. I've been learning to balance thoroughness with taking action—identifying the essential data points, testing a small change, and learning iteratively from the results rather than over-analyzing.",
+        glanceBullets: [
+          "• Strengths: attention to detail, research rigor, and clear cross-team communication",
+          "• Track record: 1,000+ articles edited/fact-checked, 600+ written, 20+ writers/managers coordinated",
+          "• Genuine weakness: tendency to over-analyze before acting in unfamiliar scenarios",
+          "• Active solution: balance accuracy with action by running small, measurable tests"
+        ],
+        expandedSay: "My three biggest strengths are attention to detail, research rigor, and structured communication. Having edited and fact-checked over 1,000 articles and written 600+ pieces while coordinating with 20+ writers and managers, I'm used to high-volume accuracy under deadline pressure. In performance marketing, small details make or break campaigns—whether it's negative keywords, tracking pixels, or budget pacing.\n\nAs for a weakness I'm actively working on: because I love accuracy, when I face a completely unfamiliar domain, my instinct can be to want 100% of the information before taking a step. But marketing moves fast, and you rarely have perfect data. So I've trained myself to balance thoroughness with action: figure out the critical must-haves, formulate a clear hypothesis, launch a small controlled test, and let the real data give me the answers.",
+        supportingContext: "Notes Section 3: Strengths (detail, research, communication, 1000+ edited) and Weakness (balancing accuracy with taking action).",
+        stuckRecovery: {
+          breatheMsg: "Strengths: 1,000+ edited, attention to detail. Weakness: balancing accuracy with quick action.",
+          questionSummary: "Strengths and weaknesses?",
+          points: ["Strengths: detail, research, communication", "1,000+ edited, 600+ written", "Weakness: over-analyzing before acting; solved by testing small"],
+          easySay: "My strengths are detail and research rigor from editing 1,000+ articles; my weakness was wanting too much data before moving, which I balance by testing small and iterating.",
+          stallSay: "I've thought a lot about this balance between my strengths and where I want to grow."
+        }
+      },
+      {
+        id: "crealytics-q10",
+        category: "opinion",
+        speaker: "Torsten Christ (Head of HR)",
+        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+        question: "How do you apply commercial judgment — for instance, if CTR improves but conversions fall, or if a campaign has high ROAS but low volume?",
+        topic: "Commercial Judgment & Full-Funnel Thinking",
+        babeTag: "babe 👀 full-funnel economics: never scale blindly, isolate intent & conversion leakage",
+        simplestQuestion: "Look beyond vanity metrics: high ROAS doesn't guarantee incremental return; CTR up + conversions down means diagnosing funnel friction.",
+        startWithPrompt: "Start with: “I always look at metrics together rather than celebrating them in isolation…”",
+        glanceSay: "I always look at metrics together rather than celebrating them in isolation! If CTR is improving but conversions or sales are falling, I wouldn't assume the ad is winning. I'd investigate the entire journey: did our search terms drift into broad browsing intent? Is there a disconnect between ad promise and landing page? Or is there technical friction or broken tracking? And similarly, if a campaign has a high historical ROAS but low sales volume, I wouldn't just scale budget automatically. A high ROAS on small spend doesn't guarantee every additional rupee will generate the same return. I'd evaluate marginal returns, market demand, and unit margins, and then scale incrementally while monitoring efficiency.",
+        glanceBullets: [
+          "• Metrics in context: high CTR alone does not equal profitability",
+          "• Diagnosing conversion drop: search query intent drift, landing page mismatch, or tracking bugs",
+          "• High ROAS low volume: check diminishing marginal returns and available demand headroom",
+          "• Incremental testing: scale budgets gradually while protecting bottom-line client margins"
+        ],
+        expandedSay: "My core rule in performance marketing is that no metric exists in a vacuum. If CTR is surging but conversions or revenue are dropping, that's a classic signal of funnel disconnect. I'd examine whether expanded keywords brought low-intent tire-kickers, whether the landing page failed to deliver on the ad's creative hook, or whether there's a technical checkout or tracking issue.\n\nOn the other hand, if a campaign shows a great ROAS on low volume, I never assume it will maintain that return at scale. Platform algorithms naturally harvest the lowest-hanging fruit first. If you dump budget in, marginal ROAS often compresses. I'd examine available search volume, competitive auction dynamics, and product margins, and increase budget in calibrated increments so we don't destroy profitability.",
+        supportingContext: "Notes Section 6: Commercial Judgment (high ROAS low volume scaling, revenue vs ROAS, CTR up conversions down).",
+        stuckRecovery: {
+          breatheMsg: "Never scale blindly. High CTR != profit. Check search intent & landing page.",
+          questionSummary: "Commercial judgment / CTR up conversions down?",
+          points: ["Look at metrics together", "CTR up + conversions down = funnel friction", "High ROAS: check marginal returns before scaling"],
+          easySay: "I look at metrics together—high CTR with falling conversions means investigating search intent and landing page friction, while high ROAS requires checking marginal returns before scaling.",
+          stallSay: "I think that highlights one of the most important lessons in performance marketing."
+        }
+      },
+      {
+        id: "crealytics-q11",
+        category: "expected",
+        speaker: "Torsten Christ (Head of HR)",
+        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+        question: "Tell me about living in Dehradun, and how you stay organized and collaborate in remote or international teams.",
+        topic: "Dehradun, Remote Work & Global Collaboration",
+        babeTag: "babe 👀 hometown balance + proven remote discipline across distributed teams",
+        simplestQuestion: "Dehradun offers nature + education; remote work lets local talent create global impact; stay organized through clear communication and routines.",
+        startWithPrompt: "Start with: “I'm from Dehradun, and what I love about it is the balance between city life, education, and nature…”",
+        glanceSay: "I'm from Dehradun, and what I love about it is the balance between city life, strong educational institutions, and access to nature. It gives you a really grounded perspective. And what's so exciting about remote work today is that talent from cities like Dehradun can build ambitious, international careers without having to relocate. In terms of staying organized and working remotely, I've had lots of experience coordinating across distributed workflows at Sportskeeda, producing content for a US audience and collaborating with 20+ writers and managers. I stay disciplined by breaking big goals into daily milestones, keeping documentation clear, and communicating proactively so the team always knows where things stand.",
+        glanceBullets: [
+          "• Dehradun: educational hub with a grounded balance of nature and urban growth",
+          "• Remote work vision: enables regional talent to connect with global opportunities",
+          "• Distributed experience: Sportskeeda US sports content with 20+ writers and managers",
+          "• Remote habits: clear written documentation, proactive communication, and disciplined daily check-ins"
+        ],
+        expandedSay: "I grew up in Dehradun, which has always been known as an educational hub with great schools and universities, surrounded by nature. What fascinates me now is how remote work is leveling the playing field. Ambitious people don't necessarily have to move to a tier-one metro to work on global, cutting-edge problems—companies can tap into disciplined talent anywhere.\n\nBecause I worked at Sportskeeda covering US sports with distributed teams, remote collaboration feels completely natural to me. I understand the importance of proactive communication, respecting time zones, maintaining structured reporting routines, and never letting assumptions fester. If something needs clarification, I ask early, document the decisions, and ensure the team can rely on me to deliver without constant supervision.",
+        supportingContext: "Notes Section 7: Dehradun perspective, remote work, international team collaboration.",
+        stuckRecovery: {
+          breatheMsg: "Dehradun: nature + education. Remote work: Sportskeeda US audience, disciplined communication.",
+          questionSummary: "Dehradun and remote work?",
+          points: ["Dehradun: educational hub & nature", "Remote work connects local talent globally", "Proven discipline at Sportskeeda with 20+ writers"],
+          easySay: "Dehradun offers a great balance of education and nature, and remote work lets talent here build global careers. At Sportskeeda, I collaborated across distributed teams with clear routines and communication.",
+          stallSay: "I really love talking about Dehradun and how remote work has opened up new possibilities."
+        }
+      },
+      {
+        id: "crealytics-q12",
+        category: "reflective",
+        speaker: "Torsten Christ (Head of HR)",
+        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+        question: "Tell me about a time you made a mistake, received constructive feedback, or worked under intense pressure.",
+        topic: "Mistakes, Constructive Feedback & Pressure",
+        babeTag: "babe 👀 separates effort from effectiveness, welcomes feedback as free coaching",
+        simplestQuestion: "Editorial deadlines under pressure; welcoming constructive feedback to improve; Homecrust ACoS as an honest learning puzzle.",
+        startWithPrompt: "Start with: “My background in editorial work made deadlines and feedback a completely normal part of everyday life…”",
+        glanceSay: "My background in editorial work made deadlines and feedback a completely normal part of everyday life! At Sportskeeda, publishing breaking sports news meant working under high pressure where accuracy and speed had to coexist. When you produce 3,000 to 4,000 words a day across 20+ writers, staying organized and fact-checking systematically is the only way to avoid chaos. And regarding feedback, I learned early on to separate effort from effectiveness—just because you put hours into something doesn't mean it worked for the audience or client. When senior editors or marketing mentors point out a flaw in my analysis or campaign setup, I don't get defensive; I treat it as free coaching. I want to understand their reasoning, fix the root cause, and apply that learning so I become sharper every day.",
+        glanceBullets: [
+          "• Pressure at Sportskeeda: high-velocity publishing where speed and accuracy had to coexist",
+          "• Organized under stress: systematic fact-checking and prioritized workflows",
+          "• Constructive feedback mindset: never confuse effort with effectiveness",
+          "• Growth attitude: treat critical feedback as free coaching to upgrade skills"
+        ],
+        expandedSay: "Working in sports journalism was a masterclass in pressure and feedback. During NFL game days and breaking news cycles, we had strict deadlines and zero margin for factual errors. I had to coordinate with multiple writers and editors, prioritize breaking stories, and fact-check names, stats, and quotes in real time. It taught me that staying calm and organized is far more productive than frantic rushing.\n\nIt also gave me very thick skin around feedback. In editing, revisions are routine—your work is constantly critiqued for clarity, hook quality, and style adherence. I learned that feedback is never personal; the question isn't 'why didn't they like what I made?', but 'where did this fall short of the objective and how do we improve it?' In performance marketing, when data or a manager reveals an underperforming ad or flawed assumption—like our Homecrust Amazon ACoS—I lean into it. I'd rather confront the data honestly, understand why it happened, and fix the process.",
+        supportingContext: "Notes Section 5: Working under pressure, constructive criticism, mistake accountability.",
+        stuckRecovery: {
+          breatheMsg: "Sportskeeda pressure: accuracy + speed. Feedback: never confuse effort with effectiveness.",
+          questionSummary: "Pressure, feedback, or mistakes?",
+          points: ["Sportskeeda publishing pressure", "Feedback is free coaching to improve", "Never confuse effort with effectiveness"],
+          easySay: "Sportskeeda taught me to deliver accurate work under tight deadlines, and editorial revisions trained me to welcome constructive feedback without taking it personally.",
+          stallSay: "My background in editorial work actually shaped how I handle both pressure and feedback."
         }
       }
     ];
