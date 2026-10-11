@@ -776,106 +776,119 @@ export function MeetingProvider({ children }) {
       }
       isListeningActiveRef.current = false;
       if (recognitionRef.current) {
-        try { recognitionRef.current.stop(); } catch (e) {}
+        try { recognitionRef.current.abort(); } catch (e) {}
+        recognitionRef.current = null;
       }
       setIsLiveListening(false);
       setLiveTranscript('');
       showSystemNotice("Microphone listening paused.");
     } else {
-      try {
-        isListeningActiveRef.current = true;
-        const recognition = new SpeechRecognition();
-        recognition.continuous = true;
-        recognition.interimResults = true;
-        recognition.lang = speechLocale || 'en-US';
+      isListeningActiveRef.current = true;
+      setIsLiveListening(true);
+      setLiveTranscript('');
+      showSystemNotice(`🎙️ Listening to meeting audio (${speechLocale})!`);
 
-        recognition.onstart = () => {
-          setIsLiveListening(true);
-          setLiveTranscript('Listening for meeting questions...');
-          showSystemNotice(`🎙️ Listening to meeting audio (${speechLocale})!`);
-        };
+      const startSession = () => {
+        if (!isListeningActiveRef.current) return;
+        try {
+          if (recognitionRef.current) {
+            try { recognitionRef.current.abort(); } catch (e) {}
+            recognitionRef.current = null;
+          }
 
-        recognition.onresult = (event) => {
-          let interim = '';
-          let final = '';
-          for (let i = event.resultIndex; i < event.results.length; ++i) {
-            const transcript = event.results[i][0].transcript;
-            if (event.results[i].isFinal) {
-              final += transcript;
+          const recognition = new SpeechRecognition();
+          recognition.continuous = true;
+          recognition.interimResults = true;
+          recognition.maxAlternatives = 1;
+          recognition.lang = speechLocale || 'en-US';
+
+          recognition.onstart = () => {
+            setIsLiveListening(true);
+          };
+
+          recognition.onresult = (event) => {
+            let interim = '';
+            let final = '';
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+              const transcript = event.results[i][0].transcript;
+              if (event.results[i].isFinal) {
+                final += transcript;
+              } else {
+                interim += transcript;
+              }
+            }
+            const spokenText = (final || interim).trim();
+            if (spokenText) {
+              setLiveTranscript(spokenText);
+            }
+
+            if (silenceTimerRef.current) {
+              clearTimeout(silenceTimerRef.current);
+            }
+
+            // Candidate text to evaluate (prioritizes final sentence, or current spoken stream)
+            const candidate = (final.trim() || spokenText).trim();
+
+            if (candidate.length >= 6) {
+              const isPrompt = isMeetingPromptOrQuestion(candidate);
+
+              // 1. If Chrome explicitly finalized the phrase and it's a meeting prompt, trigger immediately!
+              if (final.trim().length >= 6 && isPrompt) {
+                askCustomQuestion(final.trim(), "Meeting Participant (Transcribed)");
+                return;
+              }
+
+              // 2. Set an intelligent 900ms silence watchdog timer:
+              // When the speaker pauses after speaking a prompt (e.g. "hey so tell me about yourself"),
+              // automatically synthesize the answer so no question is ever lost!
+              silenceTimerRef.current = setTimeout(() => {
+                if (isListeningActiveRef.current && candidate.length >= 6) {
+                  if (isMeetingPromptOrQuestion(candidate) || candidate.split(/\s+/).length >= 4) {
+                    askCustomQuestion(candidate, "Meeting Participant (Transcribed)");
+                  }
+                }
+              }, 900);
+            }
+          };
+
+          recognition.onerror = (event) => {
+            if (event.error === 'not-allowed') {
+              showSystemNotice("Microphone permission denied. Enable microphone in browser settings to transcribe meeting audio.");
+              setIsLiveListening(false);
+              isListeningActiveRef.current = false;
+            } else if (event.error === 'no-speech') {
+              // Normal Chrome timeout after silence; onend will recreate a fresh session
             } else {
-              interim += transcript;
+              console.warn("Speech recognition notice:", event.error);
             }
-          }
-          const spokenText = (final || interim).trim();
-          if (spokenText) {
-            setLiveTranscript(spokenText);
-          }
+          };
 
-          if (silenceTimerRef.current) {
-            clearTimeout(silenceTimerRef.current);
-          }
-
-          // Candidate text to evaluate (prioritizes final sentence, or current spoken stream)
-          const candidate = (final.trim() || spokenText).trim();
-
-          if (candidate.length >= 6) {
-            const isPrompt = isMeetingPromptOrQuestion(candidate);
-
-            // 1. If Chrome explicitly finalized the phrase and it's a meeting prompt, trigger immediately!
-            if (final.trim().length >= 6 && isPrompt) {
-              askCustomQuestion(final.trim(), "Meeting Participant (Transcribed)");
-              return;
-            }
-
-            // 2. Set an intelligent 900ms silence watchdog timer:
-            // When the speaker pauses after speaking a prompt (e.g. "hey so tell me about yourself"),
-            // automatically synthesize the answer so no question is ever lost!
-            silenceTimerRef.current = setTimeout(() => {
-              if (isListeningActiveRef.current && candidate.length >= 6) {
-                if (isMeetingPromptOrQuestion(candidate) || candidate.split(/\s+/).length >= 4) {
-                  askCustomQuestion(candidate, "Meeting Participant (Transcribed)");
+          recognition.onend = () => {
+            // Chrome terminates after periods of silence. Always create a FRESH instance on restart!
+            if (isListeningActiveRef.current) {
+              setTimeout(() => {
+                if (isListeningActiveRef.current) {
+                  startSession();
                 }
-              }
-            }, 900);
-          }
-        };
+              }, 250);
+            }
+          };
 
-        recognition.onerror = (event) => {
-          if (event.error === 'not-allowed') {
-            showSystemNotice("Microphone permission denied. Enable microphone in browser settings to transcribe meeting audio.");
-            setIsLiveListening(false);
-            isListeningActiveRef.current = false;
-          } else if (event.error === 'no-speech') {
-            // Normal Chrome timeout after silence; watchdog in onend will keep connection alive
-          } else {
-            console.warn("Speech recognition notice:", event.error);
-          }
-        };
-
-        recognition.onend = () => {
+          recognition.start();
+          recognitionRef.current = recognition;
+        } catch (err) {
+          console.error("Speech recognition session start error:", err);
           if (isListeningActiveRef.current) {
-            // 300ms audio buffer reset before auto-restarting to prevent Chrome DOMException
             setTimeout(() => {
-              if (isListeningActiveRef.current) {
-                try {
-                  recognition.start();
-                } catch {
-                  // Fallback restart
-                }
-              }
-            }, 300);
+              if (isListeningActiveRef.current) startSession();
+            }, 1000);
           }
-        };
+        }
+      };
 
-        recognition.start();
-        recognitionRef.current = recognition;
-      } catch (err) {
-        console.error("Failed to start speech recognition:", err);
-        setIsLiveListening(false);
-        isListeningActiveRef.current = false;
-      }
+      startSession();
     }
-  }, [isLiveListening, askCustomQuestion, showSystemNotice]);
+  }, [isLiveListening, speechLocale, askCustomQuestion, showSystemNotice]);
 
   useEffect(() => {
     toggleLiveListeningRef.current = toggleLiveListening;

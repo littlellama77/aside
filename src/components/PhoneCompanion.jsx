@@ -129,78 +129,95 @@ export function PhoneCompanion({
       isListeningActiveRef.current = false;
       if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
       if (recognitionRef.current) {
-        try { recognitionRef.current.stop(); } catch {}
+        try { recognitionRef.current.abort(); } catch {}
+        recognitionRef.current = null;
       }
       setLocalIsListening(false);
       setLocalTranscript('');
     } else {
-      try {
-        isListeningActiveRef.current = true;
-        const recognition = new SpeechRecognition();
-        recognition.continuous = true;
-        recognition.interimResults = true;
-        recognition.lang = context?.speechLocale || 'en-US';
+      isListeningActiveRef.current = true;
+      setLocalIsListening(true);
+      setLocalTranscript('');
 
-        recognition.onstart = () => {
-          setLocalIsListening(true);
-          setLocalTranscript('Listening to laptop speakers...');
-        };
-
-        recognition.onresult = (event) => {
-          let interim = '';
-          let final = '';
-          for (let i = event.resultIndex; i < event.results.length; ++i) {
-            const transcript = event.results[i][0].transcript;
-            if (event.results[i].isFinal) final += transcript;
-            else interim += transcript;
+      const startPhoneSession = () => {
+        if (!isListeningActiveRef.current) return;
+        try {
+          if (recognitionRef.current) {
+            try { recognitionRef.current.abort(); } catch {}
+            recognitionRef.current = null;
           }
-          const spoken = (final || interim).trim();
-          if (spoken) setLocalTranscript(spoken);
 
-          if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+          const recognition = new SpeechRecognition();
+          recognition.continuous = true;
+          recognition.interimResults = true;
+          recognition.maxAlternatives = 1;
+          recognition.lang = context?.speechLocale || 'en-US';
 
-          const candidate = (final.trim() || spoken).trim();
-          if (candidate.length >= 6) {
-            const isPrompt = isMeetingPromptOrQuestion(candidate);
+          recognition.onstart = () => {
+            setLocalIsListening(true);
+          };
 
-            // Immediate trigger if Chrome marked sentence final & it is a question
-            if (final.trim().length >= 6 && isPrompt) {
-              handleProcessCandidateQuestion(final.trim());
-              return;
+          recognition.onresult = (event) => {
+            let interim = '';
+            let final = '';
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+              const transcript = event.results[i][0].transcript;
+              if (event.results[i].isFinal) final += transcript;
+              else interim += transcript;
             }
+            const spoken = (final || interim).trim();
+            if (spoken) setLocalTranscript(spoken);
 
-            // Silence watchdog (900ms pause after speaking a prompt)
-            silenceTimerRef.current = setTimeout(() => {
-              if (isListeningActiveRef.current && candidate.length >= 6) {
-                if (isMeetingPromptOrQuestion(candidate) || candidate.split(/\s+/).length >= 4) {
-                  handleProcessCandidateQuestion(candidate);
-                }
+            if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+
+            const candidate = (final.trim() || spoken).trim();
+            if (candidate.length >= 6) {
+              const isPrompt = isMeetingPromptOrQuestion(candidate);
+
+              // Immediate trigger if Chrome marked sentence final & it is a question
+              if (final.trim().length >= 6 && isPrompt) {
+                handleProcessCandidateQuestion(final.trim());
+                return;
               }
-            }, 900);
-          }
-        };
 
-        recognition.onerror = (e) => {
-          console.warn("Phone speech recognition notice:", e.error);
-        };
+              // Silence watchdog (900ms pause after speaking a prompt)
+              silenceTimerRef.current = setTimeout(() => {
+                if (isListeningActiveRef.current && candidate.length >= 6) {
+                  if (isMeetingPromptOrQuestion(candidate) || candidate.split(/\s+/).length >= 4) {
+                    handleProcessCandidateQuestion(candidate);
+                  }
+                }
+              }, 900);
+            }
+          };
 
-        recognition.onend = () => {
+          recognition.onerror = (e) => {
+            console.warn("Phone speech recognition notice:", e.error);
+          };
+
+          recognition.onend = () => {
+            if (isListeningActiveRef.current) {
+              setTimeout(() => {
+                if (isListeningActiveRef.current) {
+                  startPhoneSession();
+                }
+              }, 250);
+            }
+          };
+
+          recognition.start();
+          recognitionRef.current = recognition;
+        } catch (err) {
+          console.warn('Could not start local phone microphone:', err);
           if (isListeningActiveRef.current) {
             setTimeout(() => {
-              if (isListeningActiveRef.current) {
-                try { recognition.start(); } catch {}
-              }
-            }, 300);
+              if (isListeningActiveRef.current) startPhoneSession();
+            }, 1000);
           }
-        };
+        }
+      };
 
-        recognition.start();
-        recognitionRef.current = recognition;
-        setLocalIsListening(true);
-      } catch (err) {
-        console.warn('Could not start local phone microphone:', err);
-        setLocalIsListening(nextListeningState);
-      }
+      startPhoneSession();
     }
   };
 
