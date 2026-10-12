@@ -226,24 +226,58 @@ export function chunkLargeNotes(rawText) {
 }
 
 /**
+ * Formats and capitalizes live speech-to-text transcripts, correcting common browser
+ * speech recognition mishearings (e.g. Crealytics misheard as "Celtics" or "Create X")
+ * to ensure clear, professional transcript display and perfect downstream processing.
+ */
+export function cleanSpeechTranscriptText(text) {
+  if (!text) return '';
+  return text
+    // Brand: Crealytics (heavily misheard by browser speech recognition as Celtics, Create X, etc.)
+    .replace(/\b(celtics|celtic)\b/gi, 'Crealytics')
+    .replace(/\b(create\s*x|create-x|createics|creatics|create\s*ticks|create\s*tics)\b/gi, 'Crealytics')
+    .replace(/\b(crea\s*lytics|crea-lytics|crea\s*lytic|crealytic|crea\s*litics|crealitics)\b/gi, 'Crealytics')
+    .replace(/\b(cray\s*lytics|craylytics|cray\s*lytic|cry\s*lytics|crylytics)\b/gi, 'Crealytics')
+    .replace(/\b(krealytics|krea\s*lytics|krea\s*lytic|kray\s*lytics|kraylytics)\b/gi, 'Crealytics')
+    .replace(/\b(clear\s*lytics|clearly\s*tics|clear\s*lytic|clear\s*analytics)\b/gi, 'Crealytics')
+    .replace(/\b(care\s*lytics|carelytics|care\s*analytics|career\s*lytics)\b/gi, 'Crealytics')
+    .replace(/\b(creative\s*lytics|creativity\s*lytics|crea\s*lettics)\b/gi, 'Crealytics')
+    .replace(/\b(realytics|re-analytics|re\s*analytics)\b/gi, 'Crealytics')
+    .replace(/\b(curie\s*lytics|curie\s*analytics)\b/gi, 'Crealytics')
+    // Brand: Kraftshala
+    .replace(/\b(craft\s*shala|craftshala|kraft\s*shala|kraft\s*sala|craft\s*sala)\b/gi, 'Kraftshala')
+    // Brand: Sportskeeda
+    .replace(/\b(sports\s*keeda|sports\s*feeder|sports\s*kita|sports\s*keeta|sports\s*kida)\b/gi, 'Sportskeeda')
+    // Brand: Unleavables
+    .replace(/\b(un\s*leavables|unleavable|un\s*leavable|un-leavables)\b/gi, 'Unleavables')
+    // Brand: Homecrust
+    .replace(/\b(home\s*crust|homecrust|home\s*cross)\b/gi, 'Homecrust')
+    // Interviewer: Torsten Christ
+    .replace(/\b(thorsten|tor\s*sten|torstone|toast\s*in)\b/gi, 'Torsten')
+    // Marketing Acronyms
+    .replace(/\b(see\s*ay\s*see|c\s*a\s*c|kay\s*ack)\b/gi, 'CAC')
+    .replace(/\b(see\s*pee\s*see|c\s*p\s*c)\b/gi, 'CPC')
+    .replace(/\b(see\s*tee\s*are|c\s*t\s*r)\b/gi, 'CTR')
+    .replace(/\b(row\s*as|r\s*o\s*a\s*s|row-as)\b/gi, 'ROAS')
+    .replace(/\b(ay\s*cos|a\s*cos|a-cos|ay\s*c\s*o\s*s|a\s*c\s*o\s*s)\b/gi, 'ACoS')
+    .replace(/\b(eye\s*c\s*l\s*v|i\s*c\s*l\s*v|eye\s*clv|icl\s*v|i\s*clv)\b/gi, 'iCLV')
+    .replace(/\b(see\s*el\s*vee|c\s*l\s*v)\b/gi, 'CLV')
+    .replace(/\b(en\s*pee\s*es|n\s*p\s*s)\b/gi, 'NPS')
+    .replace(/\b(kay\s*pee\s*eye|k\s*p\s*i)\b/gi, 'KPI')
+    .replace(/\b(mehtah|metta)\b/gi, 'Meta')
+    .replace(/\b(convertion|convershun)\b/gi, 'conversion')
+    .replace(/\b(retenshun)\b/gi, 'retention')
+    .replace(/\b(onboardin)\b/gi, 'onboarding')
+    .replace(/\b(road\s*map|rodmap)\b/gi, 'roadmap')
+    .replace(/\b(quater|quartr)\b/gi, 'quarter');
+}
+
+/**
  * Normalizes speech-to-text phonetic approximations, garbled acronyms, and muddled spoken words
  */
 export function normalizeSpokenPhonetics(text) {
   if (!text) return '';
-  return text
-    .toLowerCase()
-    .replace(/\b(see\s*ay\s*see|c\s*a\s*c|kay\s*ack)\b/g, 'cac')
-    .replace(/\b(see\s*pee\s*see|c\s*p\s*c)\b/g, 'cpc')
-    .replace(/\b(see\s*tee\s*are|c\s*t\s*r)\b/g, 'ctr')
-    .replace(/\b(row\s*as|r\s*o\s*a\s*s)\b/g, 'roas')
-    .replace(/\b(en\s*pee\s*es|n\s*p\s*s)\b/g, 'nps')
-    .replace(/\b(kay\s*pee\s*eye|k\s*p\s*i)\b/g, 'kpi')
-    .replace(/\b(mehtah|metta)\b/g, 'meta')
-    .replace(/\b(convertion|convershun)\b/g, 'conversion')
-    .replace(/\b(retenshun)\b/g, 'retention')
-    .replace(/\b(onboardin)\b/g, 'onboarding')
-    .replace(/\b(road\s*map|rodmap)\b/g, 'roadmap')
-    .replace(/\b(quater|quartr)\b/g, 'quarter');
+  return cleanSpeechTranscriptText(text).toLowerCase();
 }
 
 /**
@@ -538,23 +572,7 @@ export function synthesizeLeaderAnswerForCustomQuestion(questionText, rawNotesTe
       matchedScenario = interviewScenarios.find(s => s.id === "crealytics-q6");
     }
 
-    // 5. Why Crealytics / Culture Fit / Profitable Growth / Good Fit / CLV / iCLV / Sharpen the Saw
-    const isWhyCrealytics = !matchedScenario && (
-      coreLower.includes("why crealytics") || coreLower.includes("why this role") || coreLower.includes("why us") ||
-      coreLower.includes("profitable growth") || coreLower.includes("retail media") || coreLower.includes("what draws you") ||
-      coreLower.includes("good fit") || coreLower.includes("why you") || coreLower.includes("why should we hire") ||
-      coreLower.includes("fit for") || coreLower.includes("why do you want") ||
-      coreLower.includes("clv") || coreLower.includes("iclv") || coreLower.includes("lifetime value") ||
-      coreLower.includes("sharpen the saw") || coreLower.includes("status quo") || coreLower.includes("cliché") ||
-      qLower.includes("why crealytics") || qLower.includes("why this role") || qLower.includes("why do you want to work") ||
-      qLower.includes("good fit") || qLower.includes("why should we hire") || qLower.includes("fit for this role") ||
-      qLower.includes("clv") || qLower.includes("iclv") || qLower.includes("sharpen the saw")
-    );
-    if (isWhyCrealytics) {
-      matchedScenario = interviewScenarios.find(s => s.id === "crealytics-q2");
-    }
-
-    // 6. Questions for Interviewer (Torsten)
+    // 5. Questions for Interviewer (Torsten)
     const isQuestionsToAsk = !matchedScenario && (
       coreLower.includes("questions for me") || coreLower.includes("questions for us") || coreLower.includes("anything to ask") ||
       coreLower.includes("any questions for") || coreLower.includes("have any questions") ||
@@ -562,6 +580,22 @@ export function synthesizeLeaderAnswerForCustomQuestion(questionText, rawNotesTe
     );
     if (isQuestionsToAsk) {
       matchedScenario = interviewScenarios.find(s => s.id === "crealytics-q7");
+    }
+
+    // 5.5. Why Crealytics / Culture Fit / Profitable Growth / Good Fit / CLV / iCLV / Sharpen the Saw
+    const isWhyCrealytics = !matchedScenario && (
+      coreLower.includes("crealytics") || coreLower.includes("why this role") || coreLower.includes("why us") ||
+      coreLower.includes("profitable growth") || coreLower.includes("retail media") || coreLower.includes("what draws you") ||
+      coreLower.includes("good fit") || coreLower.includes("why you") || coreLower.includes("why should we hire") ||
+      coreLower.includes("fit for") || coreLower.includes("why do you want") ||
+      coreLower.includes("clv") || coreLower.includes("iclv") || coreLower.includes("lifetime value") ||
+      coreLower.includes("sharpen the saw") || coreLower.includes("status quo") || coreLower.includes("cliché") ||
+      qLower.includes("crealytics") || qLower.includes("why this role") || qLower.includes("why do you want to work") ||
+      qLower.includes("good fit") || qLower.includes("why should we hire") || qLower.includes("fit for this role") ||
+      qLower.includes("clv") || qLower.includes("iclv") || qLower.includes("sharpen the saw")
+    );
+    if (isWhyCrealytics) {
+      matchedScenario = interviewScenarios.find(s => s.id === "crealytics-q2");
     }
 
     // 6.5. Scrimba Certificate, Cursor AI, Claude Code & Model Context Protocol (MCP)

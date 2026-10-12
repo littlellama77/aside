@@ -16,7 +16,8 @@ import {
 import {
   parseNotesToExecutiveBrief,
   generateQuestionsFromNotes,
-  synthesizeLeaderAnswerForCustomQuestion
+  synthesizeLeaderAnswerForCustomQuestion,
+  cleanSpeechTranscriptText
 } from '../utils/notesSynthesizer';
 import {
   generateAnswerWithGPT,
@@ -615,7 +616,7 @@ export function MeetingProvider({ children }) {
    */
   const askCustomQuestion = useCallback(async (customText, speakerName = "Meeting Attendee") => {
     if (!customText || !customText.trim()) return;
-    const cleanText = customText.trim();
+    const cleanText = cleanSpeechTranscriptText(customText.trim());
     turnTranscriptBufferRef.current = '';
 
     // Prevent duplicate triggers within 3 seconds for the exact same text
@@ -942,6 +943,19 @@ export function MeetingProvider({ children }) {
       recognition.maxAlternatives = 1;
       recognition.lang = speechLocale || (typeof navigator !== 'undefined' ? navigator.language : 'en-US') || 'en-US';
 
+      // Biasing speech recognition towards brand terms if supported
+      const SpeechGrammarList = window.SpeechGrammarList || window.webkitSpeechGrammarList;
+      if (SpeechGrammarList) {
+        try {
+          const speechRecognitionList = new SpeechGrammarList();
+          const grammar = '#JSGF V1.0; grammar brands; public <brand> = Crealytics | Kraftshala | Sportskeeda | Unleavables | Homecrust | Torsten | ROAS | ACoS | iCLV | CPC | CTR ;';
+          speechRecognitionList.addFromString(grammar, 10);
+          recognition.grammars = speechRecognitionList;
+        } catch (e) {
+          // Grammar biasing is an optional browser extension
+        }
+      }
+
       recognition.onstart = () => {
         setIsLiveListening(true);
         isListeningActiveRef.current = true;
@@ -959,9 +973,12 @@ export function MeetingProvider({ children }) {
           }
         }
 
-        const currentTurnText = (
+        const rawTurnText = (
           turnTranscriptBufferRef.current + ' ' + sessionFinal + sessionInterim
         ).trim();
+
+        // Immediately fix phonetic mishearings (e.g. Celtics / Create X -> Crealytics)
+        const currentTurnText = cleanSpeechTranscriptText(rawTurnText);
 
         if (currentTurnText) {
           setLiveTranscript(currentTurnText);
@@ -1096,12 +1113,13 @@ export function MeetingProvider({ children }) {
         silenceTimerRef.current = null;
       }
 
-      const capturedText = (
+      const rawCapturedText = (
         manualCapturedTranscript ||
         turnTranscriptBufferRef.current ||
         liveTranscript ||
         ''
       ).trim();
+      const capturedText = cleanSpeechTranscriptText(rawCapturedText);
 
       // Cleanly stop speech recognition so Chrome doesn't transcribe candidate's own voice while answering
       stopSpeechRecognition();

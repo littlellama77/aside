@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useMeeting, isMeetingPromptOrQuestion } from '../context/MeetingContext';
+import { cleanSpeechTranscriptText } from '../utils/notesSynthesizer';
 import { companionSync } from '../services/companionSync';
 import { THINKING_INTRO_SENTENCES, BUY_ME_A_SECOND_PHRASES } from '../constants/mockData';
 import {
@@ -114,7 +115,7 @@ export function PhoneCompanion({
   // Process a candidate question locally or via sync
   const handleProcessCandidateQuestion = (text, speaker = "Phone Ears Audio") => {
     if (!text || text.trim().length < 3) return;
-    const clean = text.trim();
+    const clean = cleanSpeechTranscriptText(text.trim());
 
     // 1. Synthesize right on phone via context
     if (context?.askCustomQuestion) {
