@@ -916,25 +916,24 @@ export function generateQuestionsFromNotes(rawNotesText, templateId = "custom") 
         avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
         question: "Tell me about yourself and your journey into performance marketing.",
         topic: "Candidate Story & Background",
-        babeTag: "babe 👀 make, take apart, improve + creative to analytical feedback loops",
-        simplestQuestion: "Torsten wants to know who you are, what drives your curiosity, and how you got here.",
-        startWithPrompt: "Start with: “I've always been someone drawn to making things…”",
-        glanceSay: "I’ve always been someone drawn to things that let me make something, take it apart, and make it better. I started out in editorial at Sportskeeda, editing over 1,000 articles and writing 600+ pieces covering the NFL, which built my discipline for research rigor and audience psychology under daily deadlines. What pulled me into performance marketing was the quantifiable feedback loop—I love the creative part of building campaigns, the analytical part of diagnosing what happens after the click, and the technical side of finding better levers. Over the past year at Kraftshala, I’ve executed live campaigns across Google Search, Meta Ads, and Amazon PPC, and I’ve been experimenting with AI-assisted tools to build functional web applications and automate workflows.",
+        babeTag: "babe 👀 grounded Dehradun roots + maker drive & the missing feedback loop",
+        simplestQuestion: "Torsten wants to know who you are as a person, what drives your curiosity, and how you got here.",
+        startWithPrompt: "Start with: “I grew up in Dehradun, and I've always been drawn to…”",
+        glanceSay: "I grew up in Dehradun, and I've always been someone drawn to making things, taking them apart, and figuring out how to make them better. I started out in writing and editorial, covering the NFL. What I loved about writing was studying human attention—finding the hook under tight deadlines. But once an article went out, the feedback loop ended. What pulled me into performance marketing was that missing cause-and-effect: it's where creative intuition meets measurable human behavior, and you can actually open the hood to see why the engine ran or stalled.",
         glanceBullets: [
-          "• Sportskeeda editorial: edited 1,000+ pieces, wrote 600+ NFL articles under daily deadlines",
-          "• Core maker drive: make something, take it apart, and optimize the levers",
-          "• Kraftshala hands-on: executed Google Search (CTR 14.8%), Meta Cost Cap, and Amazon PPC",
-          "• AI as force multiplier: built 5+ functional web prototypes to automate workflows",
-          "• Aligned with Crealytics: CLV and profit margins over vanity ROAS, continuous optimization loop"
+          "• Dehradun roots: grounded, calm curiosity and a natural maker drive",
+          "• Editorial background: studying reader attention and hooks under tight deadlines",
+          "• The turning point: craving a closed feedback loop where creative meets measurable data",
+          "• Past year: building creative, analytical, technical, and human muscles across live campaigns and AI tools"
         ],
-        expandedSay: "Across that journey, I’ve focused on building four distinct muscles: creative, analytical, technical, and collaborative. Rather than just understanding concepts in theory, I know how to execute: I’ve restructured search ad groups to lift CTR from 5% to 14.8% while cutting CPC by 21%, run live Cost Cap vs Highest Volume bidding experiments on Meta, and diagnosed marketplace conversion friction on Amazon.\n\nWhat really stands out to me about Crealytics is how you challenge baseline industry assumptions. Instead of settling for superficial ROAS clichés, you orient strategies around Customer Lifetime Value and true profit margins using predictive modeling. I’m confident in the execution foundation I’ve built, and I’m eager to bring that hands-on discipline, analytical curiosity, and maker mindset to Crealytics' international team.",
-        supportingContext: "Notes Part 1 & 2: Sportskeeda (1,000+ edited, 600+ written), Kraftshala Launchpad, 4 muscles, AI prototypes, CLV focus.",
+        expandedSay: "And that's why performance marketing really makes sense for me—it exercises both sides of the brain. You have the creative side that crafts the narrative and understands user intent, but then you have the analytical discipline to diagnose what actually happens after the click. Over the past year, I've immersed myself in running live campaigns across Search, Meta, and Amazon, while also experimenting with AI tools to build small prototypes and automate workflows.\n\nMore than just the tools and the numbers, though, what I enjoy most is the collaborative learning. I like being around people who ask sharp questions, challenge my baseline assumptions, and make me realize I could have built something better. I'm still learning every day, and honestly, that continuous feedback loop is the part I find most rewarding.",
+        supportingContext: "Notes Part 1 & 2: Dehradun roots, maker mindset, editorial attention to feedback loop transition, 4 muscles, collaborative learning.",
         stuckRecovery: {
-          breatheMsg: "Take a breath babe. Keep it friendly: Sportskeeda → Kraftshala → Crealytics.",
+          breatheMsg: "Take a breath babe. Keep it warm: Dehradun → editorial attention → performance marketing feedback loops.",
           questionSummary: "Tell me about yourself?",
-          points: ["1,000+ edited, 600+ written", "Hands-on execution across Google, Meta, Amazon", "Crealytics CLV & profit margin focus"],
-          easySay: "I started in editorial editing 1,000+ articles, got drawn to the quantitative feedback loop of marketing, and have executed live campaigns across Search, Meta, and Amazon.",
-          stallSay: "I'd love to share that—it really started with my fascination for audience psychology and feedback loops."
+          points: ["Maker mindset: make, take apart, improve", "Editorial studied attention, but lacked feedback loop", "Performance marketing marries creative with measurable behavior"],
+          easySay: "I grew up in Dehradun and have always loved taking things apart to make them better. Moving from sports writing to performance marketing gave me that missing feedback loop where creative meets data.",
+          stallSay: "I'd love to share that—it really comes down to a curiosity for how things work and feedback loops."
         }
       },
       {
@@ -944,25 +943,24 @@ export function generateQuestionsFromNotes(rawNotesText, templateId = "custom") 
         avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
         question: "Why Crealytics specifically, and why do you think you'd be a good fit for this role?",
         topic: "Why Crealytics & Candidate Fit",
-        babeTag: "babe 👀 CLV over ROAS + Sharpen the Saw & 4 muscles",
-        simplestQuestion: "Why Crealytics & fit: making things, taking them apart, and improving them; CLV over vanity ROAS; Sharpen the Saw.",
-        startWithPrompt: "Start with: “I think I’d be a really good fit for this role because…”",
-        glanceSay: "I think I’d be a great fit for this role because I bring both hands-on campaign execution and a maker’s mindset: I’ve always loved taking things apart, finding the levers, and making them perform better. That’s what pulled me into performance marketing, and it’s why Crealytics stands out so clearly to me. While most agencies rely on tired clichés and vanity ROAS metrics, Crealytics challenges that status quo by orienting strategies around real profit margins and Customer Lifetime Value using your predictive iCLV platform. Having managed live search, social, and marketplace campaigns, I know how to implement those fundamentals and I want to practice where real commercial impact matters.",
+        babeTag: "babe 👀 real economics over vanity metrics + smart debates & maker drive",
+        simplestQuestion: "Why Crealytics & fit: focusing on actual business economics, healthy debates, and hands-on execution.",
+        startWithPrompt: "Start with: “To be honest, what caught my attention about Crealytics…”",
+        glanceSay: "To be honest, what caught my attention about Crealytics is that you focus on actual business economics rather than vanity numbers. A lot of agencies get comfortable chasing top-line ROAS that looks great on a slide but doesn't actually grow a client's bottom line or factor in customer lifetime value. I want to work where people care about commercial honesty and real incrementality.",
         glanceBullets: [
-          "• Core maker drive: make something, take it apart, and make it better",
-          "• Challenging status quo: CLV and profit margins over vanity ROAS clichés",
-          "• Proprietary iCLV platform: predictive modeling & first-party data in a privacy-first world",
-          "• Sharpen the Saw: automation does heavy lifting, humans drive strategy & creative solutions",
-          "• Hands-on proof: proven execution across Google Search, Meta Ads, Amazon PPC, and AI prototypes"
+          "• Real business economics: customer lifetime value and actual margin over vanity ROAS",
+          "• Commercial honesty: questioning baseline industry assumptions instead of running on autopilot",
+          "• Smart automation: using technology for routine work so people focus on strategy and problem-solving",
+          "• Cultural fit: thriving on healthy debates and learning from people who challenge assumptions"
         ],
-        expandedSay: "And what excites me just as much is your 'Sharpen the Saw' philosophy around AI and automation. I firmly believe machines should do the heavy lifting and repetitive data crunching, so human minds are freed to think strategically, test bold hypotheses, and solve creative puzzles. That’s how I already approach work—whether I'm testing bidding caps, diagnosing search intent, or using AI tools as force multipliers to build prototypes.\n\nBeyond the tools, I thrive in environments with smart disagreements where people challenge my assumptions and make me build things better. Over the past year, I’ve built strong creative, analytical, technical, and human muscles. I know the campaign mechanics I’ve learned, I know how to execute them, and I’m eager to bring that hands-on discipline, curiosity, and confidence to Crealytics' international team.",
-        supportingContext: "Notes Part 2: CLV over ROAS, iCLV platform, Sharpen the Saw, AI force multiplier, 4 muscles, collaborative learning.",
+        expandedSay: "The other thing that really resonated is the culture of questioning baseline industry assumptions and using smart automation so humans can focus on higher-level strategy. I've already been doing that in my own work—using AI tools to build prototypes and speed up research, so I can spend more time thinking about user friction and campaign structure.\n\nI want to be in an environment where people have thoughtful conversations and healthy disagreements that push thinking forward. I bring hands-on experience running live campaigns, a genuine maker mindset, and the curiosity to dig underneath the surface of the data. That combination feels very aligned with how your team operates.",
+        supportingContext: "Notes Part 2: Real business economics over vanity metrics, questioning assumptions, smart automation, healthy debate, maker mindset.",
         stuckRecovery: {
-          breatheMsg: "CLV over ROAS + Sharpen the Saw + Maker mindset. You've got this.",
+          breatheMsg: "Real economics over vanity ROAS + maker drive + smart team debates. You've got this.",
           questionSummary: "Why Crealytics & why a good fit?",
-          points: ["CLV and profit margin over vanity ROAS", "Sharpen the Saw: AI as force multiplier", "Hands-on execution across Google, Meta, Amazon"],
-          easySay: "I bring hands-on campaign experience and a maker mindset. I love that Crealytics focuses on CLV and profit margins rather than vanity ROAS, and uses AI as a force multiplier.",
-          stallSay: "What drew me to Crealytics is actually your philosophy of challenging industry status quo."
+          points: ["Commercial honesty over vanity metrics", "Smart automation freeing minds for strategy", "Maker mindset & appetite for healthy debates"],
+          easySay: "I respect that Crealytics focuses on real business economics and lifetime value rather than vanity ROAS, and I thrive in teams that challenge assumptions.",
+          stallSay: "What caught my attention is really your focus on commercial honesty over vanity numbers."
         }
       },
       {
@@ -1083,24 +1081,24 @@ export function generateQuestionsFromNotes(rawNotesText, templateId = "custom") 
         avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
         question: "Do you have any questions for me today?",
         topic: "Questions to Ask Torsten",
-        babeTag: "babe 👀 thoughtful questions on mentorship, ramp-up & learning curve",
-        simplestQuestion: "Ask thoughtful questions about 3-6 month ramp-up, team collaboration, and mentorship.",
-        startWithPrompt: "Start with: “I do, Torsten, thank you! I'm really curious about…”",
-        glanceSay: "I do, Torsten, thank you! First, because Crealytics challenges industry status quo by optimizing around Customer Lifetime Value and profit margins through your iCLV platform, how do associates work with those predictive models and first-party data day-to-day? Second, with your 'Sharpen the Saw' philosophy where automation does the heavy lifting, how does the team encourage associates to leverage AI as a force multiplier for strategic problem-solving?",
+        babeTag: "babe 👀 warm, thoughtful questions on 90-day success & thriving culture",
+        simplestQuestion: "Ask real, thoughtful questions about first 90-day expectations, what makes someone thrive, and team dynamics.",
+        startWithPrompt: "Start with: “I do, Torsten, thank you! I'm really curious…”",
+        glanceSay: "I do, Torsten, thank you! First, for someone stepping into this role, what does a really successful first ninety days look like from your perspective? And second, what tends to separate someone who is just technically good at setting up campaigns from someone who truly thrives on the team?",
         glanceBullets: [
-          "• 1. How do associates interface with the proprietary iCLV predictive platform day-to-day?",
-          "• 2. How does 'Sharpen the Saw' automation empower associates to think strategically?",
-          "• 3. What separates technical competence from truly exceptional performance here?",
-          "• 4. What recent retail media or omnichannel challenge did the team find most exciting?"
+          "• 1. What does an exceptional first 90 days look like for someone joining as an associate?",
+          "• 2. What separates technically competent associates from those who truly thrive here?",
+          "• 3. How does the culture of questioning assumptions and healthy debate play out day to day?",
+          "• 4. What do you personally find most rewarding about working with the team?"
         ],
-        expandedSay: "And building on that, I'd also love to ask: from your perspective, what separates someone who is just technically competent in this role from someone who becomes truly exceptional at Crealytics? And lastly, what is a recent client challenge or retail media problem where questioning baseline industry assumptions unlocked unexpected growth?",
-        supportingContext: "Notes Part 7: Questions to Ask Torsten (iCLV platform, Sharpen the Saw AI philosophy, team structure, next steps).",
+        expandedSay: "And building on that, I really value environments where people challenge assumptions and disagree constructively to build better solutions. How does that collaborative dynamic and open feedback play out across the distributed international team on a day-to-day level?\n\nI'd also love to hear your personal perspective on what you've enjoyed most about the culture here over your time at Crealytics.",
+        supportingContext: "Notes Part 7: Questions to Ask Torsten (90-day ramp-up, thriving vs competent, healthy debate culture, personal perspective).",
         stuckRecovery: {
-          breatheMsg: "Ask about iCLV predictive models and Sharpen the Saw AI.",
+          breatheMsg: "Ask about first 90 days and what makes someone thrive. Keep it warm and curious.",
           questionSummary: "Questions to ask Torsten?",
-          points: ["iCLV platform & 1st-party predictive data", "Sharpen the Saw: AI as force multiplier", "What makes someone exceptional"],
-          easySay: "How do associates work with the iCLV predictive platform, and how does your 'Sharpen the Saw' AI philosophy shape day-to-day problem-solving?",
-          stallSay: "I have a couple of questions about your iCLV platform and AI philosophy."
+          points: ["What does a great first 90 days look like?", "What separates good from exceptional on the team?", "How does constructive debate work day to day?"],
+          easySay: "What does a successful first 90 days look like, and what separates someone who is technically good from someone who truly thrives here?",
+          stallSay: "I do have a couple of questions about the team dynamic and the first ninety days."
         }
       },
       {
@@ -1192,24 +1190,24 @@ export function generateQuestionsFromNotes(rawNotesText, templateId = "custom") 
         avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
         question: "Tell me about living in Dehradun, and how you stay organized and collaborate in remote or international teams.",
         topic: "Dehradun, Remote Work & Global Collaboration",
-        babeTag: "babe 👀 hometown balance + proven remote discipline across distributed teams",
-        simplestQuestion: "Dehradun offers nature + education; remote work lets local talent create global impact; stay organized through clear communication and routines.",
-        startWithPrompt: "Start with: “I'm from Dehradun, and what I appreciate most…”",
-        glanceSay: "I'm from Dehradun, and what I appreciate most about living here is the balance between strong educational institutions, a focused lifestyle, and nature. What's exciting about remote work today is that it levels the playing field, allowing regional talent to contribute directly to global enterprise teams without geographic friction.",
+        babeTag: "babe 👀 grounded valley pace + quiet focus & asynchronous discipline",
+        simplestQuestion: "Living in Dehradun gives calm perspective and focus; remote work allows bringing that discipline to fast global teams.",
+        startWithPrompt: "Start with: “Living in Dehradun gives you a really grounded perspective…”",
+        glanceSay: "Living in Dehradun gives you a really grounded sense of perspective. Being surrounded by the hills and an unhurried rhythm makes it easy to stay calm, focused, and thoughtful about the work you do. What I love about remote work is that it lets you bring that quiet, steady focus to fast-paced global teams without needing to be in the middle of a noisy metro.",
         glanceBullets: [
-          "• Dehradun: educational hub with a grounded balance of nature and urban growth",
-          "• Remote work vision: enables regional talent to connect with global opportunities",
-          "• Distributed experience: Sportskeeda US sports content with 20+ writers and managers",
-          "• Remote habits: clear written documentation, proactive communication, and disciplined daily check-ins"
+          "• Dehradun perspective: grounded, calm, and thoughtful approach to work",
+          "• Quiet focus: unhurried environment that fosters deep concentration and craft",
+          "• Remote experience: collaborated daily with 20+ writers and editors across time zones at Sportskeeda",
+          "• Asynchronous discipline: clear documentation, intentional handoffs, and proactive communication"
         ],
-        expandedSay: "In terms of working effectively in distributed international teams, my experience at Sportskeeda covering US sports made asynchronous collaboration second nature. Producing daily content for US audiences taught me the necessity of structured written documentation, clear status handoffs, and proactive communication. When you respect time zones and document your reasoning clearly, remote teams can operate with incredible velocity and autonomy.",
+        expandedSay: "In terms of collaboration, working remotely across different time zones has become second nature. When I was covering US sports, almost everything had to happen asynchronously with editors and writers. That taught me the value of over-communicating context in writing, keeping documentation clean, and being proactive rather than waiting to be asked.\n\nWhen people have clear written context and mutual trust, remote teams can move faster and think clearer than in an office. It gives you the space to do deep work while staying completely aligned on goals.",
         supportingContext: "Notes Section 7: Dehradun perspective, remote work, international team collaboration.",
         stuckRecovery: {
-          breatheMsg: "Dehradun: nature + education. Remote work: Sportskeeda US audience, disciplined communication.",
+          breatheMsg: "Dehradun calm + quiet focus. Remote work: asynchronous discipline and clear communication.",
           questionSummary: "Dehradun and remote work?",
-          points: ["Dehradun: educational hub & nature", "Remote work connects local talent globally", "Proven discipline at Sportskeeda with 20+ writers"],
-          easySay: "Dehradun offers a great balance of education and nature, and remote work lets talent here build global careers. At Sportskeeda, I collaborated across distributed teams with clear routines and communication.",
-          stallSay: "I really love talking about Dehradun and how remote work has opened up new possibilities."
+          points: ["Dehradun: calm, grounded focus in the hills", "Remote work brings quiet discipline to global teams", "Proven asynchronous habits from Sportskeeda"],
+          easySay: "Living in Dehradun gives me a calm, focused perspective. Working remotely covering US sports trained me in asynchronous communication, clear documentation, and steady routines.",
+          stallSay: "I love living in Dehradun—it gives you a really quiet, grounded focus that works beautifully with remote work."
         }
       },
       {
@@ -1337,9 +1335,9 @@ export function generateQuestionsFromNotes(rawNotesText, templateId = "custom") 
           "• 1. Reporting & analysis: Spotting anomalies and summarizing trends against verified metrics",
           "• 2. Ad-copy experimentation: Rapid angle generation tested against real conversion data",
           "• 3. Workflow automation: Eliminating manual repetitive transfers with error handling",
-          "• Crealytics alignment: Matches 'Sharpen the Saw' philosophy—machines do heavy lifting"
+          "• Human focus: Automation does repetitive heavy lifting so humans focus on strategic problems"
         ],
-        expandedSay: "The critical principle is that you never assume AI output is correct just because it sounds persuasive. For ad copy, AI can produce twenty different angles around customer pain points or urgency in seconds, but real conversion data and CTR have to determine the winner. For reporting, AI can surface pacing anomalies, but the marketer has to verify the underlying unit economics.\n\nBy letting automation and machine learning do the repetitive heavy lifting—which aligns directly with Crealytics' 'Sharpen the Saw' philosophy—marketers can focus their energy on high-leverage strategic thinking, creative problem-solving, and questioning baseline industry assumptions.",
+        expandedSay: "The critical principle is that you never assume AI output is correct just because it sounds persuasive. For ad copy, AI can produce twenty different angles around customer pain points or urgency in seconds, but real conversion data and CTR have to determine the winner. For reporting, AI can surface pacing anomalies, but the marketer has to verify the underlying unit economics.\n\nBy letting automation and machine learning handle the repetitive heavy lifting, marketers can focus their energy on high-leverage strategic thinking, creative problem-solving, and diagnosing where users experience friction.",
         supportingContext: "Notes Section 8: Applying AI to Performance Marketing (reporting, ad copy testing, research, workflow automation).",
         stuckRecovery: {
           breatheMsg: "AI is a force multiplier: reporting, ad copy variations, workflow automation. Verified by data.",
@@ -1393,7 +1391,7 @@ export function generateQuestionsFromNotes(rawNotesText, templateId = "custom") 
           "• AI Agents: Autonomous multi-step planning, file editing, and testing under human oversight",
           "• Iterative workflow: Problem definition → breaking into tasks → AI implementation → testing → debugging"
         ],
-        expandedSay: "The biggest takeaway was mastering iterative development under constraint: defining the problem clearly, breaking it into bite-sized tasks, letting the AI generate the implementation, and rigorously testing the output. AI agents are powerful, but they can easily introduce bugs or hallucinate if you don't verify their changes.\n\nUnderstanding tools like MCP and AI coding workflows gives me strong technical intuition. As marketing platforms become increasingly automated and algorithmic, having hands-on familiarity with how AI connects to tools and data sources is an invaluable asset for an agency like Crealytics.",
+        expandedSay: "The biggest takeaway was mastering iterative development under constraint: defining the problem clearly, breaking it into bite-sized tasks, letting the AI generate the implementation, and rigorously testing the output. AI agents are powerful, but they can easily introduce bugs or hallucinate if you don't verify their changes.\n\nUnderstanding tools like MCP and AI coding workflows gives me strong technical intuition. As marketing platforms become increasingly automated and algorithmic, having hands-on familiarity with how AI connects to tools and data sources is an invaluable asset when managing modern, data-driven advertising campaigns.\n\nIt makes me much more confident diving into technical platforms and diagnosing what's happening underneath the surface.",
         supportingContext: "Notes Section 8: Scrimba Vibe Coding Specialization, Cursor AI, Claude Code, MCP, iterative development.",
         stuckRecovery: {
           breatheMsg: "Scrimba course: Cursor, Claude Code, MCP. Taught iterative development and AI verification.",
