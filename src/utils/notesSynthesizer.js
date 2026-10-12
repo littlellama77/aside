@@ -774,13 +774,24 @@ export function synthesizeLeaderAnswerForCustomQuestion(questionText, rawNotesTe
       matchedScenario = interviewScenarios.find(s => s.id === "crealytics-q12");
     }
 
-    // 12. Candidate Story / Background / Tell me about yourself
-    // (Only if it's NOT a specific project question!)
+    // 12a. Dedicated CV / Resume Walkthrough (Sportskeeda -> Kraftshala -> Google/Meta/Amazon -> Vibe coding)
+    const isCvWalkthrough = !matchedScenario && (
+      coreLower.includes("cv") || coreLower.includes("resume") ||
+      qLower.includes("cv") || qLower.includes("resume") ||
+      qLower.includes("take me through your cv") || qLower.includes("walk me through your cv") ||
+      qLower.includes("walk me through your resume") || qLower.includes("take me through your resume")
+    );
+    if (isCvWalkthrough) {
+      matchedScenario = interviewScenarios.find(s => s.id === "crealytics-q24") || interviewScenarios.find(s => s.id === "crealytics-q1");
+    }
+
+    // 12b. Candidate Story / Background / Tell me about yourself
+    // (Only if it's NOT a specific project question or CV walkthrough!)
     const isCandidateStory = !matchedScenario && (
       coreLower.includes("yourself") || coreLower.includes("background") || coreLower.includes("journey") ||
       coreLower.includes("who are you") || coreLower.includes("sportskeeda") ||
       qLower.includes("tell me about yourself") || qLower.includes("tell us about yourself") ||
-      qLower.includes("walk me through your resume") || qLower.includes("walk me through your background") ||
+      qLower.includes("walk me through your background") ||
       qLower.includes("introduce yourself") || qLower.includes("about your background")
     );
     if (isCandidateStory) {
@@ -1668,6 +1679,34 @@ export function generateQuestionsFromNotes(rawNotesText, templateId = "custom") 
           points: ["Fantasy & sci-fi: immersive world-building", "Stormlight Archive: flawed characters & responsibility", "Night Circus: dreamlike magic without over-explaining", "House in the Cerulean Sea: warmth, found family, beyond first impressions"],
           easySay: "I love fantasy and sci-fi: The Stormlight Archive for epic world-building and character growth, The Night Circus for atmospheric magic, and The House in the Cerulean Sea for heart and found family.",
           stallSay: "I'm mostly drawn to fantasy and science fiction—I love getting completely absorbed in a story."
+        }
+      },
+      {
+        id: "crealytics-q24",
+        category: "expected",
+        speaker: "Torsten Christ (Head of HR)",
+        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+        question: "Can you take me through your CV?",
+        topic: "CV & Professional Journey Overview",
+        babeTag: "babe 👀 Sportskeeda NFL discipline + Kraftshala campaigns + vibe coding",
+        simplestQuestion: "Torsten wants a concise, structured walk through your CV milestones from media to performance marketing.",
+        startWithPrompt: "Start with: “Walking through my CV, it really connects editorial discipline…”",
+        glanceSay: "Walking through my CV, it connects audience psychology, editorial discipline, and hands-on performance marketing. I started in media and communication covering the NFL at Sportskeeda—writing over 600 articles taught me strict deadline discipline and understanding what captures attention. From there, I transitioned into digital marketing at Kraftshala to work directly with quantitative data and auction mechanics. On my CV, that spans three core hands-on campaigns: in Google Search Ads, I restructured ad groups into tight intent clusters, driving CTR from 5.2% to 14.8% and cutting CPC by 21% down to ₹4.21. On Meta Ads for Unleavables, I ran a Cost Cap experiment that brought cost per add-to-cart down from ₹91 to ₹29 with an 11% CTR. And on Amazon for Homecrust, I managed sponsored ads delivering an ACoS of 28.7% against a 35% benchmark. Most recently, I've been vibe coding and building AI prototypes with tools like Antigravity and Claude, exploring how technology and automation make marketing smarter and more efficient.",
+        glanceBullets: [
+          "• Media & Editorial (Sportskeeda): 600+ NFL articles, audience psychology & deadline discipline",
+          "• Google Search Ads: CTR surged 5.2% → 14.8%, CPC cut 21% to ₹4.21, 17/19 conversions on ₹777 spend",
+          "• Meta Ads (Unleavables): Cost Cap bidding dropped cost/ATC from ₹91 → ₹29, 11.04% CTR, 15 ATCs",
+          "• Amazon Ads (Homecrust): ACoS 28.7% vs 35% target, ₹6,432 sales on ₹1,848 spend",
+          "• Vibe Coding & AI: Hands-on prototypes (Antigravity/Claude) exploring technology & marketing efficiency"
+        ],
+        expandedSay: "What ties my entire CV together is a natural evolution from storytelling to evidence-based optimization. In sports journalism, you learn very quickly what hooks a reader and what gets ignored. But in performance marketing, you get immediate feedback from auction algorithms, search queries, and conversion funnels.\n\nWhether it was diagnosing query intent in Google Search, testing bidding caps on Meta, or balancing margins on Amazon, I've loved the process of forming a hypothesis, testing it against real data, and learning from the evidence. Combining that with vibe coding has made me really excited about how automated systems and AI can solve enterprise marketing challenges when guided by critical human judgment.",
+        supportingContext: "Notes Part 1, 4 & 7: Complete CV walkthrough spanning Sportskeeda (600+ articles), Google Search (CTR 14.78%, CPC ₹4.21), Meta (Cost Cap ₹91→₹29), Amazon (ACoS 28.7%), and Vibe Coding.",
+        stuckRecovery: {
+          breatheMsg: "Take a breath babe. Sportskeeda (600 NFL articles) → Google Search (14.8% CTR) → Meta (Cost Cap ₹29) → Vibe coding.",
+          questionSummary: "Walk me through your CV?",
+          points: ["Sportskeeda: 600+ NFL articles (audience psychology & deadlines)", "Google Search Ads: CTR surged to 14.8%, CPC cut 21% to ₹4.21", "Meta Ads (Unleavables): Cost Cap dropped cost/ATC to ₹29", "Amazon (Homecrust): ACoS 28.7%", "Vibe coding with Antigravity & Claude"],
+          easySay: "My CV spans sports journalism at Sportskeeda (600+ NFL articles), hands-on campaigns across Google, Meta, and Amazon at Kraftshala, and vibe coding prototypes using AI.",
+          stallSay: "I'd love to walk you through my CV—it connects editorial discipline, quantitative marketing, and tech prototypes."
         }
       }
     ];

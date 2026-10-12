@@ -85,6 +85,15 @@ export function PrivateMeetingView({ onOpenPairingModal }) {
 
   useEffect(() => {
     setSelectedIntro(null);
+    if (activeQuestion) {
+      const timer = setTimeout(() => {
+        const el = document.getElementById('active-answer-section');
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 60);
+      return () => clearTimeout(timer);
+    }
   }, [activeQuestion?.id]);
 
   const handleCustomSubmit = (e) => {
@@ -512,7 +521,7 @@ export function PrivateMeetingView({ onOpenPairingModal }) {
           </div>
         </div>
       ) : (
-        <div className="copilot-main-answer-card glass-panel animate-fade-in">
+        <div id="active-answer-section" className="copilot-main-answer-card glass-panel animate-fade-in">
           {/* Question Header */}
           <div className="answer-card-header">
             <div className="header-speaker-tag">
@@ -540,6 +549,17 @@ export function PrivateMeetingView({ onOpenPairingModal }) {
                 </span>
               )}
 
+              {/* Listen for Next Question Button */}
+              <button
+                type="button"
+                className={`btn-listen-next ${isManualCaptureActive ? 'recording-active' : ''}`}
+                onClick={toggleManualQuestionCapture}
+                title="Click or press Space to listen for next question or interruption"
+              >
+                <Mic size={13} className={isManualCaptureActive ? "fill-white" : "text-accent"} />
+                <span>{isManualCaptureActive ? "Stop & Answer ⚡" : "Listen for Next (Space)"}</span>
+              </button>
+
               {/* Dismiss / Return to Standby Button */}
               <button
                 type="button"
@@ -547,57 +567,86 @@ export function PrivateMeetingView({ onOpenPairingModal }) {
                 onClick={() => {
                   setActiveQuestion(null);
                   setIsQuestionActive(false);
+                  if (!isLiveListening) {
+                    toggleLiveListening();
+                  }
                 }}
                 title="Clear this answer and return to quiet listening standby"
               >
                 <RotateCcw size={13} />
-                <span>Back to Listening</span>
+                <span>Back to Standby</span>
               </button>
             </div>
           </div>
 
-          {/* "I'm Thinking" Intro Sentences Over the Answer Box */}
-          <div className={`thinking-intro-bar ${isGeneratingWithAi || activeQuestion?.isSynthesizing ? 'thinking-synthesizing-active' : ''}`}>
-            <div className="thinking-intro-top-row">
-              <div className="thinking-intro-left">
-                <span className="thinking-badge-icon">💭</span>
-                <span className="thinking-intro-title">
-                  {isGeneratingWithAi || activeQuestion?.isSynthesizing
-                    ? "Say this right now while your answer synthesizes:"
-                    : "Thinking out loud (say this while you gather your thoughts):"}
-                </span>
-              </div>
-              {(isGeneratingWithAi || activeQuestion?.isSynthesizing) && (
+          {/* Answer Status / Thinking Bar */}
+          {isGeneratingWithAi || activeQuestion?.isSynthesizing ? (
+            <div className="thinking-intro-bar thinking-synthesizing-active">
+              <div className="thinking-intro-top-row">
+                <div className="thinking-intro-left">
+                  <span className="thinking-badge-icon">💭</span>
+                  <span className="thinking-intro-title">
+                    Say this right now while your answer synthesizes:
+                  </span>
+                </div>
                 <div className="synthesizing-status-tag">
                   <span className="pulse-dot-coral"></span>
                   <span>Synthesizing answer from your notes...</span>
                 </div>
-              )}
-            </div>
+              </div>
 
-            <div className="thinking-intro-chips">
-              {THINKING_INTRO_SENTENCES.map((intro, idx) => {
-                const clean = intro.replace(/^[“”"']|[“”"']$/g, '');
-                const isSelected = selectedIntro === clean || (!selectedIntro && quickSayText === clean);
-                return (
-                  <button
-                    key={idx}
-                    type="button"
-                    className={`thinking-intro-chip ${isSelected ? 'intro-chip-selected' : ''}`}
-                    onClick={() => {
-                      setSelectedIntro(clean);
-                      handleCopyFiller(clean);
-                    }}
-                    title="Click to use this natural opener right now"
-                  >
-                    <span className="chip-quote">“</span>
-                    <span>{clean}</span>
-                    <span className="chip-quote">”</span>
-                  </button>
-                );
-              })}
+              <div className="thinking-intro-chips">
+                {THINKING_INTRO_SENTENCES.map((intro, idx) => {
+                  const clean = intro.replace(/^[“”"']|[“”"']$/g, '');
+                  const isSelected = selectedIntro === clean || (!selectedIntro && quickSayText === clean);
+                  return (
+                    <button
+                      key={idx}
+                      type="button"
+                      className={`thinking-intro-chip ${isSelected ? 'intro-chip-selected' : ''}`}
+                      onClick={() => {
+                        setSelectedIntro(clean);
+                        handleCopyFiller(clean);
+                      }}
+                      title="Click to use this natural opener right now"
+                    >
+                      <span className="chip-quote">“</span>
+                      <span>{clean}</span>
+                      <span className="chip-quote">”</span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="answer-status-banner-ready">
+              <div className="status-ready-left">
+                <span className="ready-check-icon">✓</span>
+                <span className="ready-text-bold">Complete Answer Ready to Speak</span>
+                <span className="ready-text-sub">• Read Box 1 below immediately</span>
+              </div>
+              <div className="compact-openers-row">
+                <span className="openers-hint-text">Natural opener (optional):</span>
+                {THINKING_INTRO_SENTENCES.slice(0, 3).map((intro, idx) => {
+                  const clean = intro.replace(/^[“”"']|[“”"']$/g, '');
+                  return (
+                    <button
+                      key={idx}
+                      type="button"
+                      className="compact-opener-chip"
+                      onClick={() => {
+                        setSelectedIntro(clean);
+                        handleCopyFiller(clean);
+                      }}
+                      title="Click to copy this opener"
+                    >
+                      “{clean}”
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {/* DUAL-BOX PROGRESSIVE ANSWER ARCHITECTURE */}
           <div className="two-box-architecture-wrapper">

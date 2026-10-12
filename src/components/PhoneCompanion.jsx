@@ -634,9 +634,9 @@ export function PhoneCompanion({
                 <button
                   type="button"
                   className="phone-test-chip"
-                  onClick={() => handleProcessCandidateQuestion("Tell me about a time you handled conflict with a colleague or stakeholder.")}
+                  onClick={() => handleProcessCandidateQuestion("Can you take me through your CV?")}
                 >
-                  <span>💬 Handling conflict with colleagues / stakeholders</span>
+                  <span>💬 Take me through your CV</span>
                 </button>
                 <button
                   type="button"

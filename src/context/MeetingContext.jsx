@@ -151,6 +151,7 @@ export function MeetingProvider({ children }) {
   const lastTriggeredTextRef = useRef('');
   const lastTriggeredTimeRef = useRef(0);
   const turnTranscriptBufferRef = useRef('');
+  const speechStartIndexRef = useRef(0);
   const micStreamRef = useRef(null);
   const audioContextRef = useRef(null);
   const restartTimerRef = useRef(null);
@@ -964,7 +965,8 @@ export function MeetingProvider({ children }) {
       recognition.onresult = (event) => {
         let sessionFinal = '';
         let sessionInterim = '';
-        for (let i = 0; i < event.results.length; ++i) {
+        const startIdx = speechStartIndexRef.current || 0;
+        for (let i = startIdx; i < event.results.length; ++i) {
           const res = event.results[i];
           if (res.isFinal) {
             sessionFinal += res[0].transcript + ' ';
@@ -1003,7 +1005,10 @@ export function MeetingProvider({ children }) {
               const candidateToProcess = currentTurnText.trim();
               if (candidateToProcess.length >= 6) {
                 if (isMeetingPromptOrQuestion(candidateToProcess) || candidateToProcess.split(/\s+/).length >= 4) {
+                  speechStartIndexRef.current = event.results.length;
                   turnTranscriptBufferRef.current = '';
+                  setLiveTranscript('');
+                  setManualCapturedTranscript('');
                   askCustomQuestion(candidateToProcess, "Meeting Participant (Transcribed)");
                 }
               }
@@ -1124,6 +1129,9 @@ export function MeetingProvider({ children }) {
       // Cleanly stop speech recognition so Chrome doesn't transcribe candidate's own voice while answering
       stopSpeechRecognition();
       setManualCapturedTranscript('');
+      turnTranscriptBufferRef.current = '';
+      setLiveTranscript('');
+      speechStartIndexRef.current = 0;
 
       if (capturedText.length >= 3) {
         setLastEmptyCaptureNotice(false);
