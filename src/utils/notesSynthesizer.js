@@ -944,24 +944,25 @@ export function generateQuestionsFromNotes(rawNotesText, templateId = "custom") 
         avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
         question: "Why Crealytics specifically, and why do you think you'd be a good fit for this role?",
         topic: "Why Crealytics & Candidate Fit",
-        babeTag: "babe 👀 real economics over vanity metrics + smart debates & maker drive",
-        simplestQuestion: "Why Crealytics & fit: focusing on actual business economics, healthy debates, and hands-on execution.",
-        startWithPrompt: "Start with: “To be honest, what caught my attention about Crealytics…”",
-        glanceSay: "To be honest, what caught my attention about Crealytics is that you focus on actual business economics rather than vanity numbers. A lot of agencies get comfortable chasing top-line ROAS that looks great on a slide but doesn't actually grow a client's bottom line or factor in customer lifetime value. I want to work where people care about commercial honesty and real incrementality.",
+        babeTag: "babe 👀 vibe coding to real problem solving + AI to improve decisions responsibly",
+        simplestQuestion: "Why Crealytics: connecting vibe coding and technology with practical, measurable business outcomes and human judgment.",
+        startWithPrompt: "Start with: “What initially attracted me to Crealytics was…”",
+        glanceSay: "What initially attracted me to Crealytics was its established presence in performance marketing and, particularly, its approach to AI and technology. Interestingly, during my time at Kraftshala, my favourite subject turned out to be vibe coding—I started experimenting with tools like Antigravity and Claude, building prototypes just to see if I could turn an idea into something tangible. What surprised me was how much I enjoyed the process itself: identifying a problem, experimenting with solutions, and refining things when they didn't work. It showed me that I'm genuinely interested in how technology can make processes more efficient and solve real problems, which directly aligns with how Crealytics uses AI and automation to drive measurable business outcomes.",
         glanceBullets: [
-          "• Real business economics: customer lifetime value and actual margin over vanity ROAS",
-          "• Commercial honesty: questioning baseline industry assumptions instead of running on autopilot",
-          "• Smart automation: using technology for routine work so people focus on strategy and problem-solving",
-          "• Cultural fit: thriving on healthy debates and learning from people who challenge assumptions"
+          "• Initial attraction: Established presence in performance marketing & approach to AI/tech",
+          "• Vibe coding spark: Built prototypes with Antigravity & Claude at Kraftshala to make ideas tangible",
+          "• Problem-solving process: Loved identifying problems, testing approaches, and refining solutions",
+          "• Purposeful AI: Using AI to improve marketing decisions, not just as a trendy novelty",
+          "• Human in the loop: Human judgement complementing automation and ensuring responsible application"
         ],
-        expandedSay: "The other thing that really resonated is the culture of questioning baseline industry assumptions and using smart automation so humans can focus on higher-level strategy. I've already been doing that in my own work—using AI tools to build prototypes and speed up research, so I can spend more time thinking about user friction and campaign structure.\n\nI want to be in an environment where people have thoughtful conversations and healthy disagreements that push thinking forward. I bring hands-on experience running live campaigns, a genuine maker mindset, and the curiosity to dig underneath the surface of the data. That combination feels very aligned with how your team operates.",
-        supportingContext: "Notes Part 2: Real business economics over vanity metrics, questioning assumptions, smart automation, healthy debate, maker mindset.",
+        expandedSay: "What really interests me about your approach is the idea of using AI to improve the way marketing decisions are made, rather than using it simply because it's a new technology. Through vibe coding, I've experienced how AI helps you move from an idea to a working prototype much faster, but I've also learnt that you still have to understand the core problem, evaluate the output critically, and keep refining the solution.\n\nComing from a media and communication background, performance marketing brings together creativity, consumer psychology, and data. I'd love to work in an environment where I can contribute the skills I'm developing, learn from people with industry experience, understand how AI and data solve marketing challenges at scale, and see how human judgement complements automated systems responsibly.",
+        supportingContext: "Notes Section 2: Garima's authentic Why Crealytics response (vibe coding, Antigravity & Claude, AI to improve decisions, human judgment + automation, responsible AI at scale).",
         stuckRecovery: {
-          breatheMsg: "Real economics over vanity ROAS + maker drive + smart team debates. You've got this.",
+          breatheMsg: "Take a breath babe. Vibe coding spark → AI to improve decisions (not hype) → human judgment at scale.",
           questionSummary: "Why Crealytics & why a good fit?",
-          points: ["Commercial honesty over vanity metrics", "Smart automation freeing minds for strategy", "Maker mindset & appetite for healthy debates"],
-          easySay: "I respect that Crealytics focuses on real business economics and lifetime value rather than vanity ROAS, and I thrive in teams that challenge assumptions.",
-          stallSay: "What caught my attention is really your focus on commercial honesty over vanity numbers."
+          points: ["Vibe coding at Kraftshala sparked interest in tech efficiency", "AI to improve decisions, not just as a buzzword", "Human judgment complementing automation responsibly"],
+          easySay: "I got fascinated by vibe coding and AI problem-solving at Kraftshala, and I love that Crealytics connects AI, automation, and data with practical business outcomes rather than just chasing hype.",
+          stallSay: "What initially attracted me to Crealytics was your approach to AI and technology."
         }
       },
       {
