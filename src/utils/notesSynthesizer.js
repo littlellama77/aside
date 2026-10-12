@@ -231,12 +231,12 @@ export function chunkLargeNotes(rawText) {
 export function cleanSpeechTranscriptText(text) {
   if (!text) return '';
   return text
-    .replace(/\b(celtics|create x|crea lytics|crealytic|crealytix)\b/gi, 'Crealytics')
-    .replace(/\b(kraft shala|craftshala|kraft sala)\b/gi, 'Kraftshala')
-    .replace(/\b(sports keeda|sport skeeda|sports kida)\b/gi, 'Sportskeeda')
-    .replace(/\b(unleavable|un leavables)\b/gi, 'Unleavables')
-    .replace(/\b(home crust|home trust)\b/gi, 'Homecrust')
-    .replace(/\b(torsten|thorsten|tor sten)\b/gi, 'Torsten');
+    .replace(/\b(threetics|three\s*tics|three\s*ticks|three\s*tix|celtics|athletics|create\s*x|crea\s*lytics|crealytic|crealytix|realytics)\b/gi, 'Crealytics')
+    .replace(/\b(kraft\s*shala|craftshala|kraft\s*sala)\b/gi, 'Kraftshala')
+    .replace(/\b(sports\s*keeda|sport\s*skeeda|sports\s*kida)\b/gi, 'Sportskeeda')
+    .replace(/\b(unleavable|un\s*leavables)\b/gi, 'Unleavables')
+    .replace(/\b(home\s*crust|home\s*trust)\b/gi, 'Homecrust')
+    .replace(/\b(torsten|thorsten|tor\s*sten)\b/gi, 'Torsten');
 }
 
 /**
@@ -246,6 +246,7 @@ export function normalizeSpokenPhonetics(text) {
   if (!text) return '';
   return text
     .toLowerCase()
+    .replace(/\b(threetics|three\s*tics|three\s*ticks|three\s*tix|celtics|athletics|create\s*x|crea\s*lytics|crealytic|crealytix|realytics)\b/gi, 'crealytics')
     .replace(/\b(see\s*ay\s*see|c\s*a\s*c|kay\s*ack)\b/g, 'cac')
     .replace(/\b(see\s*pee\s*see|c\s*p\s*c)\b/g, 'cpc')
     .replace(/\b(see\s*tee\s*are|c\s*t\s*r)\b/g, 'ctr')
@@ -778,8 +779,9 @@ export function synthesizeLeaderAnswerForCustomQuestion(questionText, rawNotesTe
     const isCandidateStory = !matchedScenario && (
       coreLower.includes("yourself") || coreLower.includes("background") || coreLower.includes("journey") ||
       coreLower.includes("who are you") || coreLower.includes("sportskeeda") ||
-      (coreLower.includes("tell me about") && !coreLower.includes("campaign") && !coreLower.includes("project") && !coreLower.includes("time when")) ||
-      qLower.includes("tell me about yourself") || qLower.includes("tell us about yourself") || qLower.includes("walk me through your resume")
+      qLower.includes("tell me about yourself") || qLower.includes("tell us about yourself") ||
+      qLower.includes("walk me through your resume") || qLower.includes("walk me through your background") ||
+      qLower.includes("introduce yourself") || qLower.includes("about your background")
     );
     if (isCandidateStory) {
       matchedScenario = interviewScenarios.find(s => s.id === "crealytics-q1");
