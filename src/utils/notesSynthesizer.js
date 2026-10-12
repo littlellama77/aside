@@ -626,19 +626,58 @@ export function synthesizeLeaderAnswerForCustomQuestion(questionText, rawNotesTe
       matchedScenario = interviewScenarios.find(s => s.id === "crealytics-q13");
     }
 
-    // 7. Outside Interests / Books / Sci-Fi / AI Prototypes / Not on CV
+    // 7.1. Favourite Books / Reading Deep Dive (Sanderson, Stormlight, Night Circus, Cerulean Sea)
+    const isBooksReading = !matchedScenario && (
+      coreLower.includes("favorite book") || coreLower.includes("favourite book") ||
+      coreLower.includes("favorite books") || coreLower.includes("favourite books") ||
+      coreLower.includes("what do you read") || coreLower.includes("what kind of books") ||
+      coreLower.includes("what books") || coreLower.includes("stormlight") || coreLower.includes("sanderson") ||
+      coreLower.includes("night circus") || coreLower.includes("cerulean sea") || coreLower.includes("what are you reading") ||
+      coreLower.includes("reading habits") || coreLower.includes("fictional characters") ||
+      qLower.includes("favorite book") || qLower.includes("favourite book") || qLower.includes("favorite books") ||
+      qLower.includes("favourite books") || qLower.includes("what do you read") || qLower.includes("what kind of books") ||
+      qLower.includes("what books") || qLower.includes("reading")
+    );
+    if (isBooksReading) {
+      matchedScenario = interviewScenarios.find(s => s.id === "crealytics-q23");
+    }
+
+    // 7.2. Outside Interests / Not on CV / Rabbit-Hole Curiosity
     const isPersonalInterests = !matchedScenario && (
+      coreLower.includes("not on your cv") || coreLower.includes("isn't on your cv") || coreLower.includes("not in your cv") ||
       coreLower.includes("outside work") || coreLower.includes("outside of work") || coreLower.includes("free time") ||
-      coreLower.includes("books") || coreLower.includes("reading") || coreLower.includes("sci-fi") || coreLower.includes("science fiction") ||
-      coreLower.includes("martian") || coreLower.includes("red rising") || coreLower.includes("gideon") ||
-      coreLower.includes("hobbies") || coreLower.includes("painting") || coreLower.includes("swimming") ||
-      coreLower.includes("prototype") || coreLower.includes("antigravity") || coreLower.includes("claude") ||
-      coreLower.includes("personal project") || coreLower.includes("not on your cv") || coreLower.includes("isn't on your cv") ||
-      coreLower.includes("something interesting about yourself") ||
-      qLower.includes("outside of work") || qLower.includes("outside work") || qLower.includes("books") || qLower.includes("not on your cv") || qLower.includes("prototype")
+      coreLower.includes("rabbit hole") || coreLower.includes("curious about") || coreLower.includes("curiosity") ||
+      coreLower.includes("hobbies") || coreLower.includes("something interesting about yourself") ||
+      qLower.includes("not on your cv") || qLower.includes("isn't on your cv") || qLower.includes("outside of work") || qLower.includes("outside work")
     );
     if (isPersonalInterests) {
       matchedScenario = interviewScenarios.find(s => s.id === "crealytics-q8");
+    }
+
+    // 7.3. Good Teammate / Teamwork / Collaboration Philosophy
+    const isTeammateCollaboration = !matchedScenario && (
+      coreLower.includes("good teammate") || coreLower.includes("great teammate") || coreLower.includes("teamwork") ||
+      coreLower.includes("collaboration") || coreLower.includes("work in a team") || coreLower.includes("team player") ||
+      coreLower.includes("collaborate") || coreLower.includes("working with others") || coreLower.includes("working with a team") ||
+      coreLower.includes("team dynamic") || coreLower.includes("team member") ||
+      qLower.includes("good teammate") || qLower.includes("teamwork") || qLower.includes("collaboration") ||
+      qLower.includes("what makes someone a good teammate") || qLower.includes("how do you collaborate")
+    );
+    if (isTeammateCollaboration) {
+      matchedScenario = interviewScenarios.find(s => s.id === "crealytics-q21");
+    }
+
+    // 7.4. Handling Disagreements with Colleagues (Interpersonal / Differing Views)
+    const isDisagreementsColleagues = !matchedScenario && (
+      coreLower.includes("disagreement") || coreLower.includes("disagree with") || coreLower.includes("disagreements") ||
+      coreLower.includes("differing opinion") || coreLower.includes("differing opinions") || coreLower.includes("difference of opinion") ||
+      coreLower.includes("disagree with colleagues") || coreLower.includes("disagree with colleague") ||
+      (coreLower.includes("disagree") && !coreLower.includes("agree to disagree")) ||
+      qLower.includes("disagreement") || qLower.includes("disagree with colleagues") || qLower.includes("differing opinions") ||
+      qLower.includes("how do you handle disagreements") || qLower.includes("disagreements with colleagues")
+    );
+    if (isDisagreementsColleagues) {
+      matchedScenario = interviewScenarios.find(s => s.id === "crealytics-q22");
     }
 
     // 8. Strengths & Weaknesses / Self-Awareness / Why Hire You
@@ -1135,27 +1174,27 @@ export function generateQuestionsFromNotes(rawNotesText, templateId = "custom") 
         category: "reflective",
         speaker: "Torsten Christ (Head of HR)",
         avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
-        question: "Tell me something about yourself that isn't on your CV — your outside interests and personal projects.",
-        topic: "Outside Interests, Fiction & Creative Prototypes",
-        babeTag: "babe 👀 fiction writing, sci-fi books & building app/game prototypes",
-        simplestQuestion: "Share your love for fiction writing, sci-fi books, and experimenting with app and game prototypes.",
-        startWithPrompt: "Start with: “Outside of my resume, I really enjoy writing fiction and…”",
-        glanceSay: "Outside of my resume, I really enjoy writing fiction and reading speculative sci-fi and fantasy—books like The Martian and Red Rising—because I love imagining possibilities and exploring how people solve problems under constraint. On the creative and technical side, I've been experimenting with AI tools like Antigravity and Claude to build small web applications and game prototypes, including a productivity app that I tested with six friends.",
+        question: "Tell me something about yourself that isn't on your CV.",
+        topic: "Curiosity, Rabbit Holes & Creative Making",
+        babeTag: "babe 👀 rabbit-hole curiosity + vibe coding apps/games + sci-fi reading + starting small",
+        simplestQuestion: "Share your curiosity to a slightly ridiculous extent, building little apps/games from scratch, sci-fi reading, and learning to start small.",
+        startWithPrompt: "Start with: “Oh, that's a fun question! Something that isn't really reflected in my CV is…”",
+        glanceSay: "Oh, that's a fun question! I think something that isn't really reflected in my CV is how curious I am about things, sometimes to a slightly ridiculous extent. If something catches my interest, I tend to go down a rabbit hole trying to understand it. For example, what started as a subject I was learning at Kraftshala turned into me experimenting with building my own little apps and game concepts through vibe coding—taking an idea floating around in my head and seeing if I can actually make something tangible out of it. I'm also a big reader, particularly fantasy and science fiction. I love stories that make you look at the world a little differently, and that curiosity about people carries into other parts of my life, too. Sometimes I have far more ideas than hours in the day to execute them, but I'm learning to pick one, start small, and see where it goes!",
         glanceBullets: [
-          "• Fiction writing: love imagining possibilities and storytelling outside work",
-          "• Sci-fi & fantasy reader (The Martian, Red Rising) fascinated by problem-solving under constraint",
-          "• Hands-on prototypes: built web apps and Roblox game concepts using Antigravity and Claude",
-          "• User testing lesson: 6 friends tested a prototype and taught me to avoid friction and feature creep",
-          "• Core takeaway: never confuse effort with effectiveness; let real user feedback guide iterations"
+          "• Rabbit-hole curiosity: curious about things to a slightly ridiculous extent when something catches interest",
+          "• Making things tangible: taking ideas floating in my head and building little apps & game concepts with vibe coding",
+          "• Big reader: drawn to fantasy & sci-fi; stories that look at the world differently and explore how people think",
+          "• Imaginative & practical: love the creative side of things and figuring out how they work in practice",
+          "• Balancing ideas: 'Sometimes I have far more ideas than hours in the day, but I'm learning to pick one, start small, and see where it goes!'"
         ],
-        expandedSay: "The feedback from that prototype was actually the best part: my friends were very candid that the interface was way too clunky and over-engineered. That was a great lesson in never confusing effort with effectiveness. As the creator, you can spend hours building complex logic, but if the user experiences friction, none of that effort matters.\n\nThat takeaway connects directly back to performance marketing and user journeys. Whether you're designing a landing page, an ad creative, or an internal workflow, you have to stay humble, eliminate friction, and let real user behavior dictate what you iterate on.",
-        supportingContext: "Notes Section 7: Personal Interview Notes (fiction writing, sci-fi books, AI prototypes with Antigravity & Claude, 6 friends test feedback).",
+        expandedSay: "I guess I'm someone who enjoys both the imaginative side of things and figuring out how they work in practice. I really enjoy having conversations with people who see things differently from me because I usually come away having learnt something new.\n\nAnd, well, sometimes I have far more ideas than I have hours in the day to execute them, but I'm learning to pick one, start small, and see where it goes!",
+        supportingContext: "Notes Section 7: Personal Interview Notes (rabbit-hole curiosity, vibe coding apps and games, fantasy/sci-fi reading, starting small).",
         stuckRecovery: {
-          breatheMsg: "Fiction writing + sci-fi books + app/game prototypes. Keep it warm and authentic!",
-          questionSummary: "What's not on your CV?",
-          points: ["Fiction writing & sci-fi books (imagining possibilities)", "Built web apps & game prototypes with AI tools", "Tested with 6 friends: don't confuse effort with effectiveness"],
-          easySay: "I write fiction, read sci-fi, and love building app and game prototypes with AI on the side—recently tested one with 6 friends, which taught me to never confuse effort with effectiveness.",
-          stallSay: "I'd love to share that—outside of work, I really enjoy writing fiction and experimenting with creative tech."
+          breatheMsg: "Take a breath babe. Rabbit hole curiosity + building app/game prototypes + sci-fi reading + starting small.",
+          questionSummary: "Tell me something not on your CV",
+          points: ["Curiosity to a slightly ridiculous extent", "Building little apps and game concepts from floating ideas", "Big reader in fantasy & sci-fi", "More ideas than hours: learning to pick one, start small"],
+          easySay: "I'm curious to a slightly ridiculous extent! If something catches my interest, I go down a rabbit hole—like experimenting with building apps and games through vibe coding, or getting absorbed in fantasy and sci-fi books. I have more ideas than hours in the day, but I'm learning to start small!",
+          stallSay: "Oh, that's a fun question! I think something that isn't really reflected in my CV is how curious I am about things."
         }
       },
       {
@@ -1483,6 +1522,90 @@ export function generateQuestionsFromNotes(rawNotesText, templateId = "custom") 
           points: ["Hard work = ownership and never treating issues as dead ends", "Trust = consistency & communicating roadblocks early", "Wanting to earn trust through work over time, not just interview words"],
           easySay: "Hard work is about taking ownership, and trust comes from consistency and communicating problems early. I don't expect you to take my word for it today—I want to earn that trust through my work over time.",
           stallSay: "That's a really fair question—for me, trust and work ethic come down to ownership and honesty."
+        }
+      },
+      {
+        id: "crealytics-q21",
+        category: "behavioural",
+        speaker: "Torsten Christ (Head of HR)",
+        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+        question: "What makes someone a good teammate, and how do you approach collaboration?",
+        topic: "Teamwork, Dependability & Collaborative Energy",
+        babeTag: "babe 👀 dependable, honest communication + making space for others + celebrate wins",
+        simplestQuestion: "Dependable, honest communication, ownership + big picture, and celebrating others instead of competing.",
+        startWithPrompt: "Start with: “For me, a good teammate is someone who's dependable…”",
+        glanceSay: "For me, a good teammate is someone who's dependable, communicates honestly, and makes space for other people to contribute. I think it's important to take ownership of your own responsibilities while also understanding that you're part of something bigger than your individual tasks. A good teammate should be able to give and receive feedback, disagree respectfully, and offer support when someone needs it. I also think it's important to celebrate other people's contributions rather than viewing everything as a competition. Ultimately, I want to be someone who brings both ideas and positive energy to a team. I care about doing good work, but I also care about the people I'm doing it with.",
+        glanceBullets: [
+          "• Core qualities: dependable, communicates honestly, and makes space for others to contribute",
+          "• Ownership & big picture: taking full responsibility while understanding you're part of something bigger",
+          "• Constructive feedback: give/receive feedback and disagree respectfully without personal friction",
+          "• Celebrate teammates: celebrate others' contributions rather than viewing work as a competition",
+          "• Ideas & positive energy: 'I care about doing good work, but I also care about the people I'm doing it with'"
+        ],
+        expandedSay: "I think one of the things that genuinely defines me is how much I enjoy connecting with people. I'm naturally curious about people, how they think, what they care about, and how they approach things differently from me. That's also why I was drawn to media and communication in the first place: communication isn't just about putting a message out there; it's about understanding the person on the other side of it.\n\nThat carries straight over into how I think about collaboration. I don't believe good teamwork means everyone has to think alike or agree on everything. Some of the best work comes from people with different strengths and perspectives challenging each other's ideas respectfully. Good collaboration requires consideration—recognising different working styles, communicating clearly, and making it easier for everyone to do their best work together.",
+        supportingContext: "Notes Page 1: Garima's authentic teamwork and collaboration notes (dependability, honest communication, making space for others, celebrating teammates, positive energy).",
+        stuckRecovery: {
+          breatheMsg: "Take a breath babe. Dependable + honest communication + making space for others + celebrate teammates.",
+          questionSummary: "What makes a good teammate?",
+          points: ["Dependable, communicates honestly, makes space for others", "Ownership of tasks while seeing the bigger picture", "Disagree respectfully and celebrate contributions rather than competing", "Bring ideas and positive energy"],
+          easySay: "For me, a good teammate is dependable, communicates honestly, and makes space for others. It's about bringing positive energy, celebrating each other's wins, and producing better work together than individually.",
+          stallSay: "For me, what makes a great teammate really comes down to dependability, honest communication, and making space for others."
+        }
+      },
+      {
+        id: "crealytics-q22",
+        category: "behavioural",
+        speaker: "Torsten Christ (Head of HR)",
+        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+        question: "How do you handle disagreements with colleagues?",
+        topic: "Constructive Disagreement & Data-Driven Alignment",
+        babeTag: "babe 👀 understand why first + shared goal over whose idea wins + test competing ideas",
+        simplestQuestion: "Understand why we disagree first, listen openly, focus on the shared goal over winning, and test with data.",
+        startWithPrompt: "Start with: “I'd first try to understand why we disagree…”",
+        glanceSay: "I'd first try to understand why we disagree, because sometimes people are approaching the same problem with different information or priorities. I'd explain my perspective, but I'd also listen to theirs and be open to the possibility that they've noticed something I haven't. If we're working towards a shared goal, I'd want us to focus on what best serves that goal rather than on whose idea wins. In a marketing environment, for example, I'd be happy to test competing ideas or look at the available data instead of relying entirely on personal opinions. I think it's possible to disagree with someone's approach while still respecting them.",
+        glanceBullets: [
+          "• Understand why: diagnose whether disagreement stems from different info or different priorities",
+          "• Open listening: explain my perspective while genuinely staying open to what they noticed",
+          "• Shared goal over winning: focus on what best serves the goal, not on 'whose idea wins'",
+          "• Test with data: in marketing, test competing ideas or look at empirical performance over opinions",
+          "• Mutual respect: disagree with someone's approach while maintaining complete respect for the person"
+        ],
+        expandedSay: "I don't believe good teamwork means everyone has to think alike. In fact, some of the best work comes from people with different strengths being able to challenge each other's ideas respectfully. If someone has a better idea, I'm happy to learn from them. If I disagree with something, I'd rather have a constructive conversation about it than turn it into a personal issue.\n\nKeeping the focus on the business objective and testing hypotheses against real data takes the ego out of disagreement and turns it into a collaborative problem-solving session.",
+        supportingContext: "Notes Page 1 & 2: Garima's authentic response on disagreements (understanding why, shared goal over winning, testing competing ideas with data, respecting the person).",
+        stuckRecovery: {
+          breatheMsg: "Take a breath babe. Understand why first + listen openly + shared goal > winning + test competing ideas with data.",
+          questionSummary: "How do you handle disagreements?",
+          points: ["Understand why we disagree (different info or priorities)", "Listen openly to what they noticed", "Shared goal over whose idea wins", "Test competing ideas with data"],
+          easySay: "I first try to understand why we disagree, listen to their perspective, and focus on the shared goal rather than whose idea wins. In marketing, the best approach is to test competing ideas with real data.",
+          stallSay: "I always start by trying to understand why we disagree, because usually people just have different information or priorities."
+        }
+      },
+      {
+        id: "crealytics-q23",
+        category: "reflective",
+        speaker: "Torsten Christ (Head of HR)",
+        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+        question: "What kind of books do you read, and what are some of your favourites?",
+        topic: "Favourite Books, World-Building & Human Emotion",
+        babeTag: "babe 👀 Stormlight, Night Circus, Cerulean Sea + attached to fictional characters *laughs*",
+        simplestQuestion: "Drawn to fantasy/sci-fi; Brandon Sanderson, Erin Morgenstern, TJ Klune; world-building meets emotional investment.",
+        startWithPrompt: "Start with: “I'm mostly drawn to fantasy and science fiction…”",
+        glanceSay: "I'm mostly drawn to fantasy and science fiction. I love getting completely absorbed in a story, especially when the author has built an entire world that feels like it exists beyond the pages. I'm a big fan of The Stormlight Archive by Brandon Sanderson—I love the scale of the world-building and how it explores people, their flaws, their responsibilities, and how they change over time. I also love The Night Circus by Erin Morgenstern; its dreamlike atmosphere makes the world feel magical without needing to explain every little thing. And The House in the Cerulean Sea by TJ Klune is another favourite for its warmth, found family, and looking beyond first impressions.",
+        glanceBullets: [
+          "• Genre love: fantasy & sci-fi—getting absorbed in worlds that feel like they exist beyond the pages",
+          "• *The Stormlight Archive* (Brandon Sanderson): massive world-building, flawed people carrying responsibility",
+          "• *The Night Circus* (Erin Morgenstern): dreamlike, atmospheric magic without needing to over-explain",
+          "• *The House in the Cerulean Sea* (TJ Klune): pure warmth, found family, looking beyond first impressions",
+          "• Human connection: 'I'm probably the kind of person who gets attached to fictional characters and then has to deal with the consequences of that attachment! *Laughs*'"
+        ],
+        expandedSay: "They're almost opposites! But I think I just enjoy stories that make me feel something, whether that's genuine unease or that very quiet feeling you get from watching an ordinary moment unfold. I don't necessarily need every story to be exciting in the conventional sense. Sometimes I want something that completely messes with my head, and sometimes I just want to watch people exist and figure life out.\n\nI think I enjoy books that can transport me somewhere completely different but still leave me thinking about something very human. I want the world-building and the imagination, but I also want characters I can get emotionally invested in.",
+        supportingContext: "Notes Page 2 & 3: Garima's favourite books (The Stormlight Archive, The Night Circus, The House in the Cerulean Sea, getting attached to fictional characters, feeling something).",
+        stuckRecovery: {
+          breatheMsg: "Take a breath babe. Stormlight (Sanderson) + Night Circus (Morgenstern) + Cerulean Sea (Klune) + attached to characters *laughs*.",
+          questionSummary: "What are your favourite books?",
+          points: ["Fantasy & sci-fi: immersive world-building", "Stormlight Archive: flawed characters & responsibility", "Night Circus: dreamlike magic without over-explaining", "House in the Cerulean Sea: warmth, found family, beyond first impressions"],
+          easySay: "I love fantasy and sci-fi: The Stormlight Archive for epic world-building and character growth, The Night Circus for atmospheric magic, and The House in the Cerulean Sea for heart and found family.",
+          stallSay: "I'm mostly drawn to fantasy and science fiction—I love getting completely absorbed in a story."
         }
       }
     ];

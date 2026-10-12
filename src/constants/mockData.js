@@ -122,6 +122,20 @@ SECTION 4: CV DEEP-DIVE CAMPAIGNS
 SECTION 5: BEHAVIOURAL & SITUATIONAL EXPERIENCE
 • Working under pressure: Sportskeeda publishing cycles; maintaining factual accuracy and editorial quality under tight deadlines.
 • Handling Conflict & Competing Priorities: “I'd first assess the severity of the performance drop and how urgently the report is needed. Since the issue could affect campaign results, I'd quickly communicate the competing deadlines to my manager and explain the trade-offs. I'd suggest investigating the immediate issue first if it poses a significant risk, while agreeing on a realistic timeline for the report. I'd then keep the relevant stakeholders updated and ensure both responsibilities are addressed.”
+• Handling Disagreements with Colleagues (Garima's Authentic Perspective):
+  - "I'd first try to understand why we disagree, because sometimes people are approaching the same problem with different information or priorities."
+  - "I'd explain my perspective, but I'd also listen to theirs and be open to the possibility that they've noticed something I haven't."
+  - "If we're working towards a shared goal, I'd want us to focus on what best serves that goal rather than on whose idea wins. In a marketing environment, for example, I'd be happy to test competing ideas or look at the available data instead of relying entirely on personal opinions."
+  - "I think it's possible to disagree with someone's approach while still respecting them. For me, that's an important part of working well with different people."
+• What Makes a Good Teammate & Collaboration Style (Garima's Authentic Perspective):
+  - "I think one of the things that genuinely defines me is how much I enjoy connecting with people. I'm naturally curious about people, how they think, what they care about, and how they approach things differently from me."
+  - "I enjoy conversations where I get to exchange ideas, learn something new, or see a situation from a perspective I hadn't considered before. That's also why I was drawn to media and communication in the first place: communication isn't just about putting a message out there; it's about understanding the person on the other side of it."
+  - "That carries over into how I think about collaboration. I don't believe good teamwork means everyone has to think alike or agree on everything. In fact, I think some of the best work comes from people with different strengths and perspectives being able to challenge each other's ideas respectfully."
+  - "If someone has a better idea, I'm happy to learn from them. If I disagree with something, I'd rather have a constructive conversation about it than turn it into a personal issue."
+  - "For me, a good teammate is someone who's dependable, communicates honestly, and makes space for other people to contribute."
+  - "I think it's important to take ownership of your own responsibilities while also understanding that you're part of something bigger than your individual tasks."
+  - "A good teammate should be able to give and receive feedback, disagree respectfully, and offer support when someone needs it. I also think it's important to celebrate other people's contributions rather than viewing everything as a competition."
+  - "Ultimately, I want to be someone who brings both ideas and positive energy to a team. I care about doing good work, but I also care about the people I'm doing it with. Good collaboration is about creating an environment where people can challenge each other, learn from each other, and produce better work together than they might have individually."
 • Difficult stakeholder: Coordinating with writers, editors, and managers; understanding individual constraints, transparent communication, and focusing on shared standards.
 • Accountability & Mistakes: Homecrust ACoS increase—understanding the difference between generating activity and generating economically valuable results.
 • Learning quickly: Transitioning from writing to performance marketing; mastering Google Ads, Meta Ads, Amazon Ads, and AI prototyping by applying concepts directly to real projects.
@@ -135,8 +149,21 @@ SECTION 6: COMMERCIAL JUDGMENT
 • When to pause, optimise, or scale: Pause on serious waste or broken tracking; optimise when there is a specific testable opportunity; scale when campaign consistently hits business goals with positive incremental returns.
 
 SECTION 7: PERSONAL INTERVIEW NOTES — THE HUMAN BEHIND THE CV
+• Tell Me Something That Isn't on Your CV (Garima's Authentic Perspective):
+  - "Oh, that's a fun question! I think something that isn't really reflected in my CV is how curious I am about things, sometimes to a slightly ridiculous extent. If something catches my interest, I tend to go down a rabbit hole trying to understand it."
+  - "For example, I recently got really interested in vibe coding, and what started as a subject I was learning at Kraftshala turned into me experimenting with building my own little apps and game concepts. I think I enjoy the process of taking an idea that's floating around in my head and figuring out whether I can actually make something out of it."
+  - "I'm also a big reader, particularly fantasy and science fiction. I love stories that make you look at the world a little differently, and I think that curiosity about people and how they think carries into other parts of my life, too."
+  - "I guess I'm someone who enjoys both the imaginative side of things and figuring out how they work in practice. I like having conversations with people who see things differently from me because I usually come away having learnt something."
+  - "And, well, sometimes I have far more ideas than I have hours in the day to execute them, but I'm learning to pick one, start small, and see where it goes!"
+• Favourite Books & Reading Deep Dive:
+  - Drawn to fantasy and science fiction: Getting completely absorbed in a story, especially when the author has built an entire world that feels like it exists beyond the pages.
+  - *The Stormlight Archive* by Brandon Sanderson: "I love the scale of the world-building and how the story explores people, their flaws, their responsibilities, and the ways they change over time."
+  - *The Night Circus* by Erin Morgenstern: "It's such a different experience from epic fantasy. The atmosphere is almost dreamlike, and I love how the writing makes the world feel magical without needing to explain every little thing."
+  - *The House in the Cerulean Sea* by TJ Klune: "I love stories that have warmth and heart, especially when they're about belonging, found family, and looking beyond your first impressions of people."
+  - "I think I enjoy books that can transport me somewhere completely different but still leave me thinking about something very human. I want the world-building and the imagination, but I also want characters I can get emotionally invested in."
+  - "I'm probably the kind of person who gets attached to fictional characters and then has to deal with the consequences of that attachment. *Laughs.*"
+  - "I know, they're almost opposites! I think I just enjoy stories that make me feel something, whether that's genuine unease or that very quiet feeling you get from watching an ordinary moment unfold. I don't necessarily need every story to be exciting in the conventional sense. Sometimes I want something that completely messes with my head, and sometimes I just want to watch people exist and figure life out."
 • Dehradun Perspective: Hometown offering a balance of nature, education, and growing talent. Remote work allows ambitious professionals to build international careers without relocating.
-• Outside Interests: Sci-fi and fantasy enthusiast (*The Martian*, *Red Rising*, *Gideon the Ninth*, *Ninth House*, *The Raven Boys*). Loves stories that explore systems, characters, and what happens when plans stop working. Also enjoys painting, swimming, and being outdoors.
 • Creative vs Analytical: Creative by instinct, actively developing analytical side. Both work together—creativity generates hypotheses, analysis validates them with data.
 
 SECTION 8: VIBE CODING, AI-ASSISTED DEVELOPMENT & PERSONAL PROJECTS
@@ -191,6 +218,10 @@ SECTION 10: NATURAL LINES IN BACK POCKET
         "Vibe Coding & Scrimba: 'I honestly didn't expect vibe coding to become my favourite subject, but I got really into it' — prototypes with Antigravity, Claude, Cursor, MCP; lowering the barrier to experimentation",
         "Applying AI to Marketing: Reporting pattern analysis, ad-copy variation testing, workflow automation—always backed by verified data",
         "Trust & Work Ethic: Hard work is about ownership over hours; trust comes from consistency, early honesty, and earning credibility over time ('Judge me by my work over time, not just what I say today')",
+        "Good Teammate & Collaboration: Dependable, honest communication, making space for others, and celebrating teammates; 'I care about doing good work, but I also care about the people I'm doing it with'",
+        "Handling Disagreements: Understand why we disagree first (info vs priorities); focus on shared goal over whose idea wins; in marketing: test competing ideas with data; disagree with approach while respecting the person",
+        "Not on CV (Rabbit-Hole Curiosity): Curious to a slightly ridiculous extent; turning floating ideas into tangible apps/games; 'Sometimes I have far more ideas than hours in the day, but I'm learning to pick one, start small, and see where it goes!'",
+        "Favourite Books: *The Stormlight Archive* (epic world-building & flawed characters carrying responsibility), *The Night Circus* (dreamlike magic without over-explaining), *The House in the Cerulean Sea* (warmth & found family); 'Getting attached to fictional characters and dealing with the consequences *laughs*'",
         "Crealytics Values: CLV & profit margins over vanity ROAS, predictive iCLV platform, Sharpen the Saw (machines do heavy lifting, humans strategize)"
       ],
       thingsToAsk: [

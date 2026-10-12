@@ -458,6 +458,46 @@ export function PrivateMeetingView({ onOpenPairingModal }) {
                   >
                     💬 Handling conflict with colleagues / stakeholders
                   </button>
+                  <button
+                    type="button"
+                    className="fallback-chip-btn"
+                    onClick={() => {
+                      setLastEmptyCaptureNotice(false);
+                      askCustomQuestion("What makes someone a good teammate, and how do you approach collaboration?", "Interviewer");
+                    }}
+                  >
+                    💬 What makes someone a good teammate?
+                  </button>
+                  <button
+                    type="button"
+                    className="fallback-chip-btn"
+                    onClick={() => {
+                      setLastEmptyCaptureNotice(false);
+                      askCustomQuestion("How do you handle disagreements with colleagues?", "Interviewer");
+                    }}
+                  >
+                    💬 Handling disagreements with colleagues
+                  </button>
+                  <button
+                    type="button"
+                    className="fallback-chip-btn"
+                    onClick={() => {
+                      setLastEmptyCaptureNotice(false);
+                      askCustomQuestion("Tell me something about yourself that isn't on your CV.", "Interviewer");
+                    }}
+                  >
+                    💬 Tell me something not on your CV
+                  </button>
+                  <button
+                    type="button"
+                    className="fallback-chip-btn"
+                    onClick={() => {
+                      setLastEmptyCaptureNotice(false);
+                      askCustomQuestion("What kind of books do you read, and what are your favourites?", "Interviewer");
+                    }}
+                  >
+                    💬 Favourite books & reading
+                  </button>
                 </div>
               </div>
             )}

@@ -637,6 +637,34 @@ export function PhoneCompanion({
                 >
                   <span>💬 Handling conflict with colleagues / stakeholders</span>
                 </button>
+                <button
+                  type="button"
+                  className="phone-test-chip"
+                  onClick={() => handleProcessCandidateQuestion("What makes someone a good teammate, and how do you approach collaboration?")}
+                >
+                  <span>💬 What makes a good teammate?</span>
+                </button>
+                <button
+                  type="button"
+                  className="phone-test-chip"
+                  onClick={() => handleProcessCandidateQuestion("How do you handle disagreements with colleagues?")}
+                >
+                  <span>💬 Handling disagreements with colleagues</span>
+                </button>
+                <button
+                  type="button"
+                  className="phone-test-chip"
+                  onClick={() => handleProcessCandidateQuestion("Tell me something about yourself that isn't on your CV.")}
+                >
+                  <span>💬 Tell me something not on your CV</span>
+                </button>
+                <button
+                  type="button"
+                  className="phone-test-chip"
+                  onClick={() => handleProcessCandidateQuestion("What kind of books do you read, and what are your favourites?")}
+                >
+                  <span>💬 Favourite books & reading</span>
+                </button>
                 {(context?.demoScenarios || []).slice(0, 3).map((sc, idx) => (
                   <button
                     key={sc.id || idx}
