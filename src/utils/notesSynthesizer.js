@@ -564,6 +564,68 @@ export function synthesizeLeaderAnswerForCustomQuestion(questionText, rawNotesTe
       matchedScenario = interviewScenarios.find(s => s.id === "crealytics-q7");
     }
 
+    // 6.5. Scrimba Certificate, Cursor AI, Claude Code & Model Context Protocol (MCP)
+    const isAiCertificateMcp = !matchedScenario && (
+      coreLower.includes("scrimba") || coreLower.includes("certificate") || coreLower.includes("cursor") ||
+      coreLower.includes("mcp") || coreLower.includes("model context protocol") || coreLower.includes("claude code") ||
+      coreLower.includes("ai agent") || coreLower.includes("ai agents") ||
+      qLower.includes("scrimba") || qLower.includes("certificate") || qLower.includes("cursor") || qLower.includes("mcp") || qLower.includes("model context protocol")
+    );
+    if (isAiCertificateMcp) {
+      matchedScenario = interviewScenarios.find(s => s.id === "crealytics-q18");
+    }
+
+    // 6.6. Are you a developer? / Why learn outside marketing?
+    const isAreYouDeveloper = !matchedScenario && (
+      coreLower.includes("are you a developer") || coreLower.includes("software developer") || coreLower.includes("outside marketing") ||
+      coreLower.includes("why learn coding") || coreLower.includes("why learn to code") || coreLower.includes("why learn code") ||
+      qLower.includes("are you a developer") || qLower.includes("outside marketing") || qLower.includes("why learn coding")
+    );
+    if (isAreYouDeveloper) {
+      matchedScenario = interviewScenarios.find(s => s.id === "crealytics-q17");
+    }
+
+    // 6.7. Applying AI to Performance Marketing
+    const isAiInMarketing = !matchedScenario && (
+      coreLower.includes("apply ai") || coreLower.includes("use ai in") || coreLower.includes("ai to performance") ||
+      coreLower.includes("ai in performance") || coreLower.includes("ai in marketing") || coreLower.includes("ai for marketing") ||
+      coreLower.includes("how would you use ai") || coreLower.includes("ai ad copy") || coreLower.includes("ai reporting") ||
+      qLower.includes("apply ai") || qLower.includes("use ai in performance") || qLower.includes("how would you use ai") || qLower.includes("ai in marketing")
+    );
+    if (isAiInMarketing) {
+      matchedScenario = interviewScenarios.find(s => s.id === "crealytics-q16");
+    }
+
+    // 6.8. The Spare Room Productivity App / Calendar App
+    const isSpareRoomApp = !matchedScenario && (
+      coreLower.includes("spare room") || coreLower.includes("calendar app") || coreLower.includes("productivity app") ||
+      coreLower.includes("to-do app") || coreLower.includes("therapy session") || coreLower.includes("app you built") ||
+      coreLower.includes("app you made") || coreLower.includes("app concept") || coreLower.includes("personal app") ||
+      qLower.includes("spare room") || qLower.includes("calendar app") || qLower.includes("productivity app") || qLower.includes("app you built")
+    );
+    if (isSpareRoomApp) {
+      matchedScenario = interviewScenarios.find(s => s.id === "crealytics-q14");
+    }
+
+    // 6.9. Gaming Projects in Roblox Studio
+    const isGamingProjects = !matchedScenario && (
+      coreLower.includes("game") || coreLower.includes("gaming") || coreLower.includes("roblox") ||
+      coreLower.includes("cosy") || coreLower.includes("mystery game") || coreLower.includes("supernatural") ||
+      qLower.includes("game") || qLower.includes("gaming") || qLower.includes("roblox")
+    );
+    if (isGamingProjects) {
+      matchedScenario = interviewScenarios.find(s => s.id === "crealytics-q15");
+    }
+
+    // 6.10. Vibe Coding (What is vibe coding, how you use it)
+    const isVibeCoding = !matchedScenario && (
+      coreLower.includes("vibe coding") || coreLower.includes("vibe code") || coreLower.includes("what is vibe") ||
+      qLower.includes("vibe coding") || qLower.includes("vibe code")
+    );
+    if (isVibeCoding) {
+      matchedScenario = interviewScenarios.find(s => s.id === "crealytics-q13");
+    }
+
     // 7. Outside Interests / Books / Sci-Fi / AI Prototypes / Not on CV
     const isPersonalInterests = !matchedScenario && (
       coreLower.includes("outside work") || coreLower.includes("outside of work") || coreLower.includes("free time") ||
@@ -1175,6 +1237,170 @@ export function generateQuestionsFromNotes(rawNotesText, templateId = "custom") 
           points: ["Sportskeeda publishing pressure", "Feedback is free coaching to improve", "Never confuse effort with effectiveness"],
           easySay: "Sportskeeda taught me to deliver accurate work under tight deadlines, and editorial revisions trained me to welcome constructive feedback without taking it personally.",
           stallSay: "My background in editorial work actually shaped how I handle both pressure and feedback."
+        }
+      },
+      {
+        id: "crealytics-q13",
+        category: "reflective",
+        speaker: "Torsten Christ (Head of HR)",
+        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+        question: "What is vibe coding, and how do you use it?",
+        topic: "Vibe Coding & Practical Experimentation",
+        babeTag: "babe 👀 lowering barrier to experimentation + natural language to working code",
+        simplestQuestion: "Explain vibe coding as using natural language with AI to build working software, test, and iterate.",
+        startWithPrompt: "Start with: “For me, vibe coding is…”",
+        glanceSay: "For me, vibe coding is a way of building software with the help of AI, using natural-language instructions to translate an idea into working code. It lowers the barrier to experimentation—instead of leaving a concept at the brainstorming stage, I can build and test a functional prototype. But AI-generated code isn't automatically correct; you still have to understand the core problem, give clear instructions, troubleshoot errors, and make product decisions.",
+        glanceBullets: [
+          "• Definition: Translating natural language ideas into working software with AI assistance",
+          "• Lowers barrier to experimentation: Turns conceptual ideas into tangible working prototypes",
+          "• Human in the loop: Defining product purpose, user experience, and testing functionality",
+          "• Real constraint: AI code isn't magic; requires debugging, troubleshooting, and iteration"
+        ],
+        expandedSay: "What excites me most about it is how it combines creative vision with structured problem-solving. AI handles the heavy lifting of repetitive syntax, but you still need product thinking: what problem are we actually solving, how does the user navigate, and what features make practical sense?\n\nIt’s given me a very structured, iterative development workflow: defining the problem, breaking it into smaller tasks, having AI implement each piece, testing functionality incrementally, and debugging errors before moving to the next feature. That exact feedback loop is identical to how I look at performance marketing: you don't rely on algorithms blindly; you define the objective, test hypotheses in stages, and let real performance guide iterations.",
+        supportingContext: "Notes Section 8: Introduction to Vibe Coding, AI-assisted development workflows, iterative debugging.",
+        stuckRecovery: {
+          breatheMsg: "Vibe coding: natural language + AI to build prototypes. Human in loop for UX & testing.",
+          questionSummary: "What is vibe coding?",
+          points: ["Natural language to working code", "Lowers barrier to experimentation", "Human in loop for UX & testing"],
+          easySay: "Vibe coding is using natural-language AI to turn ideas into working prototypes. AI helps execute, but you still need to define the problem, test it, and iterate.",
+          stallSay: "I'd love to explain how I look at vibe coding—it's really about lowering the barrier to experimentation."
+        }
+      },
+      {
+        id: "crealytics-q14",
+        category: "expected",
+        speaker: "Torsten Christ (Head of HR)",
+        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+        question: "Tell me about a personal project you've worked on — like your productivity app 'The Spare Room'.",
+        topic: "The Spare Room (Productivity App)",
+        babeTag: "babe 👀 therapy-inspired, visual calendar, 6 friends feedback: feature creep vs MVP",
+        simplestQuestion: "Tell the story of The Spare Room: therapy session origin, visual calendar, testing with 6 friends, and MVP simplicity lesson.",
+        startWithPrompt: "Start with: “One project I've been experimenting with is…”",
+        glanceSay: "One project I've been experimenting with is a productivity app concept called 'The Spare Room,' inspired by an overwhelm problem discussed in someone's therapy session. When responsibilities feel like one giant, endless to-do list, people freeze up. So I designed a calendar-based interface to visualize time, break tasks into smaller chunks, and introduced a 'Just This for Today' focus mode to help people realistically accomplish what matters without anxiety.",
+        glanceBullets: [
+          "• Origin: Inspired by overwhelming to-do lists discussed in a therapy session",
+          "• Core concepts: Visual calendar, breaking tasks into chunks, 'Just This for Today', visual time dots",
+          "• User testing: Shared working prototype with 6 friends; feedback was clunky and overcomplicated",
+          "• Product takeaway: Never confuse effort with effectiveness; adding features increases friction",
+          "• MVP mindset: Focus on the single core problem and test the primary user journey first"
+        ],
+        expandedSay: "I used AI-assisted coding to build a working prototype and shared an early version with six friends. Their feedback was candid: they found it clunky and complicated because I had tried to pack in too many features like visual time blocks and progress puzzle systems. That was a profound lesson in product thinking and user empathy: never confuse effort with effectiveness. As a creator, it's easy to fall in love with adding features, but adding complexity often just adds user friction.\n\nIf I were developing it further, I’d build a ruthless MVP solving only the single most important problem, testing the main user journey first. That takeaway connects directly back to performance marketing: whether you're designing an ad journey, an onboarding funnel, or a campaign structure, simplicity, clarity, and listening to real user feedback always beat complex feature creep.",
+        supportingContext: "Notes Section 8: The Spare Room productivity app, 6 friends user testing, MVP prioritization, user empathy.",
+        stuckRecovery: {
+          breatheMsg: "The Spare Room: therapy origin, visual calendar, 6 friends feedback = don't confuse effort with effectiveness.",
+          questionSummary: "Tell me about your productivity app?",
+          points: ["Therapy session origin: overwhelming to-do lists", "Visual calendar & 'Just This for Today'", "6 friends feedback: simplify into an MVP"],
+          easySay: "I built 'The Spare Room,' a visual calendar app to make planning less overwhelming. Testing it with 6 friends taught me not to confuse effort with effectiveness and to keep MVPs simple.",
+          stallSay: "I'd love to share that—it's a productivity app called The Spare Room inspired by a real-world problem."
+        }
+      },
+      {
+        id: "crealytics-q15",
+        category: "reflective",
+        speaker: "Torsten Christ (Head of HR)",
+        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+        question: "Tell me about your gaming projects in Roblox Studio and what they taught you.",
+        topic: "Gaming Concepts & User Retention",
+        babeTag: "babe 👀 cosy exploration, supernatural mystery, player retention & UX pacing",
+        simplestQuestion: "Cosy exploration world + supernatural mystery in Roblox Studio; lessons on player curiosity, retention, and UX.",
+        startWithPrompt: "Start with: “I've also explored game concepts in Roblox Studio because…”",
+        glanceSay: "I’ve explored game concepts in Roblox Studio to experiment with interactive storytelling and user engagement. One concept was a cosy exploration world where players customize a little home, explore a garden, and discover mini planets with unexpected visitors like a cute ghost or deer. Another was an atmospheric supernatural mystery in a city setting featuring a missing-person investigation and a cinematic twist.",
+        glanceBullets: [
+          "• Concept 1: Cosy exploration with home customisation, gardens, and whimsical planets",
+          "• Concept 2: Supernatural mystery in Roblox Studio with missing-person investigation and cinematic twist",
+          "• Core takeaway: Viewing experiences entirely from the user's perspective (pacing & curiosity)",
+          "• Marketing connection: Audience understanding, engagement, retention, and hypothesis testing"
+        ],
+        expandedSay: "What game development taught me is to view experiences entirely from the player's perspective. It's not enough to have an imaginative concept or an attractive visual world; you have to understand player psychology: what makes someone curious enough to explore the next room, what keeps them engaged, and what gives them a reason to return.\n\nThat connects directly to marketing fundamentals: audience understanding, engagement, retention, storytelling, and testing mechanics one working piece at a time. It reinforced how to take an ambitious creative vision, break it into manageable building blocks, and test how real users navigate the experience.",
+        supportingContext: "Notes Section 8: Gaming projects in Roblox Studio (cosy exploration, supernatural mystery), player retention, marketing parallels.",
+        stuckRecovery: {
+          breatheMsg: "Roblox concepts: cosy exploration + supernatural mystery. Taught player retention & pacing.",
+          questionSummary: "Tell me about your gaming projects?",
+          points: ["Roblox Studio concepts: cosy home & mystery", "Taught user perspective, pacing, and retention", "Direct parallels to marketing engagement"],
+          easySay: "I explored game concepts in Roblox Studio—a cosy home customization game and a supernatural mystery—which taught me how to design for user curiosity, pacing, and retention.",
+          stallSay: "I've experimented with game concepts in Roblox Studio to explore interactive storytelling."
+        }
+      },
+      {
+        id: "crealytics-q16",
+        category: "expected",
+        speaker: "Torsten Christ (Head of HR)",
+        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+        question: "How would you apply AI and automation to performance marketing?",
+        topic: "Applying AI to Performance Marketing",
+        babeTag: "babe 👀 AI as strategic force multiplier: reporting, ad copy, workflow automation",
+        simplestQuestion: "AI as force multiplier: campaign reporting, ad copy variations, workflow automation, checked by real data.",
+        startWithPrompt: "Start with: “I view AI as a strategic force multiplier…”",
+        glanceSay: "I view AI as a strategic force multiplier rather than a replacement for human judgment. In performance marketing, I’d apply it to eliminate repetitive manual work across four areas: analyzing campaign reporting trends, generating and categorizing ad-copy variations for rapid testing, organizing competitor research, and automating routine cross-platform data transfers.",
+        glanceBullets: [
+          "• AI as force multiplier: Amplifies human potential, frees minds for high-leverage strategy",
+          "• 1. Reporting & analysis: Spotting anomalies and summarizing trends against verified metrics",
+          "• 2. Ad-copy experimentation: Rapid angle generation tested against real conversion data",
+          "• 3. Workflow automation: Eliminating manual repetitive transfers with error handling",
+          "• Crealytics alignment: Matches 'Sharpen the Saw' philosophy—machines do heavy lifting"
+        ],
+        expandedSay: "The critical principle is that you never assume AI output is correct just because it sounds persuasive. For ad copy, AI can produce twenty different angles around customer pain points or urgency in seconds, but real conversion data and CTR have to determine the winner. For reporting, AI can surface pacing anomalies, but the marketer has to verify the underlying unit economics.\n\nBy letting automation and machine learning do the repetitive heavy lifting—which aligns directly with Crealytics' 'Sharpen the Saw' philosophy—marketers can focus their energy on high-leverage strategic thinking, creative problem-solving, and questioning baseline industry assumptions.",
+        supportingContext: "Notes Section 8: Applying AI to Performance Marketing (reporting, ad copy testing, research, workflow automation).",
+        stuckRecovery: {
+          breatheMsg: "AI is a force multiplier: reporting, ad copy variations, workflow automation. Verified by data.",
+          questionSummary: "How apply AI to performance marketing?",
+          points: ["Force multiplier, not replacement", "Reporting trends & ad copy angle testing", "Automation frees humans for strategy"],
+          easySay: "I use AI as a force multiplier for repetitive tasks—summarizing reports, generating ad-copy tests, and automating workflows—while letting real conversion data validate the output.",
+          stallSay: "I look at AI as a strategic force multiplier for repetitive workflows."
+        }
+      },
+      {
+        id: "crealytics-q17",
+        category: "reflective",
+        speaker: "Torsten Christ (Head of HR)",
+        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+        question: "Are you a software developer, and why are you learning to build apps outside of marketing?",
+        topic: "Are You a Developer & Learning Outside Marketing",
+        babeTag: "babe 👀 not a dev, but curious builder combining product thinking and user empathy",
+        simplestQuestion: "Clarify you're not a developer, but building apps teaches user friction, product journeys, and first-principles thinking.",
+        startWithPrompt: "Start with: “I'm definitely not a professional developer…”",
+        glanceSay: "I’m definitely not a professional software developer, and I wouldn't present myself as one. My strength is combining curiosity, user empathy, and AI tools to turn ideas into tangible prototypes. I learn outside marketing because building products forces me to think deeply about user friction, user journeys, and why people drop off—which directly sharpens how I analyze marketing funnels.",
+        glanceBullets: [
+          "• Candid clarity: Not a professional developer; combining curiosity and practical experimentation",
+          "• Why learn coding: Forces deep thinking about user friction and product journeys",
+          "• Marketing crossover: Building apps teaches what causes drop-off far better than textbooks",
+          "• Technical affinity: Eases cross-functional communication with data squads and engineers"
+        ],
+        expandedSay: "When you build an app and watch real users get stuck or confused, you understand user psychology and conversion friction in a way that reading marketing textbooks never teaches. You realize that a great ad pitch means nothing if the onboarding experience is clunky.\n\nIt also makes me much more technically comfortable when talking to data squads, working with APIs, or understanding algorithmic ad platforms. I love learning things that let me look at problems from a different angle, and that hands-on technical affinity helps me communicate and execute with far more confidence.",
+        supportingContext: "Notes Section 8: Are you a developer? Why learn outside marketing? User friction and marketing crossover.",
+        stuckRecovery: {
+          breatheMsg: "Not a developer, but a curious builder. Building apps teaches user friction and product thinking.",
+          questionSummary: "Are you a developer?",
+          points: ["Not a professional developer", "Curious problem solver using AI tools", "Building apps teaches user friction and funnel drop-off"],
+          easySay: "I'm not a professional developer, but building apps with AI teaches me user empathy and conversion friction, which directly strengthens my marketing skills.",
+          stallSay: "I'm definitely not a developer, but learning to build prototypes gives me a unique perspective on user friction."
+        }
+      },
+      {
+        id: "crealytics-q18",
+        category: "expected",
+        speaker: "Torsten Christ (Head of HR)",
+        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+        question: "Tell me about your Scrimba Vibe Coding Specialization and tools like Cursor or Model Context Protocol (MCP).",
+        topic: "Scrimba Certificate, Cursor AI & MCP",
+        babeTag: "babe 👀 Scrimba Specialization, Cursor, Claude Code, MCP & iterative development",
+        simplestQuestion: "Explain your Scrimba course, Cursor AI, Claude Code agents, MCP, and iterative testing workflow.",
+        startWithPrompt: "Start with: “Through the Scrimba Vibe Coding Specialization…”",
+        glanceSay: "Through the Scrimba Vibe Coding Specialization, I explored modern AI-assisted development tools including Cursor AI, GitHub Copilot, Claude Code, and Model Context Protocol (MCP). The course showed me how AI workflows operate beyond simple chat prompts—using AI agents to inspect codebases and MCP as an open standard to connect models with external tools and live databases.",
+        glanceBullets: [
+          "• Scrimba Specialization: Hands-on exploration of Cursor AI, Copilot, Claude Code, and MCP",
+          "• MCP (Model Context Protocol): Open standard connecting AI with external tools and data sources",
+          "• AI Agents: Autonomous multi-step planning, file editing, and testing under human oversight",
+          "• Iterative workflow: Problem definition → breaking into tasks → AI implementation → testing → debugging"
+        ],
+        expandedSay: "The biggest takeaway was mastering iterative development under constraint: defining the problem clearly, breaking it into bite-sized tasks, letting the AI generate the implementation, and rigorously testing the output. AI agents are powerful, but they can easily introduce bugs or hallucinate if you don't verify their changes.\n\nUnderstanding tools like MCP and AI coding workflows gives me strong technical intuition. As marketing platforms become increasingly automated and algorithmic, having hands-on familiarity with how AI connects to tools and data sources is an invaluable asset for an agency like Crealytics.",
+        supportingContext: "Notes Section 8: Scrimba Vibe Coding Specialization, Cursor AI, Claude Code, MCP, iterative development.",
+        stuckRecovery: {
+          breatheMsg: "Scrimba course: Cursor, Claude Code, MCP. Taught iterative development and AI verification.",
+          questionSummary: "Tell me about your Scrimba certificate?",
+          points: ["Scrimba Vibe Coding Specialization", "Cursor, Claude Code, MCP open standard", "Iterative development and verification"],
+          easySay: "Through the Scrimba specialization, I explored Cursor AI, Claude Code, and MCP, which taught me structured iterative workflows and how to verify AI outputs.",
+          stallSay: "I explored AI development through the Scrimba Vibe Coding Specialization."
         }
       }
     ];

@@ -125,20 +125,43 @@ SECTION 6: COMMERCIAL JUDGMENT
 
 SECTION 7: PERSONAL INTERVIEW NOTES — THE HUMAN BEHIND THE CV
 • Dehradun Perspective: Hometown offering a balance of nature, education, and growing talent. Remote work allows ambitious professionals to build international careers without relocating.
-• Expanding to Dehradun: Explore local talent pool and educational partnerships; test remote hiring pilot before committing to a physical office.
 • Outside Interests: Sci-fi and fantasy enthusiast (*The Martian*, *Red Rising*, *Gideon the Ninth*, *Ninth House*, *The Raven Boys*). Loves stories that explore systems, characters, and what happens when plans stop working. Also enjoys painting, swimming, and being outdoors.
-• AI-Assisted App Prototyping: Built functional web prototypes using Antigravity and Claude. Tested a productivity app prototype with 6 friends; feedback was that it felt clunky and overcomplicated. Learned: don't confuse effort with effectiveness; building more features doesn't make a product better—focus on user friction and clarity.
 • Creative vs Analytical: Creative by instinct, actively developing analytical side. Both work together—creativity generates hypotheses, analysis validates them with data.
 
-SECTION 8: QUESTIONS TO ASK TORSTEN & THE TEAM
-1. What would success look like for someone in this role during their first three months?
-2. How is training structured for someone joining at the associate level?
-3. How does the team approach experimentation and optimisation across different retail clients?
-4. What tools and reporting workflows would I use most frequently?
-5. How does the team balance independent ownership with reviews and collaboration?
-6. What distinguishes someone who performs well in this role from someone who is exceptionally good at it?
+SECTION 8: VIBE CODING, AI-ASSISTED DEVELOPMENT & PERSONAL PROJECTS
+• What is Vibe Coding: Building software with natural language and AI assistance. Lowers the barrier to experimentation—turning ideas into working prototypes without waiting for years of traditional programming training. Key reality: AI-generated code isn't automatically correct; human must define the problem, give clear instructions, test functionality, troubleshoot errors, and make product decisions.
+• Productivity App ("The Spare Room"):
+  - Origin: Inspired by anxiety discussed in someone's therapy session—how difficult it is to organize responsibilities when everything feels like one giant, overwhelming to-do list.
+  - Concepts explored: Visual calendar interface, breaking tasks into smaller chunks, visualising time (dots/blocks representing time before deadlines), "Just This for Today" (focusing only on what can realistically be done today), Start Mode (bridging planning into action), and playful progress systems (collecting puzzle pieces/world building).
+  - Feedback & Critical Pivot: Built working prototype with AI-assisted coding and tested with 6 friends. Their candid feedback: the app felt clunky and overcomplicated.
+  - Crucial Takeaways: Having an interesting idea isn't enough; don't confuse effort with effectiveness. Adding features can increase user friction. What she'd do differently: build a simple MVP focused on the single core problem, test the main user journey first before expanding. Demonstrates user empathy, product thinking, initiative, and adaptability.
+• Gaming Projects in Roblox Studio:
+  - Cosy Exploration: Customisable home in a whimsical world, garden, unexpected visitors (cute ghost, deer), little planets with distinct atmospheres and discoveries. Focus on charm and player retention.
+  - Supernatural Mystery: City template, cinematic atmosphere, missing person from hospital, investigation, Gothic academy, twist reveal. Developed one working piece at a time.
+  - Learnings & Marketing Connection: Taught player perspective, pacing, curiosity, and retention. Directly mirrors marketing: audience understanding, engagement, retention, storytelling, UX friction, and hypothesis testing.
+• Vibe-Coding Certificate & Tools (Scrimba Specialization):
+  - Completed Scrimba Vibe Coding Specialization.
+  - Studied and explored: Cursor AI, GitHub Copilot, Claude Code & AI coding agents (multi-step file inspection and execution), and Model Context Protocol (MCP - open standard for connecting AI models to external tools and data).
+  - Iterative development workflow: Define problem → break into smaller tasks → implement with AI → run/test → review errors → refine → repeat.
+• Applying AI to Performance Marketing:
+  - 1. Campaign reporting & analysis: Summarising trends, spotting anomalies, cross-checking against actual metrics.
+  - 2. Ad-copy experimentation: Generating messaging angles across audiences/value propositions, validated via real conversion data.
+  - 3. Research & organisation: Structuring competitor insights and themes.
+  - 4. Workflow automation: Connecting applications, reducing manual repetitive tasks, with clear error handling.
+• Common Interview Questions:
+  - "Are you a developer?": Not a professional developer. Combining curiosity, problem-solving, and AI tools to turn ideas into tangible prototypes, with strong product thinking.
+  - "Why learn outside marketing?": Approaches problems from different angles; understanding user friction and product journeys directly improves marketing campaigns.
+  - "How do you know AI code is correct?": Never assume it's right because it looks plausible; test functionality, examine errors, debug incrementally.
+  - "AI limitations": Plausible hallucinations; requires human quality control, clear task scoping, and responsibility for final outcomes.
 
-SECTION 9: NATURAL LINES IN BACK POCKET
+SECTION 9: QUESTIONS TO ASK TORSTEN & THE TEAM
+1. What would success look like for someone in this role during their first three months?
+2. How do associates interface with the proprietary iCLV predictive platform and first-party data day-to-day?
+3. With your "Sharpen the Saw" philosophy where automation does the heavy lifting, how does the team encourage associates to leverage AI as a force multiplier for strategic problem-solving?
+4. How does the team approach experimentation and continuous optimization across retail clients?
+5. What distinguishes someone who performs well from someone who is exceptionally good at Crealytics?
+
+SECTION 10: NATURAL LINES IN BACK POCKET
 • When you don't know something: "I'm not completely sure of the answer, so I wouldn't want to guess. My first step would be to understand the issue, check the relevant data, and work through it systematically."
 • When discussing an underperforming campaign: "I think it's important to distinguish between what improved and what still needs work. The result wasn't perfect, but it gave me something concrete to learn from."
 • When asked about a new tool: "I enjoy experimenting with new tools, but I'm also learning that the tool itself isn't the goal. What matters is whether it solves the problem effectively."
@@ -146,24 +169,24 @@ SECTION 9: NATURAL LINES IN BACK POCKET
 • On pressure: "Staying organised is much more useful than simply trying to do everything at once."
 • The Golden Rule: A candidate who can say, 'This is what I tried, this is what happened, and this is what I'd do differently,' is a lot more convincing than someone who claims every project was a smashing success. ♡`,
     cheatSheet: {
-      coreNarrative: "Performance marketer with a strong foundation in editorial research, communication, and human psychology. Deeply curious and eager to learn, combining creative intuition with rigorous data across Google Search (CTR 5.20%→14.78%, CPC ₹5.33→₹4.21), Meta Ads (Cost Cap test ₹91→₹29), and Amazon PPC (ACoS 173% conversion puzzle). Passionate about systems and experimentation—from building AI prototypes to reading sci-fi—and genuinely excited to master retail media tech at Crealytics.",
+      coreNarrative: "Performance marketer with a strong foundation in editorial research, communication, and human psychology. Deeply curious and eager to learn, combining creative intuition with rigorous data across Google Search (CTR 5.20%→14.78%, CPC ₹5.33→₹4.21), Meta Ads (Cost Cap test ₹91→₹29), and Amazon PPC (ACoS 173% conversion puzzle). Passionate about systems and experimentation—from building AI prototypes like 'The Spare Room' and Roblox games to Scrimba Vibe Coding Specialization—and genuinely excited to master retail media tech, CLV optimization, and AI automation at Crealytics.",
       thingsToRemember: [
         "Google Search Ads: 1,252 impressions, 185 clicks, CTR 5.20% → 14.78%, CPC ₹5.33 → ₹4.21 (-21%), 17/19 conversions, ₹777/₹800 spend",
         "Meta Ads (Unleavables): 11.04% CTR, 15 add-to-carts, Cost Cap test dropped cost/ATC from ₹91 → ₹29 (₹54.52 blended CV benchmark)",
         "Amazon Ads (Homecrust): Impressions 5,681 → 5,955, Clicks 45 → 63 (+40%), CTR 0.80% → 1.06%, 2 orders, ₹857 sales, ACoS 155.56% → 173.59% (commercial honesty)",
         "Editorial Background: Edited 1,000+ articles, coordinated 20+ writers/managers, authored 600+ NFL/college football articles at Sportskeeda",
-        "AI Prototypes & Tech: Built 5+ web prototypes with Antigravity & Claude; tested productivity app with 6 friends; learned not to confuse effort with effectiveness",
-        "Dehradun & Remote Work: Hometown balance of nature and education; remote work connects local talent with global career opportunities",
-        "Personal Interests: Sci-fi & fantasy (The Martian, Red Rising, Gideon the Ninth, Ninth House, The Raven Boys), painting, swimming",
-        "Commercial Judgment: High ROAS != auto-scale; examine marginal returns, incremental profit, and full-funnel conversion leakage"
+        "The Spare Room App: Therapy-inspired visual calendar app, 'Just This for Today', tested with 6 friends; learned not to confuse effort with effectiveness and avoid feature creep",
+        "Gaming in Roblox: Cosy exploration (custom home, planets) & supernatural mystery (missing person); taught player retention, UX, and audience curiosity",
+        "Vibe Coding & Scrimba Specialization: Cursor AI, Claude Code, Model Context Protocol (MCP), iterative debugging; AI as strategic force multiplier",
+        "Applying AI to Marketing: Reporting pattern analysis, ad-copy variation testing, workflow automation—always backed by verified data",
+        "Crealytics Values: CLV & profit margins over vanity ROAS, predictive iCLV platform, Sharpen the Saw (machines do heavy lifting, humans strategize)"
       ],
       thingsToAsk: [
+        "How do associates work with the iCLV predictive platform and first-party data day-to-day?",
+        "How does Crealytics' 'Sharpen the Saw' AI philosophy empower associates to think strategically?",
         "What would success look like for someone in this role during their first three months?",
-        "How is training structured for someone joining at the associate level?",
-        "How does the team approach experimentation and optimisation across different retail clients?",
-        "What tools and reporting workflows would I use most frequently?",
-        "How does the team balance independent ownership with reviews and collaboration?",
-        "What distinguishes someone who performs well in this role from someone who is exceptionally good at it?"
+        "What distinguishes someone who performs well from someone who is exceptionally good at Crealytics?",
+        "How does the team approach continuous optimization and testing across retail clients?"
       ],
       importantNumbers: [
         { label: "Search Impressions", value: "1,252" },
