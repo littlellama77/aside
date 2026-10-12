@@ -538,14 +538,17 @@ export function synthesizeLeaderAnswerForCustomQuestion(questionText, rawNotesTe
       matchedScenario = interviewScenarios.find(s => s.id === "crealytics-q6");
     }
 
-    // 5. Why Crealytics / Culture Fit / Profitable Growth / Good Fit
+    // 5. Why Crealytics / Culture Fit / Profitable Growth / Good Fit / CLV / iCLV / Sharpen the Saw
     const isWhyCrealytics = !matchedScenario && (
       coreLower.includes("why crealytics") || coreLower.includes("why this role") || coreLower.includes("why us") ||
       coreLower.includes("profitable growth") || coreLower.includes("retail media") || coreLower.includes("what draws you") ||
       coreLower.includes("good fit") || coreLower.includes("why you") || coreLower.includes("why should we hire") ||
       coreLower.includes("fit for") || coreLower.includes("why do you want") ||
+      coreLower.includes("clv") || coreLower.includes("iclv") || coreLower.includes("lifetime value") ||
+      coreLower.includes("sharpen the saw") || coreLower.includes("status quo") || coreLower.includes("cliché") ||
       qLower.includes("why crealytics") || qLower.includes("why this role") || qLower.includes("why do you want to work") ||
-      qLower.includes("good fit") || qLower.includes("why should we hire") || qLower.includes("fit for this role")
+      qLower.includes("good fit") || qLower.includes("why should we hire") || qLower.includes("fit for this role") ||
+      qLower.includes("clv") || qLower.includes("iclv") || qLower.includes("sharpen the saw")
     );
     if (isWhyCrealytics) {
       matchedScenario = interviewScenarios.find(s => s.id === "crealytics-q2");
@@ -853,22 +856,22 @@ export function generateQuestionsFromNotes(rawNotesText, templateId = "custom") 
         topic: "Candidate Story & Background",
         babeTag: "babe 👀 make, take apart, improve + creative to analytical feedback loops",
         simplestQuestion: "Torsten wants to know who you are, what drives your curiosity, and how you got here.",
-        startWithPrompt: "Start with: “I've always been someone who loves making things…”",
-        glanceSay: "I’ve always been someone who loves making things, taking them apart, and figuring out how to make them better. I started out in editorial at Sportskeeda, editing over 1,000 articles and writing 600+ pieces covering the NFL, which trained my sense for audience attention under daily deadlines. But what pulled me into performance marketing was the feedback loop—I love combining the creative side of building a campaign with the analytical rigor of diagnosing what happens after the click.",
+        startWithPrompt: "Start with: “I've always been someone drawn to making things…”",
+        glanceSay: "I’ve always been someone drawn to things that let me make something, take it apart, and make it better. I started out in editorial at Sportskeeda, editing over 1,000 articles and writing 600+ pieces covering the NFL, which built my discipline for research rigor and audience psychology under daily deadlines. What pulled me into performance marketing was the quantifiable feedback loop—I love the creative part of building campaigns, the analytical part of diagnosing what happens after the click, and the technical side of finding better levers. Over the past year at Kraftshala, I’ve executed live campaigns across Google Search, Meta Ads, and Amazon PPC, and I’ve been experimenting with AI-assisted tools to build functional web applications and automate workflows.",
         glanceBullets: [
           "• Sportskeeda editorial: edited 1,000+ pieces, wrote 600+ NFL articles under daily deadlines",
-          "• Curiosity pivot: drawn to things where I can make something, take it apart, and improve it",
-          "• Kraftshala hands-on: executed Google Search, Meta Ads, and Amazon PPC campaigns",
-          "• Continuous builder: built 5+ functional AI web prototypes on the side",
-          "• Drawn to Crealytics: retail media tech, incremental margin, and deep fundamentals"
+          "• Core maker drive: make something, take it apart, and optimize the levers",
+          "• Kraftshala hands-on: executed Google Search (CTR 14.8%), Meta Cost Cap, and Amazon PPC",
+          "• AI as force multiplier: built 5+ functional web prototypes to automate workflows",
+          "• Aligned with Crealytics: CLV and profit margins over vanity ROAS, continuous optimization loop"
         ],
-        expandedSay: "To build on that, over the past year at Kraftshala and through my own side projects, I’ve been focused on building four distinct muscles: creative, analytical, technical, and human. I ran live campaigns across Google Search, Meta Ads, and Amazon PPC, and started experimenting with AI-assisted tools to build functional web prototypes from scratch.\n\nI’m someone who loves being a beginner, asks lots of questions, and gets genuinely excited by the learning curve. Crealytics immediately stood out to me because you look retailers in the eye and optimize for incremental margin rather than vanity metrics, working with a diverse global team where I can develop deep technical fundamentals.",
-        supportingContext: "Notes Part 1 & 2: Sportskeeda (1,000+ edited, 600+ written), Kraftshala Launchpad, 4 muscles, AI prototypes.",
+        expandedSay: "Across that journey, I’ve focused on building four distinct muscles: creative, analytical, technical, and collaborative. Rather than just understanding concepts in theory, I know how to execute: I’ve restructured search ad groups to lift CTR from 5% to 14.8% while cutting CPC by 21%, run live Cost Cap vs Highest Volume bidding experiments on Meta, and diagnosed marketplace conversion friction on Amazon.\n\nWhat really stands out to me about Crealytics is how you challenge baseline industry assumptions. Instead of settling for superficial ROAS clichés, you orient strategies around Customer Lifetime Value and true profit margins using predictive modeling. I’m confident in the execution foundation I’ve built, and I’m eager to bring that hands-on discipline, analytical curiosity, and maker mindset to Crealytics' international team.",
+        supportingContext: "Notes Part 1 & 2: Sportskeeda (1,000+ edited, 600+ written), Kraftshala Launchpad, 4 muscles, AI prototypes, CLV focus.",
         stuckRecovery: {
           breatheMsg: "Take a breath babe. Keep it friendly: Sportskeeda → Kraftshala → Crealytics.",
           questionSummary: "Tell me about yourself?",
-          points: ["1,000+ edited, 600+ written", "Moved from writing to data at Kraftshala", "Crealytics profitable growth focus"],
-          easySay: "I started in editorial editing 1,000+ articles, got drawn to the quantitative feedback loop of marketing, and want to build deep retail media fundamentals here.",
+          points: ["1,000+ edited, 600+ written", "Hands-on execution across Google, Meta, Amazon", "Crealytics CLV & profit margin focus"],
+          easySay: "I started in editorial editing 1,000+ articles, got drawn to the quantitative feedback loop of marketing, and have executed live campaigns across Search, Meta, and Amazon.",
           stallSay: "I'd love to share that—it really started with my fascination for audience psychology and feedback loops."
         }
       },
@@ -879,24 +882,25 @@ export function generateQuestionsFromNotes(rawNotesText, templateId = "custom") 
         avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
         question: "Why Crealytics specifically, and why do you think you'd be a good fit for this role?",
         topic: "Why Crealytics & Candidate Fit",
-        babeTag: "babe 👀 make, take apart, improve + 4 muscles & collaborative hunger",
-        simplestQuestion: "Why Crealytics & fit: making things, taking them apart, and improving them; 4 muscles (creative, analytical, technical, human).",
+        babeTag: "babe 👀 CLV over ROAS + Sharpen the Saw & 4 muscles",
+        simplestQuestion: "Why Crealytics & fit: making things, taking them apart, and improving them; CLV over vanity ROAS; Sharpen the Saw.",
         startWithPrompt: "Start with: “I think I’d be a really good fit for this role because…”",
-        glanceSay: "I think I’d be a good fit for this role because I’ve always been drawn to things that let me make something, take it apart, and make it better. That’s what pulled me towards performance marketing in the first place—I like the creative part of building a campaign, the analytical part of figuring out why it worked or didn’t, and the technical side of finding better ways to do it. Crealytics feels like the kind of place where I could keep building all of those muscles while learning from people who make me think differently.",
+        glanceSay: "I think I’d be a great fit for this role because I bring both hands-on campaign execution and a maker’s mindset: I’ve always loved taking things apart, finding the levers, and making them perform better. That’s what pulled me into performance marketing, and it’s why Crealytics stands out so clearly to me. While most agencies rely on tired clichés and vanity ROAS metrics, Crealytics challenges that status quo by orienting strategies around real profit margins and Customer Lifetime Value using your predictive iCLV platform. Having managed live search, social, and marketplace campaigns, I know how to implement those fundamentals and I want to practice where real commercial impact matters.",
         glanceBullets: [
-          "• Core drive: make something, take it apart, and make it better",
-          "• Performance marketing pull: creative campaign build + analytical diagnosis + technical optimization",
-          "• The four muscles: creative, analytical, technical, and human/collaborative",
-          "• Aligned with Crealytics: continuous optimization loop, tech affinity, diverse global team"
+          "• Core maker drive: make something, take it apart, and make it better",
+          "• Challenging status quo: CLV and profit margins over vanity ROAS clichés",
+          "• Proprietary iCLV platform: predictive modeling & first-party data in a privacy-first world",
+          "• Sharpen the Saw: automation does heavy lifting, humans drive strategy & creative solutions",
+          "• Hands-on proof: proven execution across Google Search, Meta Ads, Amazon PPC, and AI prototypes"
         ],
-        expandedSay: "And perhaps most importantly, what drew me to your team is the human side. I want the numbers and the tools, but I also want the conversations, the questions, the disagreements, and learning from people who make me realise I could have built them differently. Over the past year, I’ve been trying to build all of those muscles—creative, analytical, technical, and human—through marketing projects at Kraftshala, data analysis, and experimenting with AI-assisted tools.\n\nI’m still learning, and honestly, that’s part of what makes me even more excited. The JD talks about finding levers to improve in a continuous loop of optimizations and then specializing in technical topics with a global team. Crealytics is the kind of place where I could keep building those muscles while learning from the people around me, and I’d love to bring my curiosity, persistence, and hands-on experience to the company and keep building from there.",
-        supportingContext: "Notes Part 2: Candidate core motivation: make, take apart, improve; 4 muscles; collaborative learning from disagreements.",
+        expandedSay: "And what excites me just as much is your 'Sharpen the Saw' philosophy around AI and automation. I firmly believe machines should do the heavy lifting and repetitive data crunching, so human minds are freed to think strategically, test bold hypotheses, and solve creative puzzles. That’s how I already approach work—whether I'm testing bidding caps, diagnosing search intent, or using AI tools as force multipliers to build prototypes.\n\nBeyond the tools, I thrive in environments with smart disagreements where people challenge my assumptions and make me build things better. Over the past year, I’ve built strong creative, analytical, technical, and human muscles. I know the campaign mechanics I’ve learned, I know how to execute them, and I’m eager to bring that hands-on discipline, curiosity, and confidence to Crealytics' international team.",
+        supportingContext: "Notes Part 2: CLV over ROAS, iCLV platform, Sharpen the Saw, AI force multiplier, 4 muscles, collaborative learning.",
         stuckRecovery: {
-          breatheMsg: "Make something, take it apart, make it better. 4 muscles. You've got this.",
+          breatheMsg: "CLV over ROAS + Sharpen the Saw + Maker mindset. You've got this.",
           questionSummary: "Why Crealytics & why a good fit?",
-          points: ["Make, take apart, make better", "4 muscles: creative, analytical, technical, human", "Continuous loop of optimizations"],
-          easySay: "I've always loved making things, taking them apart, and making them better. I want to build my creative, analytical, technical, and human muscles here at Crealytics.",
-          stallSay: "What drew me to this role is actually how I approach problem solving from the ground up."
+          points: ["CLV and profit margin over vanity ROAS", "Sharpen the Saw: AI as force multiplier", "Hands-on execution across Google, Meta, Amazon"],
+          easySay: "I bring hands-on campaign experience and a maker mindset. I love that Crealytics focuses on CLV and profit margins rather than vanity ROAS, and uses AI as a force multiplier.",
+          stallSay: "What drew me to Crealytics is actually your philosophy of challenging industry status quo."
         }
       },
       {
@@ -1020,21 +1024,21 @@ export function generateQuestionsFromNotes(rawNotesText, templateId = "custom") 
         babeTag: "babe 👀 thoughtful questions on mentorship, ramp-up & learning curve",
         simplestQuestion: "Ask thoughtful questions about 3-6 month ramp-up, team collaboration, and mentorship.",
         startWithPrompt: "Start with: “I do, Torsten, thank you! I'm really curious about…”",
-        glanceSay: "I do, Torsten, thank you! First, for an associate joining the team, what does a steep learning curve look like in the first three to six months, and how is the ramp-up structured? Second, because Crealytics does so much around retail media tech and AI, how do associates collaborate with senior analysts and data squads to build strong algorithmic intuition?",
+        glanceSay: "I do, Torsten, thank you! First, because Crealytics challenges industry status quo by optimizing around Customer Lifetime Value and profit margins through your iCLV platform, how do associates work with those predictive models and first-party data day-to-day? Second, with your 'Sharpen the Saw' philosophy where automation does the heavy lifting, how does the team encourage associates to leverage AI as a force multiplier for strategic problem-solving?",
         glanceBullets: [
-          "• 1. What does the ramp-up and learning curve look like in the first 3–6 months?",
-          "• 2. How do associates collaborate with senior teams to build algorithmic intuition?",
+          "• 1. How do associates interface with the proprietary iCLV predictive platform day-to-day?",
+          "• 2. How does 'Sharpen the Saw' automation empower associates to think strategically?",
           "• 3. What separates technical competence from truly exceptional performance here?",
-          "• 4. What recent client challenge did the team find most exciting to solve?"
+          "• 4. What recent retail media or omnichannel challenge did the team find most exciting?"
         ],
-        expandedSay: "And building on that, I'd also love to ask: from your perspective, what separates someone who is just technically competent in this role from someone who becomes truly exceptional at Crealytics? And lastly, what is a recent client challenge or retail media problem that the team found particularly exciting to solve together?",
-        supportingContext: "Notes Part 7: Questions to Ask Torsten (success in 3-6 months, PPC development, team structure, next steps).",
+        expandedSay: "And building on that, I'd also love to ask: from your perspective, what separates someone who is just technically competent in this role from someone who becomes truly exceptional at Crealytics? And lastly, what is a recent client challenge or retail media problem where questioning baseline industry assumptions unlocked unexpected growth?",
+        supportingContext: "Notes Part 7: Questions to Ask Torsten (iCLV platform, Sharpen the Saw AI philosophy, team structure, next steps).",
         stuckRecovery: {
-          breatheMsg: "Ask about 3-6 month success and learning PPC.",
+          breatheMsg: "Ask about iCLV predictive models and Sharpen the Saw AI.",
           questionSummary: "Questions to ask Torsten?",
-          points: ["3-6 month success definition", "How Crealytics trains PPC & AI", "Next steps in interview"],
-          easySay: "What would success look like in the first 3 to 6 months, and how does Crealytics support associates in developing deep PPC expertise?",
-          stallSay: "I have a few questions about the role and team structure."
+          points: ["iCLV platform & 1st-party predictive data", "Sharpen the Saw: AI as force multiplier", "What makes someone exceptional"],
+          easySay: "How do associates work with the iCLV predictive platform, and how does your 'Sharpen the Saw' AI philosophy shape day-to-day problem-solving?",
+          stallSay: "I have a couple of questions about your iCLV platform and AI philosophy."
         }
       },
       {

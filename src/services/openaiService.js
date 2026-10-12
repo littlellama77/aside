@@ -54,16 +54,18 @@ The interviewer just asked: "${targetQuestion}".
 Your goal is to provide Box 1 (Quick Answer / Fast Hook) that the user can glance at and say aloud immediately.
 
 CANDIDATE'S AUTHENTIC VOICE & PHILOSOPHY:
-- Core drive: Drawn to things that let them "make something, take it apart, and make it better." That is what pulled them into performance marketing in the first place.
-- The 4 muscles: Creative (building the campaign), Analytical (figuring out why it worked or didn't), Technical (finding better ways, experimenting with AI-assisted tools), and Human/Collaborative (learning from people who make them realize they could have built it differently; wanting conversations, questions, disagreements).
-- Hunger & Humility: "I'm still learning, and honestly, that's part of what makes me even more excited."
-- Tone: Thoughtful, intellectually curious, honest, and grounded. NEVER canned corporate buzzwords (no "delve", "pivotal", "crucial", "synergy", "spearheaded", "testament to").
+- Confident, Grounded Practitioner: Speaks with genuine conviction about what they've learned and can implement. They have hands-on experience running live campaigns across Google Search, Meta Ads, and Amazon PPC under real budget constraints, and know how to operate the levers.
+- Core Maker Drive: Drawn to things that let them "make something, take it apart, and make it better." That is what pulled them into performance marketing in the first place.
+- Crealytics Alignment (CLV & Profit Margins over ROAS): Rejects tired industry clichés of superficial Return on Ad Spend (ROAS). Values Crealytics' focus on Customer Lifetime Value (CLV), net profit margins, and predictive modeling via your proprietary iCLV Measurement Platform in a privacy-first world.
+- "Sharpen the Saw" & AI Philosophy: Machines and automation should do the repetitive heavy lifting so human minds are freed to think strategically and generate creative solutions. AI is a strategic force multiplier to amplify human potential, not replace it (evident in the candidate's experience building 5+ functional AI web prototypes).
+- The 4 Muscles: Creative (building the campaign), Analytical (diagnosing why it worked or didn't), Technical (finding better ways, testing bidding levers), and Human/Collaborative (learning from people who make them realize they could have built it differently; welcoming questions and disagreements).
+- Tone: Confident, articulate, intellectually curious, honest, and grounded. NEVER canned corporate buzzwords (no "delve", "pivotal", "crucial", "synergy", "spearheaded", "testament to").
 
 BOX 1 REQUIREMENTS:
 1. STRICTLY ON-TOPIC: Directly answer what the interviewer asked!
-   - If asked "Why Crealytics / Why this role / Why good fit?": Open with the maker drive ("drawn to things where I can make something, take it apart, and make it better") and the excitement of building creative, analytical, and technical muscles in an environment that challenges you.
-   - If asked about a campaign (Google Search, Meta, Amazon): Give the direct numbers and core finding (e.g., Search CTR 5.2% to 14.8%, CPC down 21%, Cost Cap vs Highest Volume, Homecrust ACoS 173%).
-   - If asked about feedback/mistakes: Acknowledge the feedback and the principle of never confusing effort with effectiveness.
+   - If asked "Why Crealytics / Why this role / Why good fit?": Open confidently with the maker drive ("drawn to things where I can make something, take it apart, and make it better") combined with hands-on campaign execution. Emphasize moving past vanity ROAS clichés to real profit margins and Customer Lifetime Value (CLV) with Crealytics' predictive iCLV platform, and the excitement of building all four muscles.
+   - If asked about a campaign (Google Search, Meta, Amazon): Give the direct numbers and core finding with confidence (e.g., Search CTR 5.2% to 14.8%, CPC down 21%, Cost Cap vs Highest Volume, Homecrust ACoS 173%).
+   - If asked about feedback/mistakes: Confidently explain the feedback and the principle of never confusing effort with effectiveness.
 2. 2-3 crisp, natural, conversational spoken sentences in the first person ("I").
 3. Set up the train of thought so Box 2 can seamlessly continue.
 
@@ -144,24 +146,27 @@ ${quickAnswerText ? `The candidate just delivered this opening statement in Box 
 
 CRITICAL RULES FOR BOX 2 (DETAILED CONTINUATION):
 1. BOX 2 MUST DIRECTLY ANSWER AND CONTINUE THE SPECIFIC QUESTION ASKED:
-   - CRITICAL FIX: NEVER drift to an unrelated technical topic! Box 2 must stay laser-focused on the exact subject of the question asked.
-   - If asked "Why Crealytics / Why this role / Why good fit?": Box 2 MUST continue explaining fit and motivation! Focus on the human and collaborative side: wanting to learn from people who make you realize you could have built things differently; wanting conversations, questions, disagreements; developing the four muscles (creative, analytical, technical, human); and excitement to grow with Crealytics' continuous optimization loop and diverse global team.
-   - If asked about a campaign (Google Search, Meta Ads, Amazon PPC): Box 2 MUST continue explaining the specific campaign mechanics, query intent, auction dynamics, or landing page drop-offs.
-   - If asked about mistakes or feedback: Box 2 MUST continue explaining the feedback, how you separated effort from effectiveness, and what you improved.
-   - If asked about adaptability or fast learning: Box 2 MUST continue explaining how you break down new domains from first principles.
+   - CRITICAL: Stay laser-focused on the exact subject of the question asked without drifting to unrelated topics.
+   - If asked "Why Crealytics / Why this role / Why good fit?": Continue explaining fit, strategy, and culture with confidence:
+     * Weave in Crealytics' "Sharpen the Saw" philosophy: machines/automation do the heavy lifting so human minds can think strategically and generate creative hypotheses; AI as a strategic force multiplier (connecting with candidate's hands-on experience building AI app prototypes).
+     * Connect with Crealytics' focus on challenging the status quo and avoiding tired industry clichés—optimizing for CLV and profit margins via predictive modeling (iCLV platform) rather than vanity ROAS.
+     * Highlight the collaborative human side: thriving on conversations, questions, and healthy disagreements that challenge assumptions; developing the 4 muscles (creative, analytical, technical, human) in a continuous optimization loop with a diverse global team.
+   - If asked about a campaign (Google Search, Meta Ads, Amazon PPC): Continue explaining the specific campaign mechanics, query intent, auction dynamics, or landing page drop-offs, tying back to commercial unit economics and margin.
+   - If asked about mistakes or feedback: Continue explaining the feedback, how you separated effort from effectiveness, and what you improved.
+   - If asked about adaptability or fast learning: Continue explaining how you break down new domains from first principles.
 
 2. BOX 2 MUST BE A DIRECT, SEAMLESS SPOKEN CONTINUATION OF BOX 1:
    - NEVER repeat, rephrase, or reintroduce what was already said in Box 1! Do NOT start the story over.
    - Start Box 2 immediately with a natural spoken transition picking up the exact train of thought:
-     - For fit / culture / why Crealytics: "And perhaps most importantly, what drew me to your team is the human side...", "To build on that, what really excites me about Crealytics...", "Another big part of that is..."
+     - For fit / culture / why Crealytics: "And what excites me just as much is your 'Sharpen the Saw' philosophy around AI and automation...", "To build on that, another reason this resonates with me is how you challenge baseline industry assumptions...", "And perhaps most importantly, what drew me to your team is the human side..."
      - For campaigns / data: "To build on that and explain what was happening under the hood...", "Going a layer deeper into what the data revealed..."
      - For strategy / decisions: "Going a layer deeper into why I recommend that sequence..."
 
-3. EMBED THE CANDIDATE'S AUTHENTIC VOICE & PHILOSOPHY:
+3. CONFIDENT, PRACTITIONER TONE (GROUNDED & CAPABLE):
+   - Sound like a confident practitioner who knows what they've learned and can implement it directly.
+   - Grounded in hands-on execution (Kraftshala live campaigns, building AI prototypes, fact-checking rigor).
    - "I like learning from the people who make me realise I could have built them differently. I want the numbers and the tools, but I also want the conversations, the questions, the disagreements, and the people who make me think differently."
-   - "I’m still learning, and honestly, that’s part of what makes me even more excited."
-   - Aligns directly with Crealytics JD: continuous loop of optimizations, tech affinity, learning PPC basics then specializing technically, agile global team of smart and passionate people from 50+ nationalities.
-   - 2 short, conversational paragraphs that expand the answer with genuine depth, human warmth, and first-principles insight.
+   - 2 short, conversational paragraphs that expand the answer with genuine depth, strategic confidence, and first-principles insight.
    - ZERO corporate buzzwords: No "delve", "testament to", "crucial", "pivotal", "spearheaded", "synergy".
 
 Return strictly valid JSON:
