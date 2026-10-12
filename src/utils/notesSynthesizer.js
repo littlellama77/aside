@@ -531,7 +531,7 @@ export function synthesizeLeaderAnswerForCustomQuestion(questionText, rawNotesTe
     const isAdaptability = !matchedScenario && (
       coreLower.includes("comfort zone") || coreLower.includes("new field") || coreLower.includes("new domain") ||
       coreLower.includes("learn quickly") || coreLower.includes("adapt") || coreLower.includes("unfamiliar") ||
-      coreLower.includes("nfl") || coreLower.includes("football") || coreLower.includes("from scratch") ||
+      /\bnfl\b/i.test(coreLower) || coreLower.includes("football") || coreLower.includes("from scratch") ||
       qLower.includes("comfort zone") || qLower.includes("learn quickly") || qLower.includes("new domain") || qLower.includes("from scratch")
     );
     if (isAdaptability) {
@@ -669,20 +669,33 @@ export function synthesizeLeaderAnswerForCustomQuestion(questionText, rawNotesTe
     const isDehradunRemote = !matchedScenario && (
       coreLower.includes("dehradun") || coreLower.includes("remote") || coreLower.includes("work from home") ||
       coreLower.includes("international team") || coreLower.includes("stay organised") || coreLower.includes("stay organized") ||
-      coreLower.includes("prioritise competing") || coreLower.includes("competing deadlines") ||
       qLower.includes("dehradun") || qLower.includes("remote") || qLower.includes("international team")
     );
     if (isDehradunRemote) {
       matchedScenario = interviewScenarios.find(s => s.id === "crealytics-q11");
     }
 
-    // 11. Pressure / Constructive Feedback / Disagreement / Conflict / Difficult Situations
+    // 10.5. Conflict / Competing Priorities / Competing Deadlines
+    const isConflictPriorities = !matchedScenario && (
+      coreLower.includes("conflict") || coreLower.includes("competing priority") || coreLower.includes("competing priorities") ||
+      coreLower.includes("competing deadline") || coreLower.includes("competing deadlines") || coreLower.includes("prioritise competing") ||
+      coreLower.includes("prioritize competing") || coreLower.includes("trade-off") || coreLower.includes("trade off") ||
+      (coreLower.includes("performance drop") && (coreLower.includes("report") || coreLower.includes("urgent"))) ||
+      qLower.includes("conflict") || qLower.includes("competing priorities") || qLower.includes("competing deadlines") ||
+      qLower.includes("competing priority") || qLower.includes("competing deadline") ||
+      (qLower.includes("performance drop") && qLower.includes("report"))
+    );
+    if (isConflictPriorities) {
+      matchedScenario = interviewScenarios.find(s => s.id === "crealytics-q19");
+    }
+
+    // 11. Pressure / Constructive Feedback / Disagreement / Difficult Situations
     const isBehaviouralPressure = !matchedScenario && (
       coreLower.includes("pressure") || coreLower.includes("criticism") || coreLower.includes("difficult feedback") ||
       coreLower.includes("disagree") || coreLower.includes("disagreement") || coreLower.includes("difficult stakeholder") ||
-      coreLower.includes("conflict") || coreLower.includes("colleague") ||
+      coreLower.includes("colleague") ||
       coreLower.includes("under pressure") || coreLower.includes("tight deadline") || coreLower.includes("constructive feedback") ||
-      qLower.includes("pressure") || qLower.includes("feedback") || qLower.includes("disagree") || qLower.includes("stakeholder") || qLower.includes("conflict")
+      qLower.includes("pressure") || qLower.includes("feedback") || qLower.includes("disagree") || qLower.includes("stakeholder")
     );
     if (isBehaviouralPressure) {
       matchedScenario = interviewScenarios.find(s => s.id === "crealytics-q12");
@@ -1401,6 +1414,33 @@ export function generateQuestionsFromNotes(rawNotesText, templateId = "custom") 
           points: ["Scrimba Vibe Coding Specialization", "Cursor, Claude Code, MCP open standard", "Iterative development and verification"],
           easySay: "Through the Scrimba specialization, I explored Cursor AI, Claude Code, and MCP, which taught me structured iterative workflows and how to verify AI outputs.",
           stallSay: "I explored AI development through the Scrimba Vibe Coding Specialization."
+        }
+      },
+      {
+        id: "crealytics-q19",
+        category: "situational",
+        speaker: "Torsten Christ (Head of HR)",
+        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+        question: "If there is a conflict or competing priorities — like an immediate performance drop while an urgent report is due — how would you handle it?",
+        topic: "Conflict, Competing Priorities & Urgent Deadlines",
+        babeTag: "babe 👀 assess severity, communicate trade-offs early, protect both outcomes",
+        simplestQuestion: "Assess performance risk vs report urgency, communicate trade-offs to manager immediately, contain live risk first.",
+        startWithPrompt: "Start with: “I'd first assess the severity of the performance drop…”",
+        glanceSay: "I'd first assess the severity of the performance drop and how urgently the report is needed. Since the issue could affect campaign results, I'd quickly communicate the competing deadlines to my manager and explain the trade-offs. I'd suggest investigating the immediate issue first if it poses a significant risk, while agreeing on a realistic timeline for the report. I'd then keep the relevant stakeholders updated and ensure both responsibilities are addressed.",
+        glanceBullets: [
+          "• Assess severity & urgency: evaluate commercial risk of performance drop vs report timeline",
+          "• Proactive manager communication: flag competing deadlines early and outline the trade-offs",
+          "• Prioritize containment: triage live revenue risk first while agreeing on realistic report delivery",
+          "• Stakeholder transparency: keep all parties informed so expectations remain aligned without surprises"
+        ],
+        expandedSay: "The key for me is proactive communication and risk containment rather than trying to silently juggle both and dropping the ball. When a live campaign starts leaking budget or conversions drop, every hour of delay costs money, whereas report deadlines often have a little room for renegotiation once stakeholders understand the commercial trade-off.\n\nOnce the immediate campaign leak is contained or paused, I'd dive straight into completing the report with full context on what was diagnosed. By communicating early, agreeing on trade-offs with leadership, and managing expectations transparently, you protect client trust and campaign performance at the same time.",
+        supportingContext: "Notes Section 5: Behavioural & Situational (handling conflict, competing deadlines, communicating trade-offs to managers, stakeholder transparency).",
+        stuckRecovery: {
+          breatheMsg: "Take a breath babe. Assess severity → communicate trade-offs to manager → contain live risk first.",
+          questionSummary: "Conflict or competing deadlines?",
+          points: ["Assess drop severity vs report urgency", "Communicate trade-offs to manager immediately", "Contain live campaign risk, set realistic report timeline", "Keep stakeholders updated"],
+          easySay: "I'd assess the risk, communicate competing deadlines to my manager immediately, prioritize containing the live campaign drop, and set a clear timeline for the report.",
+          stallSay: "For me, handling competing priorities comes down to assessing risk and communicating trade-offs early."
         }
       }
     ];

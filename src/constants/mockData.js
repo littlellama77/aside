@@ -113,6 +113,7 @@ SECTION 4: CV DEEP-DIVE CAMPAIGNS
 
 SECTION 5: BEHAVIOURAL & SITUATIONAL EXPERIENCE
 • Working under pressure: Sportskeeda publishing cycles; maintaining factual accuracy and editorial quality under tight deadlines.
+• Handling Conflict & Competing Priorities: “I'd first assess the severity of the performance drop and how urgently the report is needed. Since the issue could affect campaign results, I'd quickly communicate the competing deadlines to my manager and explain the trade-offs. I'd suggest investigating the immediate issue first if it poses a significant risk, while agreeing on a realistic timeline for the report. I'd then keep the relevant stakeholders updated and ensure both responsibilities are addressed.”
 • Difficult stakeholder: Coordinating with writers, editors, and managers; understanding individual constraints, transparent communication, and focusing on shared standards.
 • Accountability & Mistakes: Homecrust ACoS increase—understanding the difference between generating activity and generating economically valuable results.
 • Learning quickly: Transitioning from writing to performance marketing; mastering Google Ads, Meta Ads, Amazon Ads, and AI prototyping by applying concepts directly to real projects.
