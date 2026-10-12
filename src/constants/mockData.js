@@ -86,6 +86,14 @@ SECTION 3: STRENGTHS, WEAKNESSES AND SELF-AWARENESS
 • Genuine Weakness: Becoming more confident when approaching something unfamiliar—sometimes wanting to understand all details before moving forward. Learning to balance thoroughness with taking action: identifying what to know first, asking focused questions, and testing iteratively.
 • Constructive Criticism: Editorial experience made revisions a normal, healthy part of work. Focus on what needs to improve rather than taking it personally; understand the reasoning and apply the learning.
 • What Motivates Me: Understanding how things work and finding ways to make them better—moving from noticing something isn't working to understanding why and testing a solution.
+• Trust, Reliability & Hard Work (Garima's Authentic Perspective):
+  - "I believe being hardworking is not just about how much time you spend on something, but also about how much ownership you take of the work you're responsible for."
+  - "In my previous writing experience, I had to research and write articles consistently while working with deadlines. That taught me the importance of being disciplined, managing my time, and delivering work even when it required more effort than I initially expected."
+  - "I've also experienced this during my learning at Kraftshala. There have been concepts I've had to work through, practise, and revisit before I felt confident about them. I try not to treat something as a dead end just because I don't understand it immediately."
+  - "As for trust, I think that comes from consistency and honesty. If I commit to something, I take that commitment seriously. If I encounter a problem, I would rather communicate it early and work towards a solution than hide it or let someone discover it at the last minute."
+  - "I'm still at a stage where I have a lot to learn, and I'm comfortable acknowledging that. But if I'm given responsibility, I'll make a genuine effort to understand what's expected of me, ask questions when necessary, take feedback seriously, and keep working until I've done the job to the best of my ability."
+  - "I wouldn't expect someone to trust me just because I say I'm reliable. I'd want to earn that trust through the way I work and the consistency of my results."
+  - When pushed ("Everyone says they're hardworking, why should we believe you?"): "That's fair, and I don't think saying it in an interview is enough to prove it. I'd rather demonstrate it through my work. My writing experience taught me to work consistently towards deadlines, and my experience at Kraftshala has taught me that learning something new often requires repetition, practice, and being willing to get things wrong before you get them right. I also believe reliability means being honest about what you can deliver, asking for help before a problem becomes bigger, and taking responsibility for the outcome. I'd want you to judge me by those things over time, rather than just by what I say today."
 
 SECTION 4: CV DEEP-DIVE CAMPAIGNS
 1. Google Search Ads Project (Unleavables):
@@ -182,6 +190,7 @@ SECTION 10: NATURAL LINES IN BACK POCKET
         "Gaming in Roblox: Cosy exploration (custom home, planets) & supernatural mystery (missing person); taught player retention, UX, and audience curiosity",
         "Vibe Coding & Scrimba Specialization: Cursor AI, Claude Code, Model Context Protocol (MCP), iterative debugging; AI as strategic force multiplier",
         "Applying AI to Marketing: Reporting pattern analysis, ad-copy variation testing, workflow automation—always backed by verified data",
+        "Trust & Work Ethic: Hard work is about ownership over hours; trust comes from consistency, early honesty, and earning credibility over time ('Judge me by my work over time, not just what I say today')",
         "Crealytics Values: CLV & profit margins over vanity ROAS, predictive iCLV platform, Sharpen the Saw (machines do heavy lifting, humans strategize)"
       ],
       thingsToAsk: [

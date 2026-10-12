@@ -652,6 +652,20 @@ export function synthesizeLeaderAnswerForCustomQuestion(questionText, rawNotesTe
       matchedScenario = interviewScenarios.find(s => s.id === "crealytics-q9");
     }
 
+    // 8.5. Trust, Reliability & Hard Work (Can we trust you / Why should we believe you / Hardworking)
+    const isTrustReliability = !matchedScenario && (
+      coreLower.includes("trust you") || coreLower.includes("trust that") || coreLower.includes("believe you") ||
+      coreLower.includes("hardworking") || coreLower.includes("hard-working") || coreLower.includes("hard working") ||
+      coreLower.includes("reliable") || coreLower.includes("reliability") || coreLower.includes("good job for us") ||
+      coreLower.includes("ownership") || coreLower.includes("earn that trust") || coreLower.includes("earn trust") ||
+      qLower.includes("trust you") || qLower.includes("believe you") || qLower.includes("hardworking") ||
+      qLower.includes("hard-working") || qLower.includes("reliable") || qLower.includes("good job for us") ||
+      (qLower.includes("trust") && !qLower.includes("antitrust"))
+    );
+    if (isTrustReliability) {
+      matchedScenario = interviewScenarios.find(s => s.id === "crealytics-q20");
+    }
+
     // 9. Commercial Judgment / Strategy / Scaling / CTR up but Conversions down
     const isCommercialJudgment = !matchedScenario && (
       coreLower.includes("scale") || coreLower.includes("scaling") || coreLower.includes("roas") ||
@@ -1441,6 +1455,34 @@ export function generateQuestionsFromNotes(rawNotesText, templateId = "custom") 
           points: ["Assess drop severity vs report urgency", "Communicate trade-offs to manager immediately", "Contain live campaign risk, set realistic report timeline", "Keep stakeholders updated"],
           easySay: "I'd assess the risk, communicate competing deadlines to my manager immediately, prioritize containing the live campaign drop, and set a clear timeline for the report.",
           stallSay: "For me, handling competing priorities comes down to assessing risk and communicating trade-offs early."
+        }
+      },
+      {
+        id: "crealytics-q20",
+        category: "behavioural",
+        speaker: "Torsten Christ (Head of HR)",
+        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+        question: "Can we trust that you'll do a good job for us? Everyone says they're hardworking — why should we believe you?",
+        topic: "Trust, Reliability & Hard Work",
+        babeTag: "babe 👀 ownership over hours + early honesty & earning trust over time",
+        simplestQuestion: "Hard work means taking ownership and persisting; trust comes from early honesty and consistency over time.",
+        startWithPrompt: "Start with: “I believe being hardworking is not just about…”",
+        glanceSay: "I believe being hardworking is not just about how much time you spend on something, but about how much ownership you take of the work you're responsible for. In writing, delivering over 600 articles taught me discipline and meeting deadlines even when things required more effort than expected. At Kraftshala, it taught me never to treat something as a dead end just because I don't understand it immediately. As for trust, that comes from consistency and honesty: if I commit to something, I take that commitment seriously, and if I hit a problem, I’d always rather communicate it early and work toward a solution than hide it.",
+        glanceBullets: [
+          "• Hard work = ownership: taking full accountability rather than just counting hours",
+          "• Persistence: never treating an unfamiliar problem as a dead end; practicing until confident",
+          "• Trust through honesty: communicating roadblocks early rather than hiding them",
+          "• Coachable humility: comfortable acknowledging what to learn, asking questions, taking feedback seriously",
+          "• Earning it over time: 'I'd want you to judge me by my consistency over time, not just what I say today'"
+        ],
+        expandedSay: "I'm still at a stage where I have a lot to learn, and I'm very comfortable acknowledging that. If I'm given responsibility, I'll make a genuine effort to understand what's expected, ask questions when necessary, take feedback seriously, and keep working until I've done the job to the best of my ability.\n\nAnd if you ask why you should believe that today—that’s completely fair. I don’t think saying it in an interview is enough to prove it; I’d rather demonstrate it through my work. Reliability means being honest about what you can deliver, asking for help before a problem becomes bigger, and taking responsibility for the outcome. I'd want you to judge me by those things over time, rather than just by what I say today.",
+        supportingContext: "Notes Section 3 & 5: Garima's authentic response on trust, ownership, deadline discipline, early honesty, and earning credibility over time.",
+        stuckRecovery: {
+          breatheMsg: "Take a breath babe. Ownership over hours + communicate problems early + earn trust over time.",
+          questionSummary: "Can we trust you to do a good job?",
+          points: ["Hard work = ownership and never treating issues as dead ends", "Trust = consistency & communicating roadblocks early", "Wanting to earn trust through work over time, not just interview words"],
+          easySay: "Hard work is about taking ownership, and trust comes from consistency and communicating problems early. I don't expect you to take my word for it today—I want to earn that trust through my work over time.",
+          stallSay: "That's a really fair question—for me, trust and work ethic come down to ownership and honesty."
         }
       }
     ];
