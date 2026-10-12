@@ -916,24 +916,25 @@ export function generateQuestionsFromNotes(rawNotesText, templateId = "custom") 
         avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
         question: "Tell me about yourself and your journey into performance marketing.",
         topic: "Candidate Story & Background",
-        babeTag: "babe 👀 grounded Dehradun roots + maker drive & the missing feedback loop",
+        babeTag: "babe 👀 Dehradun roots + storytelling, human psychology & data to see what works",
         simplestQuestion: "Torsten wants to know who you are as a person, what drives your curiosity, and how you got here.",
-        startWithPrompt: "Start with: “I grew up in Dehradun, and I've always been drawn to…”",
-        glanceSay: "I grew up in Dehradun, and I've always been someone drawn to making things, taking them apart, and figuring out how to make them better. I started out in writing and editorial, covering the NFL. What I loved about writing was studying human attention—finding the hook under tight deadlines. But once an article went out, the feedback loop ended. What pulled me into performance marketing was that missing cause-and-effect: it's where creative intuition meets measurable human behavior, and you can actually open the hood to see why the engine ran or stalled.",
+        startWithPrompt: "Start with: “I'm from Dehradun, a valley nestled in the foothills of the Himalayas…”",
+        glanceSay: "I'm from Dehradun, a valley nestled in the foothills of the Himalayas, and growing up there shaped me into someone who loves observing people, having conversations, and being curious about what makes people tick. My background is in media and communication, and I worked in writing and editing covering the NFL. Writing over 600 articles taught me audience psychology and deadline discipline—because you can be as creative as you like, but you still have deadlines to meet! But over time, I became curious about what happens beyond the content itself: why one headline gets the click while another gets ignored, and how we measure that human response. That’s what drew me into performance marketing—it brings together creativity, understanding human behaviour, and working with data to make better decisions.",
         glanceBullets: [
-          "• Dehradun roots: grounded, calm curiosity and a natural maker drive",
-          "• Editorial background: studying reader attention and hooks under tight deadlines",
-          "• The turning point: craving a closed feedback loop where creative meets measurable data",
-          "• Past year: building creative, analytical, technical, and human muscles across live campaigns and AI tools"
+          "• Dehradun valley roots: observing people and curious about what makes them tick",
+          "• Media & communication: 600+ NFL articles (audience psychology & deadline discipline)",
+          "• The turning point: curious about what happens beyond content (why one headline clicks & another doesn't)",
+          "• Performance marketing: bringing together creativity, human psychology, and evidence-based data",
+          "• Outside work: fiction writing & AI app/game prototypes (imagining ideas & bringing them to life)"
         ],
-        expandedSay: "And that's why performance marketing really makes sense for me—it exercises both sides of the brain. You have the creative side that crafts the narrative and understands user intent, but then you have the analytical discipline to diagnose what actually happens after the click. Over the past year, I've immersed myself in running live campaigns across Search, Meta, and Amazon, while also experimenting with AI tools to build small prototypes and automate workflows.\n\nMore than just the tools and the numbers, though, what I enjoy most is the collaborative learning. I like being around people who ask sharp questions, challenge my baseline assumptions, and make me realize I could have built something better. I'm still learning every day, and honestly, that continuous feedback loop is the part I find most rewarding.",
-        supportingContext: "Notes Part 1 & 2: Dehradun roots, maker mindset, editorial attention to feedback loop transition, 4 muscles, collaborative learning.",
+        expandedSay: "What I find especially exciting about performance marketing is that you start with a hypothesis, test it, look at the results, and learn something concrete from the evidence rather than relying entirely on intuition. During my digital marketing training at Kraftshala, I've been able to explore that practically across Google Ads, Meta Ads, and Amazon projects, seeing how small adjustments influence real outcomes. It's made the connection between my communication background and analytical problem-solving feel very natural.\n\nOutside of work, I write fiction and experiment with creative projects like building app and game prototypes with AI tools, because I like imagining possibilities and figuring out how to bring ideas to life. So for me, moving into performance marketing hasn’t felt like abandoning my previous experience—it feels like building on it: combining storytelling with an understanding of people, and using data to figure out what actually works.",
+        supportingContext: "Notes Part 1 & 2: Garima's authentic introduction (Dehradun foothills, observing people, 600+ NFL articles, beyond content, hypothesis testing, fiction & AI prototypes).",
         stuckRecovery: {
-          breatheMsg: "Take a breath babe. Keep it warm: Dehradun → editorial attention → performance marketing feedback loops.",
+          breatheMsg: "Take a breath babe. Dehradun roots → NFL writing discipline → beyond content to performance marketing.",
           questionSummary: "Tell me about yourself?",
-          points: ["Maker mindset: make, take apart, improve", "Editorial studied attention, but lacked feedback loop", "Performance marketing marries creative with measurable behavior"],
-          easySay: "I grew up in Dehradun and have always loved taking things apart to make them better. Moving from sports writing to performance marketing gave me that missing feedback loop where creative meets data.",
-          stallSay: "I'd love to share that—it really comes down to a curiosity for how things work and feedback loops."
+          points: ["Dehradun foothills: observing people and curiosity", "600+ NFL articles: audience psychology & deadline discipline", "Performance marketing: creativity + human behaviour + data"],
+          easySay: "I'm from Dehradun, started in NFL writing where I learned audience psychology and deadlines, and got drawn into performance marketing because it combines creativity, human behaviour, and data.",
+          stallSay: "I'd love to share that—it really started with growing up in Dehradun and a curiosity for how people tick."
         }
       },
       {
@@ -1107,26 +1108,26 @@ export function generateQuestionsFromNotes(rawNotesText, templateId = "custom") 
         speaker: "Torsten Christ (Head of HR)",
         avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
         question: "Tell me something about yourself that isn't on your CV — your outside interests and personal projects.",
-        topic: "Outside Interests, Books & AI Prototypes",
-        babeTag: "babe 👀 sci-fi books, painting & building AI prototypes",
-        simplestQuestion: "Share your love for sci-fi books, creative hobbies, and building AI prototypes with Antigravity & Claude.",
-        startWithPrompt: "Start with: “Outside of my resume, I'm a huge reader of…”",
-        glanceSay: "Outside of my resume, I'm a huge reader of speculative sci-fi and fantasy—books like The Martian and Red Rising—because I love narratives centered around problem-solving and systems thinking under constraint. On the technical side, I've been experimenting with AI tools like Antigravity and Claude to build small web applications, including a task workflow app that I tested with six friends.",
+        topic: "Outside Interests, Fiction & Creative Prototypes",
+        babeTag: "babe 👀 fiction writing, sci-fi books & building app/game prototypes",
+        simplestQuestion: "Share your love for fiction writing, sci-fi books, and experimenting with app and game prototypes.",
+        startWithPrompt: "Start with: “Outside of my resume, I really enjoy writing fiction and…”",
+        glanceSay: "Outside of my resume, I really enjoy writing fiction and reading speculative sci-fi and fantasy—books like The Martian and Red Rising—because I love imagining possibilities and exploring how people solve problems under constraint. On the creative and technical side, I've been experimenting with AI tools like Antigravity and Claude to build small web applications and game prototypes, including a productivity app that I tested with six friends.",
         glanceBullets: [
-          "• Sci-fi & fantasy enthusiast (The Martian, Red Rising) fascinated by problem-solving",
-          "• Creative outside work: love painting, swimming, and being outdoors",
-          "• Built functional web prototypes using Antigravity and Claude",
-          "• Tested productivity app with 6 friends; learned to avoid feature creep and user friction",
+          "• Fiction writing: love imagining possibilities and storytelling outside work",
+          "• Sci-fi & fantasy reader (The Martian, Red Rising) fascinated by problem-solving under constraint",
+          "• Hands-on prototypes: built web apps and Roblox game concepts using Antigravity and Claude",
+          "• User testing lesson: 6 friends tested a prototype and taught me to avoid friction and feature creep",
           "• Core takeaway: never confuse effort with effectiveness; let real user feedback guide iterations"
         ],
         expandedSay: "The feedback from that prototype was actually the best part: my friends were very candid that the interface was way too clunky and over-engineered. That was a great lesson in never confusing effort with effectiveness. As the creator, you can spend hours building complex logic, but if the user experiences friction, none of that effort matters.\n\nThat takeaway connects directly back to performance marketing and user journeys. Whether you're designing a landing page, an ad creative, or an internal workflow, you have to stay humble, eliminate friction, and let real user behavior dictate what you iterate on.",
-        supportingContext: "Notes Section 7: Personal Interview Notes (sci-fi books, painting, AI prototypes with Antigravity & Claude, 6 friends test feedback).",
+        supportingContext: "Notes Section 7: Personal Interview Notes (fiction writing, sci-fi books, AI prototypes with Antigravity & Claude, 6 friends test feedback).",
         stuckRecovery: {
-          breatheMsg: "Sci-fi books + AI prototypes + 6 friends feedback lesson. Keep it warm and grounded!",
+          breatheMsg: "Fiction writing + sci-fi books + app/game prototypes. Keep it warm and authentic!",
           questionSummary: "What's not on your CV?",
-          points: ["Sci-fi enthusiast (The Martian, Red Rising)", "Built web prototypes with Antigravity & Claude", "Tested with 6 friends: don't confuse effort with effectiveness"],
-          easySay: "I'm a huge sci-fi reader and love building AI app prototypes on the side—recently tested one with 6 friends, which taught me to never confuse effort with effectiveness.",
-          stallSay: "I'd love to share that—outside of work, I'm really curious about systems, books, and experimenting with tech."
+          points: ["Fiction writing & sci-fi books (imagining possibilities)", "Built web apps & game prototypes with AI tools", "Tested with 6 friends: don't confuse effort with effectiveness"],
+          easySay: "I write fiction, read sci-fi, and love building app and game prototypes with AI on the side—recently tested one with 6 friends, which taught me to never confuse effort with effectiveness.",
+          stallSay: "I'd love to share that—outside of work, I really enjoy writing fiction and experimenting with creative tech."
         }
       },
       {
