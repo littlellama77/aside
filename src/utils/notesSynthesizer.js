@@ -226,50 +226,17 @@ export function chunkLargeNotes(rawText) {
 }
 
 /**
- * Formats and capitalizes live speech-to-text transcripts, correcting common browser
- * speech recognition mishearings (e.g. Crealytics misheard as "Celtics" or "Create X")
- * to ensure clear, professional transcript display and perfect downstream processing.
+ * Fixes phonetic speech recognition mishearings for brand and project names
  */
 export function cleanSpeechTranscriptText(text) {
   if (!text) return '';
   return text
-    // Brand: Crealytics (heavily misheard by browser speech recognition as Celtics, Create X, etc.)
-    .replace(/\b(celtics|celtic)\b/gi, 'Crealytics')
-    .replace(/\b(create\s*x|create-x|createics|creatics|create\s*ticks|create\s*tics)\b/gi, 'Crealytics')
-    .replace(/\b(crea\s*lytics|crea-lytics|crea\s*lytic|crealytic|crea\s*litics|crealitics)\b/gi, 'Crealytics')
-    .replace(/\b(cray\s*lytics|craylytics|cray\s*lytic|cry\s*lytics|crylytics)\b/gi, 'Crealytics')
-    .replace(/\b(krealytics|krea\s*lytics|krea\s*lytic|kray\s*lytics|kraylytics)\b/gi, 'Crealytics')
-    .replace(/\b(clear\s*lytics|clearly\s*tics|clear\s*lytic|clear\s*analytics)\b/gi, 'Crealytics')
-    .replace(/\b(care\s*lytics|carelytics|care\s*analytics|career\s*lytics)\b/gi, 'Crealytics')
-    .replace(/\b(creative\s*lytics|creativity\s*lytics|crea\s*lettics)\b/gi, 'Crealytics')
-    .replace(/\b(realytics|re-analytics|re\s*analytics)\b/gi, 'Crealytics')
-    .replace(/\b(curie\s*lytics|curie\s*analytics)\b/gi, 'Crealytics')
-    // Brand: Kraftshala
-    .replace(/\b(craft\s*shala|craftshala|kraft\s*shala|kraft\s*sala|craft\s*sala)\b/gi, 'Kraftshala')
-    // Brand: Sportskeeda
-    .replace(/\b(sports\s*keeda|sports\s*feeder|sports\s*kita|sports\s*keeta|sports\s*kida)\b/gi, 'Sportskeeda')
-    // Brand: Unleavables
-    .replace(/\b(un\s*leavables|unleavable|un\s*leavable|un-leavables)\b/gi, 'Unleavables')
-    // Brand: Homecrust
-    .replace(/\b(home\s*crust|homecrust|home\s*cross)\b/gi, 'Homecrust')
-    // Interviewer: Torsten Christ
-    .replace(/\b(thorsten|tor\s*sten|torstone|toast\s*in)\b/gi, 'Torsten')
-    // Marketing Acronyms
-    .replace(/\b(see\s*ay\s*see|c\s*a\s*c|kay\s*ack)\b/gi, 'CAC')
-    .replace(/\b(see\s*pee\s*see|c\s*p\s*c)\b/gi, 'CPC')
-    .replace(/\b(see\s*tee\s*are|c\s*t\s*r)\b/gi, 'CTR')
-    .replace(/\b(row\s*as|r\s*o\s*a\s*s|row-as)\b/gi, 'ROAS')
-    .replace(/\b(ay\s*cos|a\s*cos|a-cos|ay\s*c\s*o\s*s|a\s*c\s*o\s*s)\b/gi, 'ACoS')
-    .replace(/\b(eye\s*c\s*l\s*v|i\s*c\s*l\s*v|eye\s*clv|icl\s*v|i\s*clv)\b/gi, 'iCLV')
-    .replace(/\b(see\s*el\s*vee|c\s*l\s*v)\b/gi, 'CLV')
-    .replace(/\b(en\s*pee\s*es|n\s*p\s*s)\b/gi, 'NPS')
-    .replace(/\b(kay\s*pee\s*eye|k\s*p\s*i)\b/gi, 'KPI')
-    .replace(/\b(mehtah|metta)\b/gi, 'Meta')
-    .replace(/\b(convertion|convershun)\b/gi, 'conversion')
-    .replace(/\b(retenshun)\b/gi, 'retention')
-    .replace(/\b(onboardin)\b/gi, 'onboarding')
-    .replace(/\b(road\s*map|rodmap)\b/gi, 'roadmap')
-    .replace(/\b(quater|quartr)\b/gi, 'quarter');
+    .replace(/\b(celtics|create x|crea lytics|crealytic|crealytix)\b/gi, 'Crealytics')
+    .replace(/\b(kraft shala|craftshala|kraft sala)\b/gi, 'Kraftshala')
+    .replace(/\b(sports keeda|sport skeeda|sports kida)\b/gi, 'Sportskeeda')
+    .replace(/\b(unleavable|un leavables)\b/gi, 'Unleavables')
+    .replace(/\b(home crust|home trust)\b/gi, 'Homecrust')
+    .replace(/\b(torsten|thorsten|tor sten)\b/gi, 'Torsten');
 }
 
 /**
@@ -277,7 +244,20 @@ export function cleanSpeechTranscriptText(text) {
  */
 export function normalizeSpokenPhonetics(text) {
   if (!text) return '';
-  return cleanSpeechTranscriptText(text).toLowerCase();
+  return text
+    .toLowerCase()
+    .replace(/\b(see\s*ay\s*see|c\s*a\s*c|kay\s*ack)\b/g, 'cac')
+    .replace(/\b(see\s*pee\s*see|c\s*p\s*c)\b/g, 'cpc')
+    .replace(/\b(see\s*tee\s*are|c\s*t\s*r)\b/g, 'ctr')
+    .replace(/\b(row\s*as|r\s*o\s*a\s*s)\b/g, 'roas')
+    .replace(/\b(en\s*pee\s*es|n\s*p\s*s)\b/g, 'nps')
+    .replace(/\b(kay\s*pee\s*eye|k\s*p\s*i)\b/g, 'kpi')
+    .replace(/\b(mehtah|metta)\b/g, 'meta')
+    .replace(/\b(convertion|convershun)\b/g, 'conversion')
+    .replace(/\b(retenshun)\b/g, 'retention')
+    .replace(/\b(onboardin)\b/g, 'onboarding')
+    .replace(/\b(road\s*map|rodmap)\b/g, 'roadmap')
+    .replace(/\b(quater|quartr)\b/g, 'quarter');
 }
 
 /**
@@ -575,22 +555,27 @@ export function synthesizeLeaderAnswerForCustomQuestion(questionText, rawNotesTe
     // 5. Questions for Interviewer (Torsten)
     const isQuestionsToAsk = !matchedScenario && (
       coreLower.includes("questions for me") || coreLower.includes("questions for us") || coreLower.includes("anything to ask") ||
-      coreLower.includes("any questions for") || coreLower.includes("have any questions") ||
+      coreLower.includes("any questions for") || coreLower.includes("have any questions") || coreLower.includes("questions to ask") ||
       qLower.includes("questions for me") || qLower.includes("questions for us") || qLower.includes("any questions for me")
     );
     if (isQuestionsToAsk) {
       matchedScenario = interviewScenarios.find(s => s.id === "crealytics-q7");
     }
 
-    // 5.5. Why Crealytics / Culture Fit / Profitable Growth / Good Fit / CLV / iCLV / Sharpen the Saw
+    // 5.5. Why Crealytics / Culture Fit / Motivation / Good Fit / CLV / iCLV / Sharpen the Saw
     const isWhyCrealytics = !matchedScenario && (
-      coreLower.includes("crealytics") || coreLower.includes("why this role") || coreLower.includes("why us") ||
+      coreLower.includes("crealytics") || qLower.includes("crealytics") ||
+      coreLower.includes("why crealytics") || coreLower.includes("why this role") || coreLower.includes("why us") ||
+      coreLower.includes("why work here") || coreLower.includes("why join") || coreLower.includes("interested in") ||
+      coreLower.includes("motivation") || coreLower.includes("motivate") || coreLower.includes("company fit") || coreLower.includes("culture fit") ||
       coreLower.includes("profitable growth") || coreLower.includes("retail media") || coreLower.includes("what draws you") ||
       coreLower.includes("good fit") || coreLower.includes("why you") || coreLower.includes("why should we hire") ||
-      coreLower.includes("fit for") || coreLower.includes("why do you want") ||
+      coreLower.includes("fit for") || coreLower.includes("why do you want") || coreLower.includes("why do you want to work") ||
       coreLower.includes("clv") || coreLower.includes("iclv") || coreLower.includes("lifetime value") ||
       coreLower.includes("sharpen the saw") || coreLower.includes("status quo") || coreLower.includes("cliché") ||
-      qLower.includes("crealytics") || qLower.includes("why this role") || qLower.includes("why do you want to work") ||
+      qLower.includes("why crealytics") || qLower.includes("why this role") || qLower.includes("why do you want to work") ||
+      qLower.includes("why work here") || qLower.includes("why join") || qLower.includes("interested in") ||
+      qLower.includes("motivation") || qLower.includes("company fit") || qLower.includes("culture fit") ||
       qLower.includes("good fit") || qLower.includes("why should we hire") || qLower.includes("fit for this role") ||
       qLower.includes("clv") || qLower.includes("iclv") || qLower.includes("sharpen the saw")
     );
@@ -800,6 +785,33 @@ export function synthesizeLeaderAnswerForCustomQuestion(questionText, rawNotesTe
       matchedScenario = interviewScenarios.find(s => s.id === "crealytics-q1");
     }
 
+    // Intelligent Section-to-Scenario Safety Net:
+    // If BM25 finds the query most relevant to a specific note section, map directly to its verified authentic scenario!
+    if (!matchedScenario && bestSection) {
+      const bTitle = (bestSection.title || "").toUpperCase();
+      if (bTitle.includes("SECTION 1") || bTitle.includes("TELL ME ABOUT YOURSELF")) {
+        matchedScenario = interviewScenarios.find(s => s.id === "crealytics-q1");
+      } else if (bTitle.includes("SECTION 2") || bTitle.includes("MOTIVATION") || bTitle.includes("CREALYTICS")) {
+        matchedScenario = interviewScenarios.find(s => s.id === "crealytics-q2");
+      } else if (bTitle.includes("SECTION 3") || bTitle.includes("STRENGTHS")) {
+        matchedScenario = interviewScenarios.find(s => s.id === "crealytics-q9");
+      } else if (bTitle.includes("GOOGLE") || bTitle.includes("SEARCH")) {
+        matchedScenario = interviewScenarios.find(s => s.id === "crealytics-q3");
+      } else if (bTitle.includes("UNLEAVABLES") || bTitle.includes("META")) {
+        matchedScenario = interviewScenarios.find(s => s.id === "crealytics-q4");
+      } else if (bTitle.includes("HOMECRUST") || bTitle.includes("AMAZON")) {
+        matchedScenario = interviewScenarios.find(s => s.id === "crealytics-q5");
+      } else if (bTitle.includes("SECTION 5") || bTitle.includes("BEHAVIOURAL")) {
+        matchedScenario = interviewScenarios.find(s => s.id === "crealytics-q12");
+      } else if (bTitle.includes("SECTION 6") || bTitle.includes("COMMERCIAL")) {
+        matchedScenario = interviewScenarios.find(s => s.id === "crealytics-q10");
+      } else if (bTitle.includes("SECTION 7") || bTitle.includes("PERSONAL")) {
+        matchedScenario = interviewScenarios.find(s => s.id === "crealytics-q8");
+      } else if (bTitle.includes("SECTION 8") || bTitle.includes("VIBE CODING")) {
+        matchedScenario = interviewScenarios.find(s => s.id === "crealytics-q13");
+      }
+    }
+
     if (matchedScenario) {
       return {
         ...matchedScenario,
@@ -899,29 +911,43 @@ export function synthesizeLeaderAnswerForCustomQuestion(questionText, rawNotesTe
   let coreFact = "";
   let relevantMetrics = [];
 
+  const isQuantitativeQuery = /metric|number|data|cpc|ctr|cpa|acos|roas|result|spend|budget|impressions|clicks|conversion/i.test(qLower);
+
   if (bestSection && bestSection.score > 0) {
-    const sectionLines = bestSection.lines.filter(l => l.length > 15);
+    const sectionLines = bestSection.lines
+      .filter(l => l.length > 15)
+      .filter(l => !l.match(/^SECTION\s*\d+/i))
+      .filter(l => !l.match(/^[A-Z\s]{5,}:/))
+      .map(l => l.replace(/^[•*-]\s*/, '').replace(/^[A-Z\s]{4,}:\s*/, '').trim());
     coreFact = sectionLines.slice(0, 2).join('. ').replace(/[-*•#>\s]+/g, ' ').trim();
-    relevantMetrics = bestSection.metrics.length > 0 ? bestSection.metrics : metrics.slice(0, 2);
+    relevantMetrics = bestSection.metrics.length > 0
+      ? bestSection.metrics
+      : (isQuantitativeQuery ? metrics.slice(0, 2) : []);
   } else {
-    coreFact = rememberItems.slice(0, 2).join('. ').replace(/[-*•#>\s]+/g, ' ').trim() || "Our execution remains aligned with planned roadmap benchmarks.";
-    relevantMetrics = metrics.slice(0, 2);
+    const cleanRemember = rememberItems
+      .filter(l => !l.match(/^SECTION\s*\d+/i))
+      .filter(l => !l.match(/^[A-Z\s]{5,}:/))
+      .map(l => l.replace(/^[•*-]\s*/, '').replace(/^[A-Z\s]{4,}:\s*/, '').trim());
+    coreFact = cleanRemember.slice(0, 2).join('. ').replace(/[-*•#>\s]+/g, ' ').trim() || "Our execution remains aligned with planned roadmap benchmarks.";
+    relevantMetrics = isQuantitativeQuery ? metrics.slice(0, 2) : [];
   }
 
   // Construct natural, conversational, human framing
-  let opening = "In that project, the main focus was";
-  if (coreLower.includes("why")) {
-    opening = "The main reasoning behind that came down to";
+  let opening = "The key thing to highlight here is that";
+  if (coreLower.includes("project") || coreLower.includes("campaign")) {
+    opening = "In that project, the main focus was";
+  } else if (coreLower.includes("why")) {
+    opening = "The main reasoning behind that comes down to";
     babeTag = "babe 👀 clear strategic rationale";
   } else if (coreLower.includes("what should") || coreLower.includes("recommend") || coreLower.includes("opinion") || coreLower.includes("next step")) {
-    opening = "Looking at the numbers, what I recommend testing is";
+    opening = "Looking at our options, what I'd recommend testing is";
     babeTag = "babe 👀 test-driven recommendation";
     category = "opinion";
   } else if (coreLower.includes("how") || coreLower.includes("status")) {
     opening = "To give you the direct picture on that:";
     babeTag = "babe 👀 direct performance update";
   } else if (coreLower.includes("risk") || coreLower.includes("delay") || coreLower.includes("concern") || coreLower.includes("problem") || coreLower.includes("mistake")) {
-    opening = "That's a really fair question. In that project, our main takeaway was";
+    opening = "That's a really fair question. For me, the main takeaway was";
     babeTag = "babe 👀 honest reflection & learning";
     category = "reflective";
   }
