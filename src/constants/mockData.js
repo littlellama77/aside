@@ -72,9 +72,9 @@ SECTION 1: TELL ME ABOUT YOURSELF (GARIMA'S AUTHENTIC INTRODUCTION)
 
 SECTION 2: MOTIVATION AND COMPANY FIT (GARIMA'S AUTHENTIC WHY CREALYTICS)
 • "What initially attracted me to Crealytics was its established presence in performance marketing and, particularly, its approach to AI and technology.
-• Interestingly, during my time at Kraftshala, my favourite subject turned out to be vibe coding. I started experimenting with AI tools like Antigravity and Claude, building prototypes simply because I was curious to see whether I could turn an idea into something tangible.
+• Interestingly, during my time at Kraftshala, I honestly didn't expect vibe coding to become my favourite subject, but I got really into it. I started experimenting with AI tools like Antigravity and Claude, building prototypes simply because I was curious to see whether I could turn an idea into something tangible.
 • What surprised me was how much I enjoyed the process itself: identifying a problem, figuring out how to approach it, experimenting with different solutions, and refining things when they didn't work. It made me realise that I'm genuinely interested in how technology can make processes more efficient and help solve real problems.
-• That's one of the reasons Crealytics caught my attention. I was excited to learn about how the company uses AI and automation in areas like campaign optimisation, analytics, and improving operational efficiency. I find that particularly interesting because it connects technological innovation with measurable business outcomes.
+• That's one of the reasons Crealytics caught my attention: you connect practical technology and automation with real, measurable business outcomes rather than just hype.
 • Coming from a media and communication background, I've always enjoyed the creative side of marketing, but I've also developed a strong interest in understanding consumer behaviour and analysing what makes something effective. Performance marketing brings these interests together, and Crealytics' technology-driven approach makes that combination even more exciting to me.
 • What interests me is the idea of using AI to improve the way marketing decisions are made, rather than using it simply because it's a new technology. Through vibe coding, I've experienced how AI can help you move from an idea to a working prototype much faster. At the same time, I've learnt that you still need to understand the problem, evaluate the output, and keep refining the solution.
 • That's why I find Crealytics' approach interesting. Its use of AI, automation, and data-driven optimisation connects technology with practical business outcomes.
@@ -188,7 +188,7 @@ SECTION 10: NATURAL LINES IN BACK POCKET
         "Editorial Background: Edited 1,000+ articles, coordinated 20+ writers/managers, authored 600+ NFL/college football articles at Sportskeeda",
         "The Spare Room App: Therapy-inspired visual calendar app, 'Just This for Today', tested with 6 friends; learned not to confuse effort with effectiveness and avoid feature creep",
         "Gaming in Roblox: Cosy exploration (custom home, planets) & supernatural mystery (missing person); taught player retention, UX, and audience curiosity",
-        "Vibe Coding & Scrimba Specialization: Cursor AI, Claude Code, Model Context Protocol (MCP), iterative debugging; AI as strategic force multiplier",
+        "Vibe Coding & Scrimba: 'I honestly didn't expect vibe coding to become my favourite subject, but I got really into it' — prototypes with Antigravity, Claude, Cursor, MCP; lowering the barrier to experimentation",
         "Applying AI to Marketing: Reporting pattern analysis, ad-copy variation testing, workflow automation—always backed by verified data",
         "Trust & Work Ethic: Hard work is about ownership over hours; trust comes from consistency, early honesty, and earning credibility over time ('Judge me by my work over time, not just what I say today')",
         "Crealytics Values: CLV & profit margins over vanity ROAS, predictive iCLV platform, Sharpen the Saw (machines do heavy lifting, humans strategize)"

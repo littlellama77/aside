@@ -974,10 +974,10 @@ export function generateQuestionsFromNotes(rawNotesText, templateId = "custom") 
         babeTag: "babe 👀 vibe coding to real problem solving + AI to improve decisions responsibly",
         simplestQuestion: "Why Crealytics: connecting vibe coding and technology with practical, measurable business outcomes and human judgment.",
         startWithPrompt: "Start with: “What initially attracted me to Crealytics was…”",
-        glanceSay: "What initially attracted me to Crealytics was its established presence in performance marketing and, particularly, its approach to AI and technology. Interestingly, during my time at Kraftshala, my favourite subject turned out to be vibe coding—I started experimenting with tools like Antigravity and Claude, building prototypes just to see if I could turn an idea into something tangible. What surprised me was how much I enjoyed the process itself: identifying a problem, experimenting with solutions, and refining things when they didn't work. It showed me that I'm genuinely interested in how technology can make processes more efficient and solve real problems, which directly aligns with how Crealytics uses AI and automation to drive measurable business outcomes.",
+        glanceSay: "What initially attracted me to Crealytics was its established presence in performance marketing and, particularly, its approach to AI and technology. Interestingly, during my time at Kraftshala, I honestly didn't expect vibe coding to become my favourite subject, but I got really into it! I started experimenting with tools like Antigravity and Claude, building prototypes just to see if I could turn an idea into something tangible. What surprised me was how much I enjoyed the process itself: identifying a problem, experimenting with solutions, and refining things when they didn't work. It showed me that I'm genuinely interested in how technology can make processes more efficient and solve real problems, which directly connects with how Crealytics uses AI and automation to drive measurable business outcomes.",
         glanceBullets: [
           "• Initial attraction: Established presence in performance marketing & approach to AI/tech",
-          "• Vibe coding spark: Built prototypes with Antigravity & Claude at Kraftshala to make ideas tangible",
+          "• Authentic spark: 'I honestly didn't expect vibe coding to become my favourite subject, but I got really into it'",
           "• Problem-solving process: Loved identifying problems, testing approaches, and refining solutions",
           "• Purposeful AI: Using AI to improve marketing decisions, not just as a trendy novelty",
           "• Human in the loop: Human judgement complementing automation and ensuring responsible application"
@@ -1275,10 +1275,10 @@ export function generateQuestionsFromNotes(rawNotesText, templateId = "custom") 
         topic: "Vibe Coding & Practical Experimentation",
         babeTag: "babe 👀 lowering barrier to experimentation + natural language to working code",
         simplestQuestion: "Explain vibe coding as using natural language with AI to build working software, test, and iterate.",
-        startWithPrompt: "Start with: “For me, vibe coding is…”",
-        glanceSay: "For me, vibe coding is a way of building software with the help of AI, using natural-language instructions to translate an idea into working code. It lowers the barrier to experimentation—instead of leaving a concept at the brainstorming stage, I can build and test a functional prototype. But AI-generated code isn't automatically correct; you still have to understand the core problem, give clear instructions, troubleshoot errors, and make product decisions.",
+        startWithPrompt: "Start with: “I honestly didn't expect vibe coding to become my favourite subject, but I got really into it…”",
+        glanceSay: "I honestly didn't expect vibe coding to become my favourite subject, but I got really into it. For me, vibe coding is a way of building software with the help of AI, using natural-language instructions to translate an idea into working code. It lowers the barrier to experimentation—instead of leaving a concept at the brainstorming stage, I can build and test a functional prototype. But AI-generated code isn't automatically correct; you still have to understand the core problem, give clear instructions, troubleshoot errors, and make product decisions.",
         glanceBullets: [
-          "• Definition: Translating natural language ideas into working software with AI assistance",
+          "• Authentic hook: 'I honestly didn't expect vibe coding to become my favourite subject, but I got really into it'",
           "• Lowers barrier to experimentation: Turns conceptual ideas into tangible working prototypes",
           "• Human in the loop: Defining product purpose, user experience, and testing functionality",
           "• Real constraint: AI code isn't magic; requires debugging, troubleshooting, and iteration"
@@ -1289,8 +1289,8 @@ export function generateQuestionsFromNotes(rawNotesText, templateId = "custom") 
           breatheMsg: "Vibe coding: natural language + AI to build prototypes. Human in loop for UX & testing.",
           questionSummary: "What is vibe coding?",
           points: ["Natural language to working code", "Lowers barrier to experimentation", "Human in loop for UX & testing"],
-          easySay: "Vibe coding is using natural-language AI to turn ideas into working prototypes. AI helps execute, but you still need to define the problem, test it, and iterate.",
-          stallSay: "I'd love to explain how I look at vibe coding—it's really about lowering the barrier to experimentation."
+          easySay: "I honestly didn't expect vibe coding to become my favourite subject, but I got really into it! It's using natural language with AI to turn ideas into working prototypes—testing, debugging, and solving real problems.",
+          stallSay: "I honestly didn't expect vibe coding to become my favourite subject at Kraftshala, but I got really fascinated by it."
         }
       },
       {
