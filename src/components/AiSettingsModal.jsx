@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useMeeting } from '../context/MeetingContext';
+import { testAiConnection, detectAiProvider } from '../services/openaiService';
 import {
   Sparkles,
   Key,
@@ -12,11 +13,14 @@ import {
   ExternalLink,
   Eye,
   EyeOff,
-  AlertTriangle
+  AlertTriangle,
+  BookOpen
 } from 'lucide-react';
 
 export function AiSettingsModal({ isOpen, onClose }) {
   const {
+    aiEngineMode,
+    setAiEngineMode,
     openaiApiKey,
     setOpenaiApiKey,
     openaiModel,
@@ -26,61 +30,47 @@ export function AiSettingsModal({ isOpen, onClose }) {
   } = useMeeting();
 
   const [inputKey, setInputKey] = useState(openaiApiKey || '');
+  const [selectedMode, setSelectedMode] = useState(aiEngineMode || 'notes');
+  const [selectedModel, setSelectedModel] = useState(openaiModel || 'gpt-4o-mini');
   const [showKey, setShowKey] = useState(false);
-  const [copied, setCopied] = useState(false);
   const [testStatus, setTestStatus] = useState(null);
 
   if (!isOpen) return null;
 
+  const currentProvider = detectAiProvider(inputKey);
+
   const handleTestConnection = async () => {
     if (!inputKey || !inputKey.trim()) {
-      setTestStatus({ type: 'error', msg: 'Please enter an OpenAI API key starting with sk-' });
+      setTestStatus({ type: 'error', msg: 'Please enter an API key (OpenAI sk-... or Google Gemini AIza...)' });
       return;
     }
-    setTestStatus({ type: 'testing', msg: 'Testing connection to OpenAI...' });
-    try {
-      const res = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${inputKey.trim()}`
-        },
-        body: JSON.stringify({
-          model: 'gpt-4o-mini',
-          messages: [{ role: 'user', content: 'Say hello in 3 words' }],
-          max_tokens: 10
-        })
+    setTestStatus({ type: 'testing', msg: 'Testing connection to AI provider...' });
+    const result = await testAiConnection(inputKey.trim(), selectedModel);
+    if (result.ok) {
+      setTestStatus({
+        type: 'success',
+        msg: result.msg || `Connected successfully to ${result.provider}!`
       });
-      const data = await res.json();
-      if (!res.ok) {
-        if (data.error?.code === 'credit_balance_exhausted' || data.error?.type === 'insufficient_quota') {
-          setTestStatus({
-            type: 'quota',
-            msg: 'Key is authenticated! However, your OpenAI credit balance is currently $0. Add $5 prepaid credits in OpenAI Billing to enable live GPT calls. Aside will use its built-in engine until funded.'
-          });
-        } else {
-          setTestStatus({
-            type: 'error',
-            msg: data.error?.message || `OpenAI returned status ${res.status}`
-          });
-        }
-      } else {
-        setTestStatus({
-          type: 'success',
-          msg: `Connected successfully! Live meeting cues will run on ${openaiModel}.`
-        });
-      }
-    } catch (err) {
+    } else if (result.isQuota) {
+      setTestStatus({
+        type: 'quota',
+        msg: result.msg
+      });
+    } else {
       setTestStatus({
         type: 'error',
-        msg: `Connection test failed: ${err.message}`
+        msg: result.msg || "Connection test failed."
       });
     }
   };
 
   const handleSave = () => {
+    setAiEngineMode(selectedMode);
     setOpenaiApiKey(inputKey.trim());
+    setOpenaiModel(selectedModel);
+    localStorage.setItem('aside_ai_engine_mode', selectedMode);
     localStorage.setItem('aside_openai_api_key', inputKey.trim());
+    localStorage.setItem('aside_openai_model', selectedModel);
     onClose();
   };
 
@@ -90,8 +80,6 @@ export function AiSettingsModal({ isOpen, onClose }) {
     localStorage.removeItem('aside_openai_api_key');
     setTestStatus(null);
   };
-
-  const isKeyActive = Boolean(inputKey && inputKey.startsWith('sk-'));
 
   return (
     <div className="ai-modal-overlay animate-fade-in" onClick={onClose}>
@@ -103,8 +91,8 @@ export function AiSettingsModal({ isOpen, onClose }) {
               <Sparkles size={18} className="text-accent" />
             </div>
             <div>
-              <h3 className="ai-modal-title">OpenAI GPT-4o Settings</h3>
-              <p className="ai-modal-sub">Real-time LLM intelligence for live meeting answers</p>
+              <h3 className="ai-modal-title">Answering Engine & AI Settings</h3>
+              <p className="ai-modal-sub">Choose your intelligence mode and grounding rules for live meetings</p>
             </div>
           </div>
           <button className="btn-close-modal" onClick={onClose}>
@@ -112,29 +100,63 @@ export function AiSettingsModal({ isOpen, onClose }) {
           </button>
         </div>
 
-        {/* Status Badge */}
-        <div className="ai-status-row">
-          <div className={`ai-active-badge ${isKeyActive ? 'status-connected' : 'status-fallback'}`}>
-            <span className="ai-pulse-dot"></span>
-            <span>{isKeyActive ? `Connected to OpenAI (${openaiModel})` : "Using Built-in Local Engine"}</span>
+        {/* Engine Mode Selection */}
+        <div className="ai-model-selection mb-4">
+          <label className="ai-input-label font-bold">1. Select Answering Engine:</label>
+          <div className="model-cards-grid">
+            <div
+              className={`model-card ${selectedMode === 'notes' ? 'selected' : ''}`}
+              onClick={() => setSelectedMode('notes')}
+            >
+              <div className="model-card-top">
+                <BookOpen size={16} className="text-sage" />
+                <strong>Verified Notes Engine</strong>
+                <span className="model-chip-rec">Recommended</span>
+              </div>
+              <p className="model-card-desc">
+                ⚡ <strong>0ms Instant Latency.</strong> 100% faithful to your notes & 24 curated interview scenarios. Guaranteed <strong>zero hallucinations</strong>, no API key needed, never gets stuck.
+              </p>
+            </div>
+
+            <div
+              className={`model-card ${selectedMode === 'ai' ? 'selected' : ''}`}
+              onClick={() => setSelectedMode('ai')}
+            >
+              <div className="model-card-top">
+                <Zap size={16} className="text-accent" />
+                <strong>AI Enhanced Mode</strong>
+                <span className="model-chip-deep">Gemini / GPT</span>
+              </div>
+              <p className="model-card-desc">
+                Uses LLM intelligence strictly grounded in your notes for unexpected questions. Preserves all verified scenarios and backs up with instant notes.
+              </p>
+            </div>
           </div>
-          <span className="ai-security-tag">
-            <Shield size={12} /> Stored 100% in local browser
-          </span>
         </div>
 
-        {/* API Key Input */}
+        {/* AI Key & Provider Settings (Shown if AI Mode is selected or configuring key) */}
         <div className="ai-input-section">
           <label className="ai-input-label">
-            <span>OpenAI API Key:</span>
-            <a
-              href="https://platform.openai.com/api-keys"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="ai-api-link"
-            >
-              Get Key <ExternalLink size={11} />
-            </a>
+            <span>API Key (Google Gemini or OpenAI):</span>
+            <div className="flex items-center gap-2 text-xs">
+              <a
+                href="https://aistudio.google.com/app/apikey"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="ai-api-link text-accent"
+              >
+                Free Gemini Key <ExternalLink size={11} />
+              </a>
+              <span>•</span>
+              <a
+                href="https://platform.openai.com/api-keys"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="ai-api-link"
+              >
+                OpenAI Key <ExternalLink size={11} />
+              </a>
+            </div>
           </label>
 
           <div className="key-input-wrapper">
@@ -146,7 +168,7 @@ export function AiSettingsModal({ isOpen, onClose }) {
                 setInputKey(e.target.value);
                 setTestStatus(null);
               }}
-              placeholder="sk-proj-..."
+              placeholder="AIza... (Gemini) or sk-... (OpenAI)"
               className="key-text-input"
             />
             <button
@@ -167,16 +189,23 @@ export function AiSettingsModal({ isOpen, onClose }) {
               disabled={testStatus?.type === 'testing'}
             >
               <Zap size={13} />
-              <span>{testStatus?.type === 'testing' ? 'Verifying with OpenAI...' : 'Test Key Connection'}</span>
+              <span>{testStatus?.type === 'testing' ? 'Verifying connection...' : 'Test Connection'}</span>
             </button>
-            <a
-              href="https://platform.openai.com/settings/organization/billing/overview"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="billing-check-link"
-            >
-              OpenAI Billing ($5 Credits) <ExternalLink size={11} />
-            </a>
+
+            {currentProvider === 'gemini' ? (
+              <span className="text-xs text-secondary">
+                ✨ Detected Google Gemini Provider
+              </span>
+            ) : (
+              <a
+                href="https://platform.openai.com/settings/organization/billing/overview"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="billing-check-link"
+              >
+                OpenAI Billing ($5 Credits) <ExternalLink size={11} />
+              </a>
+            )}
           </div>
 
           {testStatus && (
@@ -187,53 +216,53 @@ export function AiSettingsModal({ isOpen, onClose }) {
               <div className="test-result-text">
                 <p>{testStatus.msg}</p>
                 {testStatus.type === 'quota' && (
-                  <a
-                    href="https://platform.openai.com/settings/organization/billing/overview"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="quota-billing-action"
-                  >
-                    Add $5 prepaid balance on OpenAI →
-                  </a>
+                  <p className="mt-1 text-xs">
+                    💡 Tip: Switch to <strong>Verified Notes Engine</strong> above to answer with 100% accuracy without needing credits!
+                  </p>
                 )}
               </div>
             </div>
           )}
 
           <p className="key-hint">
-            Your key stays in your local browser and connects directly to OpenAI. If your OpenAI account is unbilled or offline, Aside automatically falls back to its built-in local engine.
+            <Shield size={12} className="inline mr-1" />
+            Your API key stays 100% in your local browser. Aside will strictly enforce candidate notes grounding and never hallucinate outside information.
           </p>
         </div>
 
         {/* Model Selection */}
         <div className="ai-model-selection">
-          <label className="ai-input-label">Choose GPT Model:</label>
+          <label className="ai-input-label">Choose AI Model:</label>
           <div className="model-cards-grid">
             <div
-              className={`model-card ${openaiModel === 'gpt-4o-mini' ? 'selected' : ''}`}
-              onClick={() => setOpenaiModel('gpt-4o-mini')}
+              className={`model-card ${selectedModel === 'gpt-4o-mini' || selectedModel === 'gemini-3.8-flash' || selectedModel === 'gemini-flash-latest' ? 'selected' : ''}`}
+              onClick={() => setSelectedModel(currentProvider === 'gemini' ? 'gemini-3.8-flash' : 'gpt-4o-mini')}
             >
               <div className="model-card-top">
                 <Zap size={14} className="text-accent" />
-                <strong>GPT-4o Mini</strong>
-                <span className="model-chip-rec">Recommended</span>
+                <strong>{currentProvider === 'gemini' ? 'Gemini 3.8 Flash' : 'GPT-4o Mini'}</strong>
+                <span className="model-chip-rec">Fast & Snappy (Default)</span>
               </div>
               <p className="model-card-desc">
-                Ultra-fast (~300ms latency). Ideal for live meetings where speed is everything. Fractions of a cent per answer.
+                {currentProvider === 'gemini'
+                  ? 'Blazing fast sub-second latency with Google Gemini. Recommended for real-time meetings.'
+                  : 'Sub-second speed. Optimized for live conversations where immediate verbal answers matter.'}
               </p>
             </div>
 
             <div
-              className={`model-card ${openaiModel === 'gpt-4o' ? 'selected' : ''}`}
-              onClick={() => setOpenaiModel('gpt-4o')}
+              className={`model-card ${selectedModel === 'gpt-4o' || selectedModel === 'gemini-3.5-flash' ? 'selected' : ''}`}
+              onClick={() => setSelectedModel(currentProvider === 'gemini' ? 'gemini-3.5-flash' : 'gpt-4o')}
             >
               <div className="model-card-top">
                 <Cpu size={14} className="text-freeze" />
-                <strong>GPT-4o</strong>
-                <span className="model-chip-deep">Deep Reasoning</span>
+                <strong>{currentProvider === 'gemini' ? 'Gemini 3.5 Flash' : 'GPT-4o'}</strong>
+                <span className="model-chip-deep">High Stability</span>
               </div>
               <p className="model-card-desc">
-                Maximum executive nuance and synthesis for high-stakes leadership debates and multi-layered questions.
+                {currentProvider === 'gemini'
+                  ? 'Proven balanced reasoning and structured JSON reliability across complex topics.'
+                  : 'Deeper reasoning and narrative synthesis for high-stakes trade-offs and complex situational questions.'}
               </p>
             </div>
           </div>
@@ -242,8 +271,8 @@ export function AiSettingsModal({ isOpen, onClose }) {
         {/* Accent & Speech Recognition Region Tuning */}
         <div className="ai-accent-section">
           <div className="ai-accent-label-row">
-            <label className="ai-input-label">Accent & Speech Recognition Tuning:</label>
-            <span className="accent-rec-pill">Deciphers accents & muddled audio</span>
+            <label className="ai-input-label">Speech Recognition Language & Accent:</label>
+            <span className="accent-rec-pill">Deciphers accents & brand terms</span>
           </div>
           <div className="accent-dropdown-container">
             <select
@@ -260,9 +289,6 @@ export function AiSettingsModal({ isOpen, onClose }) {
               <option value="en-SG">English — Singapore & SE Asia</option>
             </select>
           </div>
-          <p className="key-hint">
-            Tuned acoustic recognition and GPT phonetic awareness decode heavy regional accents, fast mumbles, and garbled phrases (e.g. "see ay see" → CAC).
-          </p>
         </div>
 
         {/* Footer Actions */}
@@ -280,7 +306,7 @@ export function AiSettingsModal({ isOpen, onClose }) {
             </button>
             <button type="button" className="btn-primary-warm" onClick={handleSave}>
               <Check size={16} />
-              <span>Save & Connect</span>
+              <span>Apply Settings</span>
             </button>
           </div>
         </div>

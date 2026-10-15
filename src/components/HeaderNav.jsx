@@ -10,7 +10,7 @@ import {
   Radio
 } from 'lucide-react';
 
-export function HeaderNav({ onOpenPairingModal }) {
+export function HeaderNav({ onOpenPairingModal, onTogglePhoneView }) {
   const {
     currentScreen,
     setCurrentScreen,
@@ -157,6 +157,18 @@ export function HeaderNav({ onOpenPairingModal }) {
             <Smartphone size={16} />
             <span className="pair-badge">{isPhonePaired ? "Phone Paired" : "Pair Phone"}</span>
           </button>
+
+          {/* Switch back to Phone Companion View */}
+          {onTogglePhoneView && (
+            <button
+              className="phone-pair-btn btn-phone-switch"
+              onClick={onTogglePhoneView}
+              title="Switch to Phone Companion View"
+            >
+              <Smartphone size={16} className="text-accent" />
+              <span className="pair-badge">Phone View</span>
+            </button>
+          )}
 
           {/* User Name Edit */}
           <div className="user-profile-badge">

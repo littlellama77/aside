@@ -48,6 +48,291 @@ export const THINKING_INTRO_SENTENCES = [
 
 export const PRESET_NOTE_TEMPLATES = [
   {
+  "id": "crealytics-technical-master",
+  "title": "✨ Crealytics Technical Interview (Primary & Secondary Master Notes)",
+  "type": "Interview",
+  "topic": "Crealytics Performance Marketing Associate — Technical Interview & Case Study",
+  "attendees": [
+    "Crealytics Technical Interview Panel",
+    "Garima (Roo)"
+  ],
+  "rawNotes": "CREALYTICS PERFORMANCE MARKETING ASSOCIATE — MASTER TECHNICAL & CASE STUDY PREPARATION NOTES\nCandidate: Garima (Roo) | Role: Performance Marketing Associate (Remote India)\nMaster Index: Primary Presentation Script + Secondary Performance Marketing Playbook + Google Data Analytics Frameworks\n\n================================================================================\nPART 1: PRIMARY INTERVIEW SCRIPT & CASE STUDY PRESENTATION\n================================================================================\n\nSECTION 1: PERSONAL INTRODUCTION & WHY CREALYTICS\n• Tell Me About Yourself:\n  - I'm from Dehradun, which is a valley, and I think that explains why I love places that make you stop and look around for a minute.\n  - I studied Media and Communication and worked as an editor, so I've always been interested in stories, people, and how we communicate.\n  - When I joined Kraftshala, I discovered that I really enjoyed performance marketing because it brings together creativity, psychology, and data.\n  - A slightly unexpected discovery was how much I enjoyed working with AI. As someone who worked in publishing, I'd seen how AI was affecting the industry, so I didn't expect to enjoy it as much as I did!\n  - Then we were introduced to vibe coding, and I realised I really liked being able to take an idea and actually build something. I'm currently trying to make a small Roblox game, which has been fun.\n  - Core mindset: I think I just enjoy figuring things out, trying new things, and seeing if I can make an idea work. And that's a big part of what I like about performance marketing, too.\n• Why Crealytics?\n  - What caught my attention about Crealytics was the combination of performance marketing, data, and technology.\n  - I've discovered that I really enjoy exploring AI and how it can be used to solve problems, and I'd love to learn how that works at a larger scale in a real marketing environment.\n  - The role combines analytical thinking with practical marketing decisions.\n\nSECTION 2: SOCIAL CAMPAIGN CASE STUDY PRESENTATION\n• 1. Opening Script:\n  - \"Hi! So, I've gone through both parts of the assignment. I'll walk you through how I approached them, what stood out to me, and what I'd recommend based on the numbers.\"\n  - \"My background is in Media and Communication, and I got interested in performance marketing because I like the combination of creativity, psychology, and data. You get to understand why people behave a certain way, test your ideas, and actually measure what works. That's what I find fun about it.\"\n  - \"And Crealytics stood out to me because of its focus on data, technology, and performance marketing. I'd like to build my skills in that kind of environment.\"\n• 2. How I Approached the Numbers:\n  - Filled in missing metrics using standard formulas:\n    * Impressions = Clicks ÷ CTR\n    * Orders = Cost ÷ CPO\n    * Profit = Revenue - Cost\n    * ROAS = Revenue ÷ Ad Spend\n  - Compared campaigns on total revenue, efficiency, and areas needing attention.\n• 3. Comparing Campaigns A, B and C:\n  - Campaign A generated €8,400 in revenue, with a ROAS of 33.6.\n  - Campaign B generated €8,190, but its ROAS was higher at 39, and it also had the lowest CPC at €0.35.\n  - Conclusion: If looking at efficiency, lean towards Campaign B (generating more revenue per euro spent on advertising). If looking at total revenue volume, Campaign A is slightly ahead.\n• 4. What About Campaign C? (Diagnosis & Recommendations):\n  - Campaign C has highest CTR at 30%, so people are clicking. But it spends €2,200 and generates €2,100 revenue, giving a ROAS of ~0.95.\n  - Clicks are not translating into enough revenue to cover ad spend.\n  - Diagnostic checklist: Check the audience, ad creative, landing page, and conversion tracking before deciding what to change. Maybe attracting the wrong people, or an issue after click.\n  - Golden rule: Never automatically switch it off without investigating, but definitely do NOT increase budget just because CTR looks good.\n• 5. Which Campaign to Choose for Branding?\n  - If objective is attention, Campaign C is worth investigating because of highest CTR (30%).\n  - But careful calling it best branding on CTR alone! Look at reach, frequency, engagement, and brand-lift results.\n  - Judge campaign against actual objective: immediate sales aren't the only measure of brand awareness, but success must be clearly defined.\n• 6. How to Improve Campaign B:\n  - Campaign B is already performing well—don't start changing things just for the sake of it.\n  - First, look at which audiences and creatives generate orders (not just clicks). Check landing page matches ad.\n  - Run tests separately (test new creative or different audience segment).\n  - Track CTR, conversion rate, CPO, and ROAS together. If a test performs consistently well, gradually increase budget.\n  - Key principle: Understand what's working before trying to scale it.\n• 7. Data Anomaly Noticed:\n  - Campaign C order count works out to approximately 31.43 orders (Cost ÷ CPO). Orders are normally whole numbers. Could be a rounding issue, but verify original data before final recommendation.\n\nSECTION 3: EXCEL PRACTICAL & AUDIENCE DEEP DIVE\n• 8. What I Did in Excel:\n  - Sorted table by cost descending so highest-spending entries were at the top.\n  - Conditional formatting: highlighted costs above €300 in red. Color scale for profit to spot profitable vs losing audiences.\n  - VLOOKUP to retrieve correct label for each campaign; created Pivot Table to summarise clicks and impressions by campaign.\n• 9. Explain VLOOKUP:\n  - Formula: =VLOOKUP(A2, A19:B23, 2, FALSE)\n  - The idea: find a value in the first column of a table and return corresponding value from another column (e.g. campaign name -> country label).\n  - FALSE at the end ensures an exact match.\n• 10. Pivot Table Summary:\n  - DE Prospecting Sales: 7,546 clicks and 218,675 impressions (overall CTR around 3.45%).\n  - US Acquisition Lead Gen: 931 clicks and 6,956 impressions (much higher CTR at 13.38%, but lower volume).\n  - DE Retargeting Sales: CTR ~6.67%, but based on only 60 clicks (careful drawing big conclusions from small sample).\n• 11. Audience Level Findings:\n  - DE Prospecting Sales: Broad generated €3,912 in revenue and €2,712 in profit. Lookalike generated €294 revenue, loss of -€6. (Investigate scaling Broad; check why Lookalike isn't converting).\n  - US Acquisition Lead Gen: Interests generated €100 revenue and €40 profit. Lookalike generated only €8 revenue against €281 cost (-€273 loss). (Investigate Lookalike first: lower CTR, check targeting, creative, lead quality).\n  - UK Prospecting Traffic: Broad generated €40 revenue against €20 cost (+€20 profit); Lookalike lost €110. (Be careful scaling Broad immediately due to small data).\n  - DE Social ASC: Broad lost €27. (Check if campaign is still learning, spend sufficiency, objective and tracking setup).\n  - DE Retargeting Sales: CRM List generated €29 revenue against €12 cost (+€17 profit on 60 clicks).\n• 12. Prioritising Audiences:\n  - Start by investigating profitable audiences with clearest potential to scale (DE Prospecting Broad).\n  - Prioritise understanding why US Lookalike and UK Lookalike are losing money.\n  - Avoid decisions based on CTR alone; compare cost, revenue, profit, conversion performance, and sample size.\n• 13. Note on Calculating CTR in Pivot Tables:\n  - Never add individual CTR percentages together! Calculate weighted CTR: Total clicks ÷ Total impressions × 100.\n\nSECTION 4: PPC CORE CONCEPTS & CALCULATION SCENARIOS\n• 15. Difference Between PPC and SEO:\n  - PPC is paid advertising (pay for traffic, starts quickly). SEO is organic search visibility (takes time, no per-click fee). Balance based on objective, timeline, budget.\n• 16. Negative Keywords:\n  - Stop ads from showing for irrelevant searches (e.g. exclude 'free' when selling premium shoes). Reduces wasted spend and improves traffic quality.\n• 17. What Do CPC and CPA Mean?\n  - CPC = Cost Per Click (cost of traffic). CPA = Cost Per Acquisition (cost of conversion/business outcome).\n• 18. Search Ad Character Limits:\n  - Depends on format. Older ETA had 30-char headlines, 80-char descriptions. Responsive Search Ads (RSAs) have up to 15 headlines (30 chars) and 4 descriptions (90 chars). Check latest platform specs.\n• 19. PPC Math Calculation Scenario:\n  - Impressions = 100,000 | CTR = 3% => Clicks = 100,000 × 3% = 3,000 clicks.\n  - CPC = €0.10 => Total Ad Spend = 3,000 × €0.10 = €300.\n  - Conversion Rate = 5% => Total Conversions = 3,000 × 5% = 150 conversions.\n  - Profit per conversion = €20 => Gross profit before ads = 150 × €20 = €3,000.\n  - Net Profit remaining = €3,000 - €300 ad spend = €2,700 net profit.\n• 20. Other Core Metrics:\n  - CTR = Clicks ÷ Impressions | CPC = Spend ÷ Clicks | CVR = Conversions ÷ Clicks | CPA = Spend ÷ Conversions | ROAS = Attributed Revenue ÷ Spend | ACoS = Spend ÷ Attributed Sales (%).\n• 21. If Campaign Is Underperforming:\n  - 1. Check tracking/data reliability. 2. Segment by audience, creative, placement, landing page. 3. Analyze funnel (seeing ad vs clicking vs converting). 4. Test one change at a time.\n• 22. Client Wants to Increase Spend on High CTR:\n  - CTR is encouraging, but check conversion rate and unit economics before recommending spend. Clicks without sales waste budget.\n• 23. If Data Doesn't Give Clear Answer:\n  - Be honest. Explain what data suggests, what cannot be concluded, and what to investigate next. Rather give clear caveats than pretend.\n• Closing & Questions to Ask:\n  - \"The main thing I took away is that numbers make more sense together: CTR, cost, revenue, and ROAS each tell a different story.\"\n  - 4 Questions for Team: Onboarding milestones, scaling decision criteria, cross-team performance collaboration, good vs great performance marketer.\n\n================================================================================\nPART 2: SECONDARY TECHNICAL PLAYBOOK & PERFORMANCE MARKETING KNOWLEDGE\n================================================================================\n\nSECTION 5: RESUME PROJECTS — VERIFIED QUANTITATIVE PROOF POINTS\n• 1. Google Search Ads (Unleavables):\n  - 1,252 impressions, 185 clicks.\n  - CTR improved 5.20% → 14.78% (9.58 percentage points, +184.2% relative lift).\n  - CPC reduced ₹5.33 → ₹4.21 (21% reduction, saved ₹1.12 per click).\n  - 17 of 19 planned conversions achieved (89.5% target). Spent ₹777 of ₹800 budget (97.1%).\n  - Intent-based ad groups, keyword refinement, bid adjustments, location targeting, negative keywords.\n• 2. Meta Ads (Unleavables):\n  - 11.04% CTR, 15 Add-to-Carts.\n  - Cost per Add-to-Cart reduced ₹91 → ₹29 in Cost Cap experiments; campaign benchmark was ₹54.52.\n  - Cost Cap vs Highest Volume: Highest Volume maximizes results within budget; Cost Cap manages average cost per result around target.\n  - Add-to-Cart is a useful intermediate event when purchases are sparse, but must evaluate downstream revenue.\n• 3. Amazon Ads (Homecrust):\n  - ACoS 173.59% (spend ₹1.74 for every ₹1 sales—warning sign unless strategic clearance/launch).\n  - ROAS = 1 ÷ ACoS (50% ACoS = 2x ROAS). Negative targeting and dayparting.\n• 4. Sportskeeda & Editorial Background:\n  - 600+ articles authored, 1,000+ edited, 20+ writers coordinated.\n  - Transferable skills: Research accuracy, deadline discipline, audience psychology, structured communication.\n\nSECTION 6: SITUATIONAL INTERVIEW PLAYBOOK (17 SCENARIOS)\n• Six-Step Framework: Goal → Data → Diagnosis → Hypothesis → Action → Evaluation.\n• Scenario 1: CTR High but Sales Low (\"A click is not a sale.\"):\n  - Confirm objective and conversion tracking. SQR audit for broad/curiosity clicks. Check landing page speed, mobile UX, pricing, and checkout friction.\n• Scenario 2: CTR Low and CPC High:\n  - Review search-term report, add negatives, improve match types and ad copy relevance for Quality Score. Check auction insights for competitor bidding pressure.\n• Scenario 3: CPA Suddenly Increases:\n  - Verify data/tracking first. Compare CPC, CVR, volume vs previous period. Segment by audience/placement. Make targeted adjustment without choking volume.\n• Scenario 4: Revenue Increases but ROAS Falls:\n  - Example: Spend ₹10k/Rev ₹40k (4x ROAS) -> Spend ₹20k/Rev ₹60k (3x ROAS).\n  - Evaluate incremental contribution margin. If lower ROAS is above break-even and captures profitable volume, it may be commercially desirable.\n• Scenario 5: Campaign Underspending:\n  - Budget ₹50k, spending only ₹25k. Check delivery bottleneck: targeting restrictions, search volume, bid/cost caps, ad eligibility. Don't force spend if traffic isn't valuable.\n• Scenario 6: Client Wants to Double Budget:\n  - \"The next rupee spent may be less efficient than the previous rupee.\" Check marginal efficiency curve, demand ceiling, and client margin tolerance. Scale in 15-20% increments.\n• Scenario 7: Retargeting Strong, Prospecting Weak:\n  - Retargeting captures existing demand; prospecting builds new customer pipeline. Review audience exclusions and frequency. Test dedicated prospecting budget.\n• Scenario 8: Meta Ads Learning Limited:\n  - Diagnostic signal, not failure. Ensure ad sets receive ~50 optimization events/week. Consolidate fragmented ad sets, expand audience, or loosen bid constraints.\n• Scenario 9: Frequency Increases, CTR Declines:\n  - Creative fatigue or audience saturation. Test fresh ad creatives or expand lookalike/broad targeting.\n• Scenario 10: Two Creatives (One High CTR, One Low CPA):\n  - Winner is whichever creative best supports the primary business KPI (typically low CPA / profitable orders).\n• Scenario 11: Product Generates Sales but Loses Money:\n  - \"Revenue is not profit.\" Calculate ad cost relative to gross margin and contribution margin. Reallocate budget to higher-margin inventory.\n• Scenario 12: Conversion Rate Suddenly Drops:\n  - Validate site tracking and pixel health immediately. Check technical errors on landing page/checkout across browsers/devices. Check inventory stockouts or price changes.\n• Scenario 13: Limited Budget Allocation:\n  - Allocate evidence-first: prioritize proven profitable lower-funnel channels, reserve 10-20% for testing, monitor marginal returns.\n• Scenario 14: Discrepancy Between Google Ads & Analytics:\n  - Google Ads attributes to click date; GA attributes to session/visit date. Check attribution models, lookback windows, time zones, tracking delays.\n• Scenario 15: Mistake in Client Report:\n  - Transparency & ownership: verify discrepancy, alert manager/client promptly, issue corrected report with clear changelog, add validation checklist.\n• Scenario 16: Five Campaigns Need Attention:\n  - Prioritize by business risk, budget exposure, and revenue impact (triage broken tracking and disapproved ads first).\n• Scenario 17: Disagreement with Colleague:\n  - Seek to understand their reasoning and data; align on shared client goal; propose controlled A/B test.\n\nSECTION 7: ADVANCED TECHNICAL & CLOSING THE KNOWLEDGE GAPS\n• Candidate Honesty Principle:\n  - \"I haven't had direct hands-on platform experience with Microsoft Ads/PMax/LinkedIn yet, but PPC and measurement principles are transferable, and I'm eager to learn them hands-on at Crealytics.\"\n• Microsoft Advertising:\n  - Transferable PPC search mechanics; distinct audience demographics, lower CPC competition, syndicated search partner network.\n• Performance Max (PMax) & Shopping:\n  - Cross-channel automation (Search, YouTube, Display, Discover, Maps). Audience signals guide (not restrict) machine learning. Product feeds: titles, GTIN, availability, category mapping. Feed optimization improves query matching.\n• Attribution vs Incrementality vs MMM:\n  - Attribution assigns credit across touchpoints (last-click, data-driven).\n  - Incrementality proves causality (test vs control, geo-holdout). Platform ROAS often overstates incremental impact.\n  - Marketing Mix Modeling (MMM): Top-down aggregate regression analysis over time.\n• CAC, CLV & Payback Period:\n  - CAC = Acquisition Spend ÷ New Customers Acquired.\n  - CLV = Long-term customer gross profit. Payback period is time to recover CAC.\n  - Break-Even ROAS = 1 ÷ Contribution Margin Ratio.\n• Privacy & First-Party Data:\n  - Third-party cookie depreciation, GDPR compliance, server-side tracking, contextual targeting.\n• A/B Testing:\n  - One variable at a time, statistically significant sample, predefined primary KPI. Avoid declaring winners prematurely.\n• Agency Workflow & Quality Control:\n  - Pre-launch checklist (account, budget, dates, tracking, negative keywords, UTMs). Ongoing checks (daily spend, search terms, landing page 200 OK).\n\nSECTION 8: GOOGLE DATA ANALYTICS CERTIFICATE CONCEPTS\n• 6-Phase Data Analysis Process: ASK → PREPARE → PROCESS → ANALYZE → SHARE → ACT.\n• Data Life Cycle: Plan → Capture → Manage → Analyze → Archive → Destroy.\n• Data Quality: ROCCC Framework (Reliable, Original, Comprehensive, Current, Cited).\n• Spreadsheets & Cleaning: TRIM, VALUE, SPLIT, CONCATENATE, COUNTIF, SUMIFS, XLOOKUP, VLOOKUP, Pivot Tables.\n• SQL Mastery: SELECT, FROM, WHERE, GROUP BY, HAVING, ORDER BY, LIMIT, CASE WHEN, CTEs (WITH), JOINs (INNER, LEFT, RIGHT, FULL OUTER).\n• Statistics: Mean vs Median in skewed distributions, Correlation does not imply Causation, Hypothesis testing (Null/Alternative, statistical significance).\n• Visualization & Storytelling: Chart selection (bar, line, scatterplot, box plot, heat map). Structure: Context → Finding → Implication → Action.\n• AI for Data: TCREI Framework (Task, Context, References, Evaluate, Iterate). Responsible AI verification.\n",
+  "cheatSheet": {
+    "coreNarrative": "Master technical interview and case study preparation. Grounded in primary presentation scripts (Campaign A/B/C comparison, Campaign C ROAS 0.95 & 31.43 order anomaly, Excel VLOOKUP exact match, audience ROI, PPC math €2,700 net profit) and secondary playbooks (17 situational scenarios, incrementality vs attribution, CAC/CLV, PMax, Google Data Analytics).",
+    "thingsToRemember": [
+      "Case Study: Campaign B wins on efficiency (ROAS 39, CPC €0.35); Campaign A wins on total revenue (€8,400, ROAS 33.6)",
+      "Campaign C Triage: 30% CTR but ROAS 0.95 (€2,200 cost vs €2,100 rev). Notice 31.43 fractional order count anomaly. Never switch off without investigating; never scale on CTR alone.",
+      "Excel Practical: =VLOOKUP(A2, A19:B23, 2, FALSE). Weighted CTR in Pivot Tables: Total Clicks ÷ Total Impressions × 100 (never average percentages).",
+      "Audience Deep Dive: DE Prospecting Broad (+€2,712 profit) vs Lookalike (-€6 loss); US Acquisition Interests (+€40 profit) vs Lookalike (-€273 loss).",
+      "PPC Math: 100k imp × 3% CTR = 3,000 clicks × €0.10 CPC = €300 spend. 3,000 clicks × 5% CVR = 150 orders × €20 profit = €3,000 - €300 spend = €2,700 net profit.",
+      "Honesty Safeguard: State transferable PPC principles for Microsoft Ads/PMax/LinkedIn while honestly sharing desire to learn them hands-on at Crealytics.",
+      "6-Step Situational Framework: Goal → Data → Diagnosis → Hypothesis → Action → Evaluation.",
+      "Google Data Analytics: ASK → PREPARE → PROCESS → ANALYZE → SHARE → ACT. ROCCC data evaluation."
+    ],
+    "thingsToAsk": [
+      "What would you expect someone joining this role to get comfortable with in their first few months?",
+      "What does the team usually look at when deciding whether a campaign is ready to scale?",
+      "How do the teams work together when performance data suggests that a campaign needs a change in strategy?",
+      "What do you think separates someone who's good at managing campaigns from someone who's really good at performance marketing?"
+    ],
+    "importantNumbers": [
+      {
+        "label": "Campaign A Revenue",
+        "value": "€8,400 (ROAS 33.6)"
+      },
+      {
+        "label": "Campaign B ROAS",
+        "value": "39.0 (CPC €0.35, Rev €8,190)"
+      },
+      {
+        "label": "Campaign C ROAS",
+        "value": "0.95 (CTR 30%, Spend €2,200, Rev €2,100)"
+      },
+      {
+        "label": "Campaign C Orders Anomaly",
+        "value": "31.43 orders (fractional)"
+      },
+      {
+        "label": "DE Prospecting Broad Profit",
+        "value": "+€2,712 (Rev €3,912)"
+      },
+      {
+        "label": "US Lookalike Loss",
+        "value": "-€273 (Cost €281, Rev €8)"
+      },
+      {
+        "label": "PPC Math Net Profit",
+        "value": "€2,700 (100k imp, 3% CTR, 5% CVR)"
+      },
+      {
+        "label": "Google Search Ads CTR",
+        "value": "5.20% → 14.78% (+184.2% rel)"
+      },
+      {
+        "label": "Google Search Ads CPC",
+        "value": "₹5.33 → ₹4.21 (-21%)"
+      },
+      {
+        "label": "Google Conversions",
+        "value": "17 of 19 (Spent ₹777/₹800)"
+      },
+      {
+        "label": "Meta Ads Add-to-Carts",
+        "value": "15 (Cost per ATC ₹91 → ₹29)"
+      },
+      {
+        "label": "Amazon Ads ACoS",
+        "value": "173.59% (Spend ₹1.74 per ₹1 sales)"
+      },
+      {
+        "label": "Sportskeeda Editorial",
+        "value": "600+ written, 1,000+ edited, 20+ writers"
+      }
+    ],
+    "guardrails": [
+      "Never judge performance on CTR alone — a click is not a sale",
+      "Do NOT claim hands-on experience with Microsoft Ads or PMax; frame as transferable knowledge and enthusiasm to learn",
+      "Revenue is not profit — always factor product margins, variable costs, and break-even ROAS",
+      "In ambiguous data, admit what is unknown and suggest controlled testing rather than guessing"
+    ],
+    "anchors": [
+      "Main Message: I understand the numbers, I can explain what they mean, and I know that a good recommendation needs context.",
+      "Numbers make more sense together: CTR, cost, revenue, and ROAS each tell a different story.",
+      "Take a breath: Speak crisply and calmly. You know the case study cold."
+    ]
+  }
+},
+  {
+    id: "blank",
+    title: "✨ New Meeting (Blank Slate)",
+    type: "Work",
+    topic: "General Discussion",
+    attendees: [],
+    rawNotes: "",
+    cheatSheet: {
+      coreNarrative: "Ready for your pre-meeting notes.",
+      thingsToRemember: [],
+      thingsToAsk: [],
+      importantNumbers: [],
+      guardrails: [],
+      anchors: ["Take a breath. Speak naturally and lead with your key insight."]
+    }
+  },
+  {
+    id: "crealytics-functional",
+    title: "Crealytics Functional Round — Performance Marketing & Diagnostics",
+    type: "Interview",
+    topic: "Performance Marketing Associate — Functional / Department Round",
+    attendees: ["Senior Performance Marketing Team / Client Lead", "Garima (Roo)"],
+    rawNotes: `CREALYTICS FUNCTIONAL & DEPARTMENT ROUND — ACCOUNT DIAGNOSTICS, CAMPAIGN MECHANICS & CLIENT SCENARIOS
+Role: Performance Marketing Associate — Remote India
+Interviewer: Senior Performance Marketing Lead / Account Director
+Focus: Practical campaign problem-solving, live client data interpretation, account audits, bidding strategies, and commercial diagnostics.
+
+SECTION 1: PROFESSIONAL PROFILE & PERFORMANCE MARKETING FOUNDATION
+• Background in media, communication, and high-velocity editorial at Sportskeeda: edited 1,000+ articles, authored 600+ NFL articles, and coordinated with 20+ writers and managers under strict publishing deadlines.
+• Why the transition into performance marketing: Content taught me headline resonance, audience psychology, and editorial discipline. But I wanted to understand the full commercial feedback loop—how algorithms price auction inventory, why users drop off in checkout funnels, and how quantitative data can validate creative hypotheses.
+• Practical training at Kraftshala: Managed live and simulated campaigns across Google Search, Meta Ads, and Amazon PPC. Hands-on experience with keyword architecture, negative keyword sculpting, auction bidding models (Cost Cap vs Highest Volume), search term reports (SQR), dayparting, and full-funnel attribution.
+• Core mindset: Treat every campaign as a structured hypothesis. Don't rely on platform automation as an unexamined black box; understand what is happening under the hood, analyze root-cause drop-offs, and prioritize net profit over vanity metrics.
+
+SECTION 2: VERIFIED CAMPAIGN EXPERIMENTS & QUANTITATIVE PROOF POINTS
+1. Google Search Ads Project (Unleavables):
+   - 1,252 impressions, 185 clicks.
+   - CTR surged from 5.20% to 14.78% (almost 3x lift).
+   - CPC reduced by 21% from ₹5.33 to ₹4.21.
+   - Delivered 17 out of 19 planned conversions on ₹777 spend (against ₹800 budget).
+   - Optimization tactics: Restructured broad ad groups into tightly themed intent clusters; aggressive negative keyword sculpting to eliminate non-converting exploratory search terms; bid adjustments by location and high-intent device segments.
+   - Core insight: Analyzed the 2 missed conversions via Search Query Reports. Discovered exploratory queries were still triggering ads and bouncing on landing pages. Taught me that winning the auction is only half the battle—query intent alignment and landing page friction determine actual conversion.
+
+2. Meta Ads Project (Unleavables):
+   - 11.04% CTR achieved; 15 add-to-carts generated.
+   - Blended CV benchmark: ₹54.52 cost per add-to-cart across full lifecycle.
+   - Controlled Bidding Experiment (Cost Cap vs Highest Volume): Cost per add-to-cart dropped from ₹91 down to ₹29 during the test.
+   - Technical mechanics: Highest Volume bidding forces Meta to exhaust daily budgets regardless of auction inflation. By implementing an explicit Cost Cap, we established an algorithmic bid ceiling that forced Meta to pace delivery and bid only on auctions with high conversion probability relative to cost.
+   - Core insight: Algorithmic bid ceilings protect client margins during competitive auction surges.
+
+3. Amazon Sponsored Products Project (Homecrust):
+   - Budget: ₹700, 9-hour dayparting window, negative keyword targeting, placement bid adjustments.
+   - Top-of-funnel traffic: Impressions grew 5% (5,681 → 5,955); clicks increased 40% (45 → 63); CTR improved from 0.80% to 1.06%.
+   - Commercial reality: 2 orders, ₹857 in sales. Conversion rate dropped from 2.20% to 1.58%; ACoS rose from 155.56% to 173.59%.
+   - Honest commercial diagnostic: The advertising did its job driving qualified traffic, but the listing was NOT conversion-ready. Review velocity was low, pricing was uncompetitive relative to category alternatives, and dayparting bids drove traffic during exploratory browsing hours rather than buying hours.
+   - Core insight: PPC traffic without listing readiness and price elasticity simply burns spend. Traffic and conversion rate must always be diagnosed together.
+
+SECTION 3: STEP-BY-STEP ACCOUNT AUDIT PLAYBOOK (FOR NEW OR STRUGGLING CLIENTS)
+When evaluating a client's account or presented with an underperforming campaign, follow this 6-step diagnostic sequence:
+1. Tracking & Measurement Health (Step 0):
+   - Verify GA4, Google Ads conversion tracking, Meta Pixel, Conversions API (CAPI), and Amazon Attribution tags.
+   - Check conversion action settings: Is primary vs secondary firing correctly? Are transactions deduplicated via transaction ID? Are enhanced conversions configured?
+   - Rule: Never optimize or change campaign settings if tracking is broken or double-counting.
+2. Account Structure & Intent Isolation:
+   - Check if Brand, Generic, and Competitor traffic are strictly segmented into separate campaigns with dedicated budgets.
+   - Check match type strategy: Are broad match keywords running without smart bidding or without exact negative match lists?
+   - Check ad group theme density: Ensure ad groups have 5-15 tightly related keywords rather than 50+ divergent keywords.
+3. Search Query Report (SQR) & Negative Keyword Hygiene:
+   - Audit actual search terms from the last 30-60 days.
+   - Identify budget drainers: Search queries generating high clicks/spend with zero conversions.
+   - Sculpt negative keywords: Add phrase and exact negatives to eliminate informational, job-seeker, DIY, or irrelevant competitor intent.
+4. Bidding Strategy Alignment & Auction Dynamics:
+   - Check bidding type: Max Clicks, Max Conversions, Target CPA, Target ROAS.
+   - Evaluate learning phase status: Did budget or bid changes trigger a learning reset? Is the account hitting the recommended conversion threshold (at least 30 conversions/month) before activating Target CPA / Target ROAS?
+   - Check Impression Share (IS): Identify whether Impression Share is lost to Budget (need budget reallocation) or lost to Rank (need ad relevance, expected CTR, or bid adjustment).
+5. Creative, Ad Copy & Asset Health:
+   - Evaluate Responsive Search Ads (RSA) strength, headline-keyword alignment, and CTR trends.
+   - On Meta: Audit creative fatigue (frequency > 3.5-4, rising CPMs, dropping CTR). Check diversity of creative formats (video, static hook, carousel).
+6. Post-Click Funnel & Landing Page Experience:
+   - Check mobile load speed and Core Web Vitals.
+   - Check headline consistency: Does the landing page promise exactly what the ad copy pitched?
+   - Audit checkout friction: Clear CTAs above the fold, stock availability, pricing transparency, and payment gateway health.
+
+SECTION 4: SITUATIONAL DIAGNOSTIC SCENARIOS (CLIENT CASES & CURVEBALLS)
+1. "CTR Increased, but Conversion Rate (CVR) and Conversions Dropped":
+   - Diagnosis 1 (Technical): Check if conversion tags broke, tag container failed, or checkout page was updated without re-tagging.
+   - Diagnosis 2 (Intent Leakage): Check if broad match expansion or a viral creative hook attracted curiosity clickers with zero buying intent.
+   - Diagnosis 3 (Message Disconnect): Ad promoted a specific discount, bundle, or feature that is not immediately visible on the landing page.
+   - Diagnosis 4 (Commercial Friction): Out-of-stock items, price increase, unexpected shipping fees added at checkout, or broken mobile cart.
+2. "Campaign is Spending Full Daily Budget with Zero Conversions":
+   - Triage action sequence:
+     * Step 1: Fire a test transaction to verify conversion tracking is recording.
+     * Step 2: Open Search Query Report immediately. Is 70-80% of budget being sucked up by 2-3 runaway broad queries? If yes, pause those queries immediately and add negatives.
+     * Step 3: Test mobile landing page live on actual devices—verify page load and checkout flow.
+     * Step 4: Inspect bidding strategy—if set to Maximize Clicks with high daily budget, the platform bids aggressively on low-cost junk inventory. Switch to manual CPC with bid caps or add strict negative keywords.
+3. "High ROAS on Small Budget — Client Wants to Double Budget Overnight":
+   - Why NOT to double overnight: Ad auction algorithms harvest lowest-hanging fruit first. Scaling budget rapidly pushes into broader, lower-intent auctions, which compresses marginal ROAS and drives up CPA. Doubling budget also resets the algorithm's learning phase.
+   - Scaling Playbook:
+     * Scale in disciplined increments: 15% to 20% budget increases every 3 to 5 days.
+     * Monitor Marginal ROAS & Marginal CPA: Don't just watch blended metrics; calculate the return on the incremental dollars spent.
+     * Check Search Impression Share: If Impression Share lost to budget is high (> 40%), budget expansion is safe. If Impression Share lost to rank is high, optimize ad relevance and bids first before adding budget.
+4. "Platform Bidding Strategies: When to Use What":
+   - Google Ads:
+     * Maximize Clicks: Only for initial keyword discovery or low-volume accounts needing baseline traffic.
+     * Maximize Conversions: When ramping up an account to reach 20-30 conversions/month.
+     * Target CPA (tCPA): When you have stable conversion volume and a strict customer acquisition cost limit.
+     * Target ROAS (tROAS) / POAS: When order values vary widely and the goal is revenue or gross profit efficiency.
+   - Meta Ads:
+     * Highest Volume: Good for quick scale or when budget is flexible, but vulnerable to CPM volatility.
+     * Cost Cap: Essential when unit economics must be protected. Caps average cost per result and forces the algorithm to pace delivery selectively.
+   - Amazon PPC:
+     * Sponsored Products (exact vs broad vs ASIN targeting).
+     * Dayparting: Restricting spend to peak conversion hours to avoid daytime browsing waste.
+     * Placement Adjustments: Bidding up on Top of Search (+50-100%) when CTR and conversion rate are significantly higher than product detail pages.
+5. "Crealytics Principles: POAS & iCLV (The Commercial Edge)":
+   - POAS (Profit on Ad Spend) vs ROAS: Standard ROAS is a vanity metric because it treats a ₹10,000 order with a 10% margin identically to a ₹10,000 order with a 60% margin. High ROAS can actually bankrupt a business if ad spend exceeds gross product margin. Crealytics POAS integrates COGS (cost of goods sold) and shipping costs into bidding algorithms to optimize for actual cash contribution profit.
+   - iCLV (Predictive Customer Lifetime Value): Platform algorithms treat every new customer identically. Crealytics iCLV models predict which customer cohorts have high repeat-purchase probability, allowing the brand to bid higher to acquire high-value recurring customers while bidding conservatively on one-and-done discount seekers.
+
+SECTION 5: COLLABORATION, STAKEHOLDER MANAGEMENT & DISAGREEMENTS
+• Handling Disagreements on Campaign Strategy:
+  - "I'd first understand why we disagree: do we have different information, or different priorities?"
+  - "I focus on the shared business goal rather than whose idea wins. In performance marketing, we don't have to argue over personal opinions—we can design an A/B split test with a controlled budget and let real empirical conversion data decide."
+• Handling Client Pushback on Pausing an Underperforming Campaign:
+  - "Acknowledge their goals first. Don't just say 'it's not working.' Walk them through the data: show where spend is leaking, explain the unit economics, and present an actionable alternative test rather than simply turning things off."
+• Competing Deadlines & Urgent Account Issues:
+  - Assess commercial severity immediately: live budget waste or conversion drops take priority over internal slide decks. Flag the trade-off to leadership early, contain the live account risk, and deliver reports on an agreed realistic timeline.
+
+SECTION 6: STRATEGIC QUESTIONS TO ASK THE PERFORMANCE MARKETING TEAM
+1. "How does the team integrate client margin data and POAS into automated bidding algorithms across Google and retail media?"
+2. "What does the typical diagnostic and experimentation cadence look like across accounts—how do associates propose and validate new campaign tests?"
+3. "What distinguishes an associate who executes mechanically from someone who becomes an exceptional performance strategist at Crealytics?"
+4. "With the industry shifting toward black-box automation like Advantage+ and Performance Max, how does the team maintain strategic control and intent isolation?"`,
+    cheatSheet: {
+      coreNarrative: "Performance marketer with a rigorous analytical mindset, strong editorial discipline from Sportskeeda (600+ articles written, 1,000+ edited), and hands-on campaign execution across Google Search (CTR 5.20%→14.78%, CPC ₹5.33→₹4.21, 17/19 conversions), Meta Ads (Cost Cap test dropping cost/ATC from ₹91→₹29), and Amazon PPC (ACoS 173% conversion diagnostic). Systematic in account audits, full-funnel diagnostics, and POAS/margin-first optimization.",
+      thingsToRemember: [
+        "Google Search Ads: 1,252 impressions, 185 clicks, CTR 5.20% → 14.78%, CPC ₹5.33 → ₹4.21 (-21%), 17/19 conversions, ₹777 spend (₹800 budget)",
+        "Meta Ads (Unleavables): 11.04% CTR, 15 add-to-carts, Cost Cap test dropped cost/ATC from ₹91 → ₹29 (₹54.52 blended CV benchmark)",
+        "Amazon Ads (Homecrust): 5,681 → 5,955 impressions, 45 → 63 clicks (+40%), CTR 0.80% → 1.06%, 2 orders, ₹857 sales, ACoS 155.56% → 173.59% (commercial honesty: clicks without listing readiness burns spend)",
+        "Editorial Background: 1,000+ articles edited/fact-checked, 600+ NFL articles written, 20+ writers/managers coordinated under strict daily deadlines",
+        "Account Audit Sequence: 1. Tracking Health → 2. Structure & Intent → 3. SQR & Negatives → 4. Bidding & IS → 5. Creative Health → 6. Post-click CVR",
+        "CTR up + CVR down: 1. Tag tracking break, 2. Broad intent drift, 3. Ad vs landing page disconnect, 4. Price/stock friction",
+        "0-Conversion Leak: Triage tags first → SQR query waste second → mobile landing page third → bidding strategy fourth",
+        "Budget Scaling: Never double overnight; marginal returns compress; scale in 15-20% steps every 3-5 days; monitor marginal ROAS/POAS",
+        "Crealytics POAS: Profit on Ad Spend incorporates COGS and margins; prevents spending ₹500 to generate a ₹500 order with 10% gross margin",
+        "Crealytics iCLV: Predictive Customer Lifetime Value bids up on high-repeat cohorts, avoiding overpaying for one-and-done discount buyers",
+        "Disagreements: Understand why first, focus on shared goal over winning, test competing hypotheses with empirical data"
+      ],
+      thingsToAsk: [
+        "How does the team integrate client margin data and POAS into automated bidding algorithms?",
+        "What does the diagnostic and experimentation cadence look like across accounts?",
+        "What separates a mechanically competent associate from an exceptional performance strategist here?",
+        "How does the team balance platform automation (PMax / Advantage+) with strategic intent control?"
+      ],
+      importantNumbers: [
+        { label: "Search Impressions", value: "1,252" },
+        { label: "Search Clicks", value: "185" },
+        { label: "Search CTR", value: "5.20% → 14.78%" },
+        { label: "Search CPC", value: "₹5.33 → ₹4.21 (-21%)" },
+        { label: "Conversions Achieved", value: "17 of 19" },
+        { label: "Search Spend / Budget", value: "₹777 / ₹800" },
+        { label: "Meta CTR", value: "11.04%" },
+        { label: "Meta Add-to-Carts", value: "15" },
+        { label: "Meta Cost/ATC Test", value: "₹91 → ₹29" },
+        { label: "Meta Cost/ATC (CV)", value: "₹54.52" },
+        { label: "Amazon Impressions", value: "5,681 → 5,955 (+5%)" },
+        { label: "Amazon Clicks", value: "45 → 63 (+40%)" },
+        { label: "Amazon CTR", value: "0.80% → 1.06%" },
+        { label: "Amazon Orders", value: "2 orders" },
+        { label: "Amazon Sales", value: "₹857" },
+        { label: "Amazon Conversion Rate", value: "2.20% → 1.58%" },
+        { label: "Amazon ACoS", value: "155.56% → 173.59%" },
+        { label: "Amazon Budget", value: "₹700" },
+        { label: "Dayparting Window", value: "9 hours" },
+        { label: "Articles Edited", value: "1,000+" },
+        { label: "Writers Coordinated", value: "20+" },
+        { label: "Articles Authored", value: "600+" }
+      ],
+      guardrails: [
+        "Never guess numbers or metrics; offer to pull verified campaign data",
+        "Never recommend scaling budget overnight; always advocate 15-20% increments and marginal ROAS monitoring",
+        "Never blame algorithms in a vacuum; evaluate tracking, intent, creative, and landing page friction",
+        "Prioritize profit contribution (POAS) and unit economics over top-line vanity revenue"
+      ],
+      anchors: [
+        "Lead with the diagnostic hypothesis first, then support with the step-by-step checklist.",
+        "Drop in verified campaign numbers naturally (5.2% to 14.8% CTR, ₹4.21 CPC, ₹29 Cost Cap, 173% ACoS lesson).",
+        "Show mature commercial judgment: traffic means nothing without conversion readiness and unit economics.",
+        "When in doubt: 'I want to be precise and check the verified campaign report rather than guess an off-the-cuff number—let me pull that up right after our call.'"
+      ]
+    }
+  },
+  {
     id: "crealytics-interview",
     title: "Crealytics Interview — The Roo Edition ♡",
     type: "Interview",

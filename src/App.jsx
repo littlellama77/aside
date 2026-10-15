@@ -25,11 +25,18 @@ function MainApp() {
   } = useMeeting();
   const [isPairingOpen, setIsPairingOpen] = useState(false);
 
-  // Check URL query parameters or mobile screen for standalone mobile view
-  const isUrlPhoneMode = window.location.search.includes('view=phone') ||
-    (typeof window !== 'undefined' && window.innerWidth <= 768 && !window.location.search.includes('view=desktop'));
+  // State for mobile view with instant toggling
+  const [isPhoneMode, setIsPhoneMode] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const param = new URLSearchParams(window.location.search).get('view');
+      if (param === 'desktop') return false;
+      if (param === 'phone') return true;
+      return window.innerWidth <= 768;
+    }
+    return false;
+  });
 
-  if (isUrlPhoneMode) {
+  if (isPhoneMode) {
     return (
       <div className="standalone-mobile-wrapper">
         <PhoneCompanion
@@ -37,6 +44,7 @@ function MainApp() {
           onOpenNotes={() => setIsNotesDrawerOpen(true)}
           onOpenAiSettings={() => setIsAiSettingsOpen(true)}
           onOpenPairing={() => setIsPairingOpen(true)}
+          onToggleView={() => setIsPhoneMode(false)}
         />
         <ImStuckModal />
         <NotesDrawer isOpen={isNotesDrawerOpen} onClose={() => setIsNotesDrawerOpen(false)} />
@@ -49,7 +57,10 @@ function MainApp() {
   return (
     <div className="app-container">
       {/* Top Header & Navigation */}
-      <HeaderNav onOpenPairingModal={() => setIsPairingOpen(true)} />
+      <HeaderNav
+        onOpenPairingModal={() => setIsPairingOpen(true)}
+        onTogglePhoneView={() => setIsPhoneMode(true)}
+      />
 
       {/* Main Interactive Screen Area */}
       <main className="main-content">

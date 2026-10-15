@@ -62,6 +62,9 @@ export function PrivateMeetingView({ onOpenPairingModal }) {
     setIsCompactMode,
     isNotesDrawerOpen,
     setIsNotesDrawerOpen,
+    aiEngineMode,
+    setAiEngineMode,
+    clearActiveQuestion,
     openaiApiKey,
     openaiModel,
     isAiSettingsOpen,
@@ -219,18 +222,27 @@ export function PrivateMeetingView({ onOpenPairingModal }) {
             title="View or paste your meeting notes"
           >
             <FileText size={14} className="text-accent" />
-            <span>My Notes ({cheatSheet?.importantNumbers?.length || 4} metrics)</span>
+            <span>My Notes ({cheatSheet?.importantNumbers?.length || 0} metrics)</span>
           </button>
 
-          {/* OpenAI GPT Real-Time Engine & Settings */}
+          {/* Real-Time Engine & Settings */}
           <button
             type="button"
-            className={`btn-ai-engine ${openaiApiKey ? 'ai-connected' : 'ai-offline'}`}
+            className={`btn-ai-engine ${aiEngineMode === 'ai' ? 'ai-connected' : 'ai-offline'}`}
             onClick={() => setIsAiSettingsOpen(true)}
-            title="Configure OpenAI GPT-4o real-time answering engine"
+            title="Configure Answering Engine (Verified Notes vs AI Enhanced)"
           >
-            <Zap size={14} className={openaiApiKey ? "text-accent fill-accent" : ""} />
-            <span>{openaiApiKey ? (openaiModel === 'gpt-4o' ? '⚡ GPT-4o' : '⚡ GPT-4o Mini') : 'Local AI'}</span>
+            {aiEngineMode === 'ai' ? (
+              <>
+                <Zap size={14} className="text-accent fill-accent" />
+                <span>⚡ AI Enhanced</span>
+              </>
+            ) : (
+              <>
+                <Check size={14} className="text-sage" />
+                <span>✓ Verified Notes Engine</span>
+              </>
+            )}
           </button>
 
           {/* Compact Side-by-Side Mode Toggle */}
@@ -312,7 +324,9 @@ export function PrivateMeetingView({ onOpenPairingModal }) {
                 {isLiveListening ? "Active Listening Mode" : "Microphone Paused"}
               </span>
               <span className="standby-notes-count">
-                📋 Grounded in your notes ({cheatSheet?.importantNumbers?.length || 3} metrics loaded)
+                {cheatSheet?.importantNumbers?.length
+                  ? `📋 Grounded in your notes (${cheatSheet.importantNumbers.length} metrics loaded)`
+                  : "📋 No notes loaded yet (Ready for your new meeting)"}
               </span>
             </div>
 
@@ -565,8 +579,12 @@ export function PrivateMeetingView({ onOpenPairingModal }) {
                 type="button"
                 className="btn-dismiss-answer"
                 onClick={() => {
-                  setActiveQuestion(null);
-                  setIsQuestionActive(false);
+                  if (clearActiveQuestion) {
+                    clearActiveQuestion();
+                  } else {
+                    setActiveQuestion(null);
+                    setIsQuestionActive(false);
+                  }
                   if (!isLiveListening) {
                     toggleLiveListening();
                   }
@@ -773,7 +791,7 @@ export function PrivateMeetingView({ onOpenPairingModal }) {
                 )}
               </div>
 
-              {isDetailedLoading ? (
+              {isDetailedLoading && !detailedSayText ? (
                 <div className="detailed-loading-box animate-fade-in">
                   <div className="loading-headline-row">
                     <Sparkles size={14} className="text-accent animate-pulse" />
@@ -790,6 +808,12 @@ export function PrivateMeetingView({ onOpenPairingModal }) {
                 </div>
               ) : (
                 <div className="detailed-body-content animate-fade-in">
+                  {isDetailedLoading && (
+                    <div className="detailed-polishing-pill-banner">
+                      <Sparkles size={12} className="text-accent animate-pulse" />
+                      <span>Verified notes loaded below. AI refining follow-up in background...</span>
+                    </div>
+                  )}
                   <div className="detailed-paragraphs">
                     {detailedSayText ? (
                       detailedSayText.split('\n\n').map((paragraph, pIdx) => (

@@ -498,7 +498,14 @@ export function synthesizeLeaderAnswerForCustomQuestion(questionText, rawNotesTe
   // Ensures long, compound, or conversational questions map to the exact verified answer
   // =========================================================================
   const textLower = (rawNotesText || "").toLowerCase();
-  const isCrealyticsContext = textLower.includes("crealytics") ||
+  const isFunctionalContext = textLower.includes("functional") ||
+                             textLower.includes("account diagnostics") ||
+                             textLower.includes("account audit") ||
+                             textLower.includes("client scenarios") ||
+                             textLower.includes("playbook");
+
+  const isCrealyticsContext = isFunctionalContext ||
+                             textLower.includes("crealytics") ||
                              textLower.includes("torsten") ||
                              textLower.includes("kraftshala") ||
                              textLower.includes("sportskeeda") ||
@@ -506,14 +513,317 @@ export function synthesizeLeaderAnswerForCustomQuestion(questionText, rawNotesTe
                              textLower.includes("homecrust");
 
   if (isCrealyticsContext) {
-    const interviewScenarios = generateQuestionsFromNotes(rawNotesText, "crealytics-interview");
     let matchedScenario = null;
+
+    const isMasterTechnicalContext = textLower.includes("technical interview") ||
+                                    textLower.includes("case study presentation script") ||
+                                    textLower.includes("comparing campaigns a, b and c");
+
+    if (isMasterTechnicalContext) {
+      const masterScenarios = generateQuestionsFromNotes(rawNotesText, "crealytics-technical-master");
+
+      // 1. Case Study Walkthrough & Opening
+      const isCaseStudyWalkthrough =
+        coreLower.includes("walk through") || coreLower.includes("presentation") ||
+        coreLower.includes("case study") || coreLower.includes("assignment") ||
+        coreLower.includes("approached the numbers") || coreLower.includes("comparing campaigns") ||
+        qLower.includes("walk through") || qLower.includes("case study") || qLower.includes("assignment");
+      if (isCaseStudyWalkthrough && !coreLower.includes("campaign c") && !coreLower.includes("campaign b") && !coreLower.includes("excel") && !coreLower.includes("ppc") && !coreLower.includes("calculation") && !coreLower.includes("math") && !coreLower.includes("negative keyword")) {
+        matchedScenario = masterScenarios.find(s => s.id === "master-q1");
+      }
+
+      // 2. Campaign C Diagnosis & Anomaly
+      const isCampaignCDiag = !matchedScenario && (
+        coreLower.includes("campaign c") || coreLower.includes("roas 0.95") || coreLower.includes("31.43") ||
+        coreLower.includes("fractional") || coreLower.includes("0.95") ||
+        qLower.includes("campaign c") || qLower.includes("31.43")
+      );
+      if (isCampaignCDiag) {
+        matchedScenario = masterScenarios.find(s => s.id === "master-q2");
+      }
+
+      // 3. Campaign for Branding
+      const isBrandingChoice = !matchedScenario && (
+        coreLower.includes("branding") || coreLower.includes("brand awareness") || coreLower.includes("choose for branding") ||
+        qLower.includes("branding") || qLower.includes("brand awareness")
+      );
+      if (isBrandingChoice) {
+        matchedScenario = masterScenarios.find(s => s.id === "master-q3");
+      }
+
+      // 4. Improve Campaign B
+      const isImproveCampB = !matchedScenario && (
+        (coreLower.includes("campaign b") && (coreLower.includes("improve") || coreLower.includes("scale") || coreLower.includes("performing well"))) ||
+        (qLower.includes("campaign b") && (qLower.includes("improve") || qLower.includes("scale")))
+      );
+      if (isImproveCampB) {
+        matchedScenario = masterScenarios.find(s => s.id === "master-q4");
+      }
+
+      // 5. Excel Practical & VLOOKUP
+      const isExcelVlookup = !matchedScenario && (
+        coreLower.includes("vlookup") || coreLower.includes("excel") || coreLower.includes("conditional formatting") ||
+        qLower.includes("vlookup") || qLower.includes("in excel") || qLower.includes("what i did in excel")
+      );
+      if (isExcelVlookup) {
+        matchedScenario = masterScenarios.find(s => s.id === "master-q5");
+      }
+
+      // 6. Audience Level Findings & Prioritisation
+      const isAudienceFindings = !matchedScenario && (
+        coreLower.includes("audience level") || coreLower.includes("audiences") || coreLower.includes("prioritise the audiences") ||
+        coreLower.includes("de prospecting") || coreLower.includes("lookalike") ||
+        qLower.includes("audience level") || qLower.includes("prioritise the audiences") || qLower.includes("broad audience")
+      );
+      if (isAudienceFindings) {
+        matchedScenario = masterScenarios.find(s => s.id === "master-q6");
+      }
+
+      // 7. Weighted CTR in Pivot Table
+      const isWeightedCtr = !matchedScenario && (
+        coreLower.includes("weighted ctr") || (coreLower.includes("ctr") && coreLower.includes("pivot table")) ||
+        coreLower.includes("aggregat") || qLower.includes("weighted ctr") || (qLower.includes("ctr") && qLower.includes("pivot table"))
+      );
+      if (isWeightedCtr) {
+        matchedScenario = masterScenarios.find(s => s.id === "master-q7");
+      }
+
+      // 8. PPC Math Calculation Scenario
+      const isPpcMathScenario = !matchedScenario && (
+        coreLower.includes("ppc calculation") || coreLower.includes("100,000 impressions") || coreLower.includes("100k") ||
+        coreLower.includes("2,700") || coreLower.includes("calculation question") ||
+        qLower.includes("calculation") || qLower.includes("100,000 impressions") || qLower.includes("3,000 clicks")
+      );
+      if (isPpcMathScenario) {
+        matchedScenario = masterScenarios.find(s => s.id === "master-q8");
+      }
+
+      // 9. Personal Introduction (Dehradun, Media, AI & Roblox)
+      const isIntroStory = !matchedScenario && (
+        coreLower.includes("yourself") || coreLower.includes("introduce yourself") || coreLower.includes("who are you") ||
+        coreLower.includes("dehradun") || coreLower.includes("roblox") ||
+        qLower.includes("tell me about yourself") || qLower.includes("introduce yourself")
+      );
+      if (isIntroStory) {
+        matchedScenario = masterScenarios.find(s => s.id === "master-q9");
+      }
+
+      // 10. Why Crealytics
+      const isWhyCrealyticsDirect = !matchedScenario && (
+        coreLower.includes("why crealytics") || coreLower.includes("why this role") || coreLower.includes("why work here") ||
+        qLower.includes("why crealytics") || qLower.includes("why this role")
+      );
+      if (isWhyCrealyticsDirect) {
+        matchedScenario = masterScenarios.find(s => s.id === "master-q10");
+      }
+
+      // 11. Underperforming Campaign Triage
+      const isUnderperformingDirect = !matchedScenario && (
+        coreLower.includes("underperforming") || coreLower.includes("campaign is underperforming") ||
+        qLower.includes("underperforming") || qLower.includes("underperforming campaign")
+      );
+      if (isUnderperformingDirect) {
+        matchedScenario = masterScenarios.find(s => s.id === "master-q11");
+      }
+
+      // 12. Client Wants to Increase Spend on High CTR
+      const isHighCtrSpend = !matchedScenario && (
+        (coreLower.includes("high ctr") && (coreLower.includes("increase spend") || coreLower.includes("spend more") || coreLower.includes("budget"))) ||
+        (qLower.includes("high ctr") && (qLower.includes("increase spend") || coreLower.includes("spend more")))
+      );
+      if (isHighCtrSpend) {
+        matchedScenario = masterScenarios.find(s => s.id === "master-q12");
+      }
+
+      // 13. Data Doesn't Give Clear Answer
+      const isDataAmbiguity = !matchedScenario && (
+        coreLower.includes("clear answer") || coreLower.includes("ambiguous data") || coreLower.includes("doesn't give a clear") ||
+        qLower.includes("clear answer") || qLower.includes("data doesn't give")
+      );
+      if (isDataAmbiguity) {
+        matchedScenario = masterScenarios.find(s => s.id === "master-q13");
+      }
+
+      // 14. Unfamiliar Platforms (Microsoft Ads, PMax, LinkedIn)
+      const isUnfamiliarPlatforms = !matchedScenario && (
+        coreLower.includes("microsoft") || coreLower.includes("pmax") || coreLower.includes("performance max") ||
+        coreLower.includes("linkedin") || coreLower.includes("shopping") ||
+        qLower.includes("microsoft") || qLower.includes("performance max") || qLower.includes("pmax")
+      );
+      if (isUnfamiliarPlatforms) {
+        matchedScenario = masterScenarios.find(s => s.id === "master-q14");
+      }
+
+      // 15. Attribution vs Incrementality vs MMM
+      const isAttributionIncrementality = !matchedScenario && (
+        coreLower.includes("incrementality") || coreLower.includes("attribution") || coreLower.includes("mmm") ||
+        coreLower.includes("marketing mix") || coreLower.includes("last-click") ||
+        qLower.includes("incrementality") || qLower.includes("attribution") || qLower.includes("marketing mix")
+      );
+      if (isAttributionIncrementality) {
+        matchedScenario = masterScenarios.find(s => s.id === "master-q15");
+      }
+    }
+
+
+
+    // Check Functional / Department round scenarios first if in functional context:
+    if (isFunctionalContext) {
+      const funcScenarios = generateQuestionsFromNotes(rawNotesText, "crealytics-functional");
+
+      // 1. Account Audit Framework (func-q2)
+      const isAccountAudit =
+        coreLower.includes("audit") || coreLower.includes("take over") || coreLower.includes("taking over") ||
+        coreLower.includes("underperforming") || coreLower.includes("struggling client") || coreLower.includes("new client account") ||
+        coreLower.includes("diagnostic sequence") || coreLower.includes("audit playbook") || coreLower.includes("6-step") ||
+        qLower.includes("audit") || qLower.includes("taking over an account") || qLower.includes("underperforming account");
+      if (isAccountAudit) {
+        matchedScenario = funcScenarios.find(s => s.id === "func-q2");
+      }
+
+      // 2. CTR Up, CVR Down Diagnostic (func-q3)
+      const isCtrUpCvrDown = !matchedScenario && (
+        (coreLower.includes("ctr") && (coreLower.includes("cvr") || coreLower.includes("conversion rate") || coreLower.includes("conversion dropped") || coreLower.includes("conversions dropped") || coreLower.includes("conversions down") || coreLower.includes("dropped") || coreLower.includes("fell"))) ||
+        ((coreLower.includes("clicks up") || coreLower.includes("clicks increased") || coreLower.includes("traffic increased")) && (coreLower.includes("conversion") || coreLower.includes("cvr"))) ||
+        (qLower.includes("ctr") && (qLower.includes("cvr") || qLower.includes("conversion rate") || qLower.includes("dropped")))
+      );
+      if (isCtrUpCvrDown) {
+        matchedScenario = funcScenarios.find(s => s.id === "func-q3");
+      }
+
+      // 3. Zero-Conversion Campaign Triage (func-q4)
+      const isZeroConversions = !matchedScenario && (
+        coreLower.includes("zero conversion") || coreLower.includes("zero conversions") ||
+        coreLower.includes("0 conversion") || coreLower.includes("0 conversions") ||
+        coreLower.includes("no conversion") || coreLower.includes("no conversions") ||
+        coreLower.includes("spending with zero") || coreLower.includes("spending full budget") ||
+        coreLower.includes("burning spend") || coreLower.includes("spending budget with no") ||
+        coreLower.includes("spending without conversion") ||
+        qLower.includes("zero conversion") || qLower.includes("zero conversions") || qLower.includes("no conversions") || qLower.includes("spending with zero")
+      );
+      if (isZeroConversions) {
+        matchedScenario = funcScenarios.find(s => s.id === "func-q4");
+      }
+
+      // 4. Budget Scaling & Marginal Return Analysis (func-q5)
+      const isBudgetScaling = !matchedScenario && (
+        coreLower.includes("double the budget") || coreLower.includes("double budget") ||
+        coreLower.includes("scale budget") || coreLower.includes("scaling budget") || coreLower.includes("scale the budget") ||
+        coreLower.includes("increase budget") || coreLower.includes("marginal roas") || coreLower.includes("marginal return") ||
+        coreLower.includes("diminishing return") || coreLower.includes("high roas on small") || coreLower.includes("small spend") ||
+        qLower.includes("double the budget") || qLower.includes("double budget") || qLower.includes("scale budget") || qLower.includes("scaling budget") || qLower.includes("marginal roas")
+      );
+      if (isBudgetScaling) {
+        matchedScenario = funcScenarios.find(s => s.id === "func-q5");
+      }
+
+      // 5. Cross-Platform Bidding Strategies (func-q9) - evaluated before specific platform projects
+      const isBiddingStrategies = !matchedScenario && (
+        coreLower.includes("bidding strategy") || coreLower.includes("bidding strategies") ||
+        coreLower.includes("target cpa") || coreLower.includes("tcpa") ||
+        coreLower.includes("target roas") || coreLower.includes("troas") ||
+        coreLower.includes("max conversions") || coreLower.includes("maximize conversions") ||
+        coreLower.includes("max clicks") || coreLower.includes("smart bidding") ||
+        coreLower.includes("bidding across") || coreLower.includes("evaluate bidding") ||
+        qLower.includes("bidding strategy") || qLower.includes("bidding strategies") || qLower.includes("tcpa") || qLower.includes("troas") || qLower.includes("smart bidding") || qLower.includes("bidding across")
+      );
+      if (isBiddingStrategies) {
+        matchedScenario = funcScenarios.find(s => s.id === "func-q9");
+      }
+
+      // 6. Google Search Ads Project (func-q6)
+      const isGoogleSearchFunc = !matchedScenario && (
+        coreLower.includes("google") || coreLower.includes("search ad") || coreLower.includes("search campaign") ||
+        coreLower.includes("negative keyword") || coreLower.includes("quality score") || coreLower.includes("cpc") ||
+        coreLower.includes("14.78") || coreLower.includes("5.20") ||
+        qLower.includes("google") || (qLower.includes("search") && (qLower.includes("project") || qLower.includes("campaign") || qLower.includes("unleavables")))
+      );
+      if (isGoogleSearchFunc) {
+        matchedScenario = funcScenarios.find(s => s.id === "func-q6");
+      }
+
+      // 7. Unleavables Meta Ads / Cost Cap vs Highest Volume (func-q7)
+      const isMetaFunc = !matchedScenario && (
+        coreLower.includes("cost cap") || coreLower.includes("highest volume") || coreLower.includes("meta") ||
+        coreLower.includes("facebook") || coreLower.includes("add to cart") || coreLower.includes("unleavables meta") ||
+        coreLower.includes("atc") || coreLower.includes("91") || coreLower.includes("29") ||
+        qLower.includes("cost cap") || qLower.includes("highest volume") || qLower.includes("meta") || (qLower.includes("unleavables") && !qLower.includes("google"))
+      );
+      if (isMetaFunc) {
+        matchedScenario = funcScenarios.find(s => s.id === "func-q7");
+      }
+
+      // 8. Amazon Homecrust / ACoS / Mistake / Failed Campaign (func-q8)
+      const isAmazonFunc = !matchedScenario && (
+        coreLower.includes("homecrust") || coreLower.includes("amazon") || coreLower.includes("acos") ||
+        coreLower.includes("daypart") || coreLower.includes("173") || coreLower.includes("listing readiness") ||
+        coreLower.includes("didn't work") || coreLower.includes("didn't go") || coreLower.includes("went wrong") ||
+        coreLower.includes("mistake") || coreLower.includes("failed") || coreLower.includes("failure") ||
+        coreLower.includes("challenge") || coreLower.includes("hardest campaign") ||
+        qLower.includes("homecrust") || qLower.includes("amazon") || qLower.includes("acos") ||
+        ((qLower.includes("mistake") || qLower.includes("went wrong") || qLower.includes("didn't work")) && !qLower.includes("google") && !qLower.includes("meta"))
+      );
+      if (isAmazonFunc) {
+        matchedScenario = funcScenarios.find(s => s.id === "func-q8");
+      }
+
+      // 9. Crealytics POAS & iCLV Commercial Edge (func-q10)
+      const isPoasIclv = !matchedScenario && (
+        coreLower.includes("poas") || coreLower.includes("iclv") || coreLower.includes("profit on ad spend") ||
+        coreLower.includes("vanity roas") || coreLower.includes("cogs") || coreLower.includes("gross profit") ||
+        coreLower.includes("customer lifetime value") || coreLower.includes("repeat value") ||
+        (coreLower.includes("crealytics") && (coreLower.includes("approach") || coreLower.includes("technology") || coreLower.includes("edge") || coreLower.includes("difference") || coreLower.includes("differentiator"))) ||
+        qLower.includes("poas") || qLower.includes("iclv") || qLower.includes("profit on ad spend")
+      );
+      if (isPoasIclv) {
+        matchedScenario = funcScenarios.find(s => s.id === "func-q10");
+      }
+
+      // 10. Disagreements / Client Pushback / Difficult Stakeholder (func-q11)
+      const isDisagreementsFunc = !matchedScenario && (
+        coreLower.includes("disagree") || coreLower.includes("disagreement") || coreLower.includes("pushback") ||
+        coreLower.includes("differing opinion") || coreLower.includes("difference of opinion") ||
+        coreLower.includes("client disagrees") || coreLower.includes("colleague disagrees") ||
+        coreLower.includes("conflict") || coreLower.includes("opposing view") ||
+        qLower.includes("disagree") || qLower.includes("disagreement") || qLower.includes("pushback")
+      );
+      if (isDisagreementsFunc) {
+        matchedScenario = funcScenarios.find(s => s.id === "func-q11");
+      }
+
+      // 11. Questions for the Team (func-q12)
+      const isQuestionsFunc = !matchedScenario && (
+        coreLower.includes("questions for me") || coreLower.includes("questions for us") ||
+        coreLower.includes("questions for the team") || coreLower.includes("anything to ask") ||
+        coreLower.includes("any questions for") || coreLower.includes("have any questions") ||
+        coreLower.includes("questions to ask") ||
+        qLower.includes("questions for me") || qLower.includes("questions for us") || qLower.includes("any questions for me") || qLower.includes("questions for the team")
+      );
+      if (isQuestionsFunc) {
+        matchedScenario = funcScenarios.find(s => s.id === "func-q12");
+      }
+
+      // 12. Candidate Profile & Transition into Performance Marketing (func-q1)
+      const isCandidateIntroFunc = !matchedScenario && (
+        coreLower.includes("yourself") || coreLower.includes("background") || coreLower.includes("journey") ||
+        coreLower.includes("who are you") || coreLower.includes("sportskeeda") || coreLower.includes("editorial") ||
+        coreLower.includes("transition") ||
+        qLower.includes("tell me about yourself") || qLower.includes("tell us about yourself") ||
+        qLower.includes("walk me through your background") || qLower.includes("introduce yourself") ||
+        qLower.includes("about your background") || qLower.includes("your transition")
+      );
+      if (isCandidateIntroFunc) {
+        matchedScenario = funcScenarios.find(s => s.id === "func-q1");
+      }
+    }
+
+    const interviewScenarios = generateQuestionsFromNotes(rawNotesText, "crealytics-interview");
 
     // Check project & topic matches in order of specificity:
 
     // 1. Google Search Ads (CTR 5.20%->14.78%, CPC ₹5.33->₹4.21, 17/19 conversions)
-    const isGoogleSearch = (coreLower.includes("google") || coreLower.includes("search ad") || coreLower.includes("search campaign") || coreLower.includes("negative keyword") || coreLower.includes("quality score") || coreLower.includes("cpc") || (coreLower.includes("ctr") && !coreLower.includes("meta") && !coreLower.includes("unleavables"))) ||
-      (qLower.includes("google") || (qLower.includes("search") && qLower.includes("kraftshala")));
+    const isGoogleSearch = !matchedScenario && ((coreLower.includes("google") || coreLower.includes("search ad") || coreLower.includes("search campaign") || coreLower.includes("negative keyword") || coreLower.includes("quality score") || coreLower.includes("cpc") || (coreLower.includes("ctr") && !coreLower.includes("meta") && !coreLower.includes("unleavables"))) ||
+      (qLower.includes("google") || (qLower.includes("search") && qLower.includes("kraftshala"))));
     if (isGoogleSearch) {
       matchedScenario = interviewScenarios.find(s => s.id === "crealytics-q3");
     }
@@ -1044,6 +1354,761 @@ export function generateQuestionsFromNotes(rawNotesText, templateId = "custom") 
 
   // Extract candidate themes from notes
   const textLower = rawNotesText.toLowerCase();
+
+  // If this matches Crealytics Functional / Department Round (Diagnostics, Account Audits, Client Scenarios)
+  
+  // If this matches Crealytics Technical Interview Master (Case Study Presentation + Technical Playbook)
+  if (templateId === "crealytics-technical-master" || textLower.includes("technical interview") || textLower.includes("case study presentation script") || textLower.includes("comparing campaigns a, b and c")) {
+    return [
+      {
+        id: "master-q1",
+        category: "expected",
+        speaker: "Technical Interviewer",
+        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+        question: "Can you walk us through your case study presentation and how you approached the assignment?",
+        topic: "Case Study Presentation Walkthrough",
+        babeTag: "babe 👀 structured walkthrough: 4 metric formulas + Campaign B efficiency vs Campaign A volume",
+        simplestQuestion: "Give your structured opening, explain the 4 formulas you used to fill missing data, and compare Campaign A vs B vs C.",
+        startWithPrompt: "Start with: “Hi! So, I've gone through both parts of the assignment…”",
+        glanceSay: "Hi! So, I've gone through both parts of the assignment. I started by filling in the missing metrics using standard formulas: impressions from clicks divided by CTR, orders from cost divided by CPO, and ROAS from revenue divided by ad spend. When comparing the campaigns, Campaign A generated €8,400 in revenue with a ROAS of 33.6, while Campaign B generated €8,190 with a higher ROAS of 39 and the lowest CPC at €0.35. If our priority is advertising efficiency, I lean towards Campaign B because it generates more revenue per euro spent. But if the goal is total revenue volume, Campaign A is slightly ahead.",
+        glanceBullets: [
+          "• Approach: Filled missing metrics (Impressions = Clicks/CTR, Orders = Cost/CPO, ROAS = Rev/Spend)",
+          "• Campaign B (Efficiency Winner): ROAS 39.0, lowest CPC at €0.35, €8,190 revenue",
+          "• Campaign A (Revenue Winner): €8,400 total revenue, ROAS 33.6",
+          "• Strategic alignment: Recommend B for capital efficiency, A if top-line revenue scale is the primary target"
+        ],
+        expandedSay: "My background is in Media and Communication, and what drew me to performance marketing is how it connects audience psychology, creativity, and quantitative data—you get to understand why people behave a certain way, test your ideas, and actually measure what works.\n\nOnce I had the baseline figures, I compared the campaigns on both commercial return and channel economics. Campaign B is clearly the most efficient engine in the portfolio, delivering the highest return on ad spend with the lowest cost per click. However, Campaign A drove €210 more in total revenue. That trade-off highlights that campaign evaluation depends entirely on business context—whether the client needs profitable cash flow or top-line market share.",
+        supportingContext: "Primary Notes Section 2: Case Study Presentation Script (Opening & Comparing Campaigns A, B and C).",
+        stuckRecovery: {
+          breatheMsg: "Walkthrough: 1. Formulas used 2. Campaign B efficiency (39 ROAS, €0.35 CPC) 3. Campaign A revenue (€8,400).",
+          questionSummary: "Walkthrough of case study assignment?",
+          points: ["Filled missing metrics with standard formulas", "Campaign B won on efficiency (39 ROAS, €0.35 CPC)", "Campaign A led on total revenue (€8,400)", "Recommendation depends on client objective"],
+          easySay: "I started by calculating the missing metrics, and found that Campaign B was the most efficient with a 39 ROAS and 35 cent CPC, while Campaign A drove slightly more total revenue at 8,400 euros.",
+          stallSay: "I'd love to walk you through that—I approached the assignment in two distinct stages."
+        }
+      },
+      {
+        id: "master-q2",
+        category: "situational",
+        speaker: "Technical Interviewer",
+        avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+        question: "What stood out to you about Campaign C, and what would you recommend doing with it?",
+        topic: "Campaign C Diagnosis & Recommendations",
+        babeTag: "babe 👀 high CTR (30%) but ROAS 0.95: don't scale on CTR, audit LP & note 31.43 order anomaly",
+        simplestQuestion: "Campaign C spent €2,200 for €2,100 revenue (ROAS 0.95) despite 30% CTR. Don't switch off blindly; check LP, intent, and the 31.43 order anomaly.",
+        startWithPrompt: "Start with: “Campaign C has the highest CTR at 30%, but it's losing money…”",
+        glanceSay: "Campaign C has the highest CTR at 30%, so people are clearly clicking on the ads. But it spent €2,200 and only generated €2,100 in revenue, giving it an unprofitable ROAS of around 0.95. The clicks simply aren't translating into enough revenue to cover the ad spend. I wouldn't automatically switch it off without investigating, but I definitely would not increase the budget just because the CTR looks attractive. I'd first audit audience intent, creative promise, landing page friction, and conversion tracking.",
+        glanceBullets: [
+          "• The Problem: 30% CTR is highest in account, but €2,200 spend vs €2,100 revenue = 0.95 ROAS (unprofitable)",
+          "• Core Principle: High CTR does not equal a successful campaign; clicks must translate to paying customers",
+          "• Action Plan: Audit search/audience intent, check landing page mobile speed & pricing, verify conversion tracking",
+          "• Data Anomaly: Order count works out to approximately 31.43 orders (Cost ÷ CPO)—unusual fractional count to verify with raw data"
+        ],
+        expandedSay: "A high CTR with an unprofitable ROAS is a classic indicator of curiosity clicks or an ad hook that overpromises what the landing page delivers. The ad might be highlighting a steep promotional discount, broad solution, or eye-catching visual that attracts clicks from users who have zero intent to complete a purchase.\n\nOne detail I also noticed in the raw data is that Campaign C's cost divided by CPO works out to approximately 31.43 orders. Because customer orders in ecommerce are whole numbers, this fractional result suggests either a currency rounding artifact or a reporting discrepancy that should be verified before making irreversible budget reallocations.",
+        supportingContext: "Primary Notes Section 2: Case Study Presentation Script (Campaign C & Data Anomaly).",
+        stuckRecovery: {
+          breatheMsg: "Campaign C: 30% CTR, €2,200 cost vs €2,100 rev = 0.95 ROAS. Don't scale on CTR. Check LP & 31.43 order anomaly.",
+          questionSummary: "What to do with Campaign C?",
+          points: ["30% CTR is highest, but ROAS is 0.95 (losing money)", "Never scale budget on CTR alone", "Audit LP match, audience intent, and tracking", "Catch the 31.43 fractional order count anomaly"],
+          easySay: "Campaign C has a 30% CTR but only a 0.95 ROAS, so clicks aren't converting into revenue. I wouldn't switch it off immediately, but I'd audit the landing page and tracking, and verify the 31.43 fractional order count anomaly.",
+          stallSay: "Campaign C was really interesting—the headline numbers look exciting until you calculate the ROAS."
+        }
+      },
+      {
+        id: "master-q3",
+        category: "commercial",
+        speaker: "Technical Interviewer",
+        avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+        question: "Which campaign would you choose if the client's primary objective is brand awareness?",
+        topic: "Branding Campaign Selection",
+        babeTag: "babe 👀 CTR alone != branding: check reach, frequency, engagement, and brand-lift",
+        simplestQuestion: "Campaign C has highest attention (30% CTR), but branding must be judged on reach, frequency, and brand-lift, not CTR alone.",
+        startWithPrompt: "Start with: “If the objective is to capture attention, Campaign C is worth investigating…”",
+        glanceSay: "If the objective is to capture immediate attention, Campaign C is worth investigating because it has the highest CTR at 30%. However, I would be very careful about declaring it the best branding campaign based on click-through rate alone. For brand awareness, I'd want to evaluate unique reach, ad frequency, video completion, engagement, and brand-lift studies where available. We need to judge campaigns against their actual business objective rather than assuming a high CTR automatically builds enduring brand equity.",
+        glanceBullets: [
+          "• Attention candidate: Campaign C has the highest CTR (30%), showing ad resonance",
+          "• The Caveat: CTR measures click volume, not brand perception, recall, or mental availability",
+          "• True branding metrics: Unique reach, frequency, engagement rate, video completion, and brand-lift",
+          "• Strategic alignment: Always define what success looks like for the specific objective"
+        ],
+        expandedSay: "When measuring brand awareness, direct conversions are not the only measure of success, but neither is click-through rate. A click is simply an interaction; it doesn't tell us whether the user remembered the brand name, understood the brand's value proposition, or developed purchase consideration.\n\nIf Campaign C drove broad reach at an efficient cost per thousand impressions (CPM) and high engagement, it could serve as an effective upper-funnel discovery driver. But we'd need to agree on clear upper-funnel KPIs with the client and measure downstream assisted conversions before allocating branding budget to it.",
+        supportingContext: "Primary Notes Section 2: Case Study Script (Branding Campaign Selection).",
+        stuckRecovery: {
+          breatheMsg: "Branding: Campaign C has 30% CTR, but branding requires reach, frequency, and brand-lift, not CTR alone.",
+          questionSummary: "Which campaign for branding?",
+          points: ["Campaign C has 30% CTR for attention", "Don't judge branding on CTR alone", "Look at reach, frequency, and brand-lift", "Align on upper-funnel success metrics"],
+          easySay: "Campaign C has the highest CTR at 30% for attention, but for a true branding campaign I would evaluate reach, frequency, and brand-lift rather than judging on CTR alone.",
+          stallSay: "For branding, my perspective is that we have to be very careful with how we define success."
+        }
+      },
+      {
+        id: "master-q4",
+        category: "expected",
+        speaker: "Technical Interviewer",
+        avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80",
+        question: "How would you improve and scale Campaign B given its strong performance?",
+        topic: "Improving & Scaling Campaign B",
+        babeTag: "babe 👀 don't break what works: isolate order-generating creatives/audiences, test 1 variable, scale gradually",
+        simplestQuestion: "Campaign B is performing well (ROAS 39, CPC €0.35). Break down by creative/audience, test landing page alignment, scale budget in controlled steps.",
+        startWithPrompt: "Start with: “Campaign B is already performing well, so I wouldn't start changing things…”",
+        glanceSay: "Campaign B is already performing well, so I wouldn't start changing things just for the sake of it. First, I'd break down the data to see which specific audiences and ad creatives are driving actual orders rather than just clicks, and verify that the landing page closely matches the top ad copy. Then I'd run isolated tests—for example, testing a fresh creative variation or expanding into a lookalike audience. I'd monitor CTR, conversion rate, CPO, and ROAS together, and if performance holds steady, gradually scale budget in controlled increments.",
+        glanceBullets: [
+          "• First principle: Do not disrupt a high-performing campaign with aggressive overhauls",
+          "• Granular breakdown: Identify the specific ad sets, placements, and creatives generating profitable orders",
+          "• Controlled testing: Test one variable at a time (creative refresh, audience expansion, landing page tweak)",
+          "• Multi-metric tracking: Monitor CPO, conversion rate, and ROAS alongside CTR",
+          "• Gradual scaling: Increase budget in disciplined increments (+15-20%) to avoid auction bid spikes"
+        ],
+        expandedSay: "When a campaign hits a 39 ROAS at a 35-cent CPC, the objective is to scale volume without degrading unit economics. I’d start by checking search query reports and audience demographics to see where the highest-converting order density lives.\n\nOnce we know what is working, we can test incremental budget increases while watching marginal CPA. If doubling budget causes the ROAS to collapse because the algorithm runs out of high-intent inventory, we catch it early. By scaling in measured 15-20% steps and testing complementary creatives, we protect profitability while growing revenue.",
+        supportingContext: "Primary Notes Section 2: Case Study Script (Improving Campaign B).",
+        stuckRecovery: {
+          breatheMsg: "Campaign B: ROAS 39, CPC €0.35. Don't break it. Segment order-drivers, test 1 variable, scale gradually.",
+          questionSummary: "How to improve Campaign B?",
+          points: ["Don't make changes for the sake of it", "Isolate creatives and audiences driving orders", "Test one variable at a time", "Scale budget gradually while watching CPO and ROAS"],
+          easySay: "Campaign B is already efficient at a 39 ROAS, so I wouldn't disrupt it. I'd identify which specific creatives drive orders, run controlled tests, and scale the budget gradually.",
+          stallSay: "With Campaign B, my first rule is: understand what's working before trying to change it."
+        }
+      },
+      {
+        id: "master-q5",
+        category: "technical",
+        speaker: "Technical Interviewer",
+        avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+        question: "Walk us through what you did in Excel and explain your VLOOKUP formula.",
+        topic: "Excel Practical & VLOOKUP Formula",
+        babeTag: "babe 👀 Excel workflow: sort cost desc, conditional formatting (>€300 red), =VLOOKUP(A2, A19:B23, 2, FALSE)",
+        simplestQuestion: "Sorted by cost descending, conditional formatting for >€300 cost and profit scales, exact match VLOOKUP for campaign country labels, and Pivot Table summary.",
+        startWithPrompt: "Start with: “For the Excel section, I started by sorting the table by cost in descending order…”",
+        glanceSay: "For the Excel section, I started by sorting the table by cost in descending order so the highest-spending entries were immediately visible at the top. I used conditional formatting to highlight costs above €300 in red, and applied a color scale on profit to easily spot which audiences were profitable and which were losing money. To pull in the country labels, I used an exact-match VLOOKUP with the formula =VLOOKUP(A2, A19:B23, 2, FALSE). Then I built a Pivot Table to cleanly summarize clicks and impressions by campaign.",
+        glanceBullets: [
+          "• Sorting: Cost descending to prioritize high-budget exposure immediately",
+          "• Conditional Formatting: Costs >€300 highlighted in red; color scale on profit to spot margin leaks",
+          "• VLOOKUP Formula: =VLOOKUP(A2, A19:B23, 2, FALSE) where FALSE specifies exact match",
+          "• Pivot Table: Summarized total clicks and impressions across campaigns and audience segments"
+        ],
+        expandedSay: "The idea behind VLOOKUP is to search for a lookup key—in this case, the campaign name in cell A2—within the leftmost column of the lookup range A19:B23, and return the corresponding value from the second column, which contained the country label.\n\nThe FALSE argument is critical in reporting because it forces an exact match. Without FALSE, Excel defaults to an approximate match, which can return erroneous labels if the reference table is not sorted alphabetically. This structured dataset then fed directly into the Pivot Table for campaign aggregation.",
+        supportingContext: "Primary Notes Section 3: Excel Practical & VLOOKUP.",
+        stuckRecovery: {
+          breatheMsg: "Excel: Sort cost desc, conditional format >€300 red, =VLOOKUP(A2, A19:B23, 2, FALSE) exact match, pivot table.",
+          questionSummary: "Explain Excel steps & VLOOKUP?",
+          points: ["Sorted cost descending for high-spend visibility", "Conditional formatting for >€300 and profit scale", "=VLOOKUP(A2, A19:B23, 2, FALSE) with FALSE for exact match", "Pivot table for clicks and impressions"],
+          easySay: "I sorted by cost descending, added conditional formatting for costs over 300 euros and profit scales, used an exact match VLOOKUP for country labels, and summarized clicks in a pivot table.",
+          stallSay: "In Excel, I focused on making the data immediately visual and rigorously structured."
+        }
+      },
+      {
+        id: "master-q6",
+        category: "commercial",
+        speaker: "Technical Interviewer",
+        avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80",
+        question: "What did the campaign data tell you at the audience level, and how would you prioritise them?",
+        topic: "Audience Analysis & Prioritisation",
+        babeTag: "babe 👀 DE Broad is star (+€2,712 profit); US Lookalike (-€273) and UK Lookalike (-€110) losing money",
+        simplestQuestion: "DE Prospecting Broad generated €2,712 profit; US Lookalike lost €273; UK Lookalike lost €110. Prioritize scaling proven winners, audit losing Lookalikes.",
+        startWithPrompt: "Start with: “Looking at the audience breakdown, there are stark differences…”",
+        glanceSay: "Looking at the audience breakdown, there are stark differences in profitability. For DE Prospecting Sales, the Broad audience was our biggest winner, generating €3,912 in revenue and €2,712 in profit, while Lookalike made a small loss of €6. In US Acquisition Lead Gen, the Interests audience was profitable at €40, but the Lookalike audience lost €273, bringing in only €8 on €281 in cost. In UK Prospecting, Broad made €20 profit while Lookalike lost €110. I would prioritise investigating why DE Broad is working so well and scale it, while pausing or auditing the money-losing Lookalike audiences.",
+        glanceBullets: [
+          "• DE Prospecting Broad: €3,912 revenue, €2,712 profit — clear top priority for scaling",
+          "• US Acquisition Lookalike: €8 revenue vs €281 cost (-€273 loss) with low CTR — urgent audit or pause",
+          "• UK Prospecting: Broad generated €20 profit (€40 rev vs €20 cost); Lookalike lost €110",
+          "• DE Social ASC Broad: Lost €27 — check if still in learning phase or conversion tracking setup",
+          "• DE Retargeting CRM: €17 profit (€29 rev vs €12 cost) on only 60 clicks — promising, but need more data",
+          "• Prioritisation rule: Allocate budget towards proven profit engines, avoid decisions based on CTR alone"
+        ],
+        expandedSay: "When prioritising audiences, I look at contribution profit and conversion volume rather than click-through rate alone. DE Prospecting Broad is the clear commercial anchor of the portfolio, and I would investigate whether we can expand its budget while keeping CPAs stable.\n\nConversely, the Lookalike audiences across both the US and UK campaigns are actively burning budget. In the US, the Lookalike audience's CTR was lower than Interests, suggesting either audience fatigue, poor creative resonance, or lead quality issues. I would immediately cap or pause spend on the US Lookalike until we audit targeting parameters and landing page relevance.",
+        supportingContext: "Primary Notes Section 3: Audience Level Analysis & Prioritisation.",
+        stuckRecovery: {
+          breatheMsg: "Audience: DE Broad +€2,712 profit. US Lookalike -€273 loss. UK Lookalike -€110 loss. Prioritize proven profit.",
+          questionSummary: "What did audience data show?",
+          points: ["DE Broad generated €2,712 profit (scale priority)", "US Lookalike lost €273 on €281 spend (audit/pause)", "UK Lookalike lost €110; UK Broad +€20", "DE Retargeting +€17 on 60 clicks (promising but small)"],
+          easySay: "DE Prospecting Broad was our top performer generating 2,712 euros in profit, while the US and UK Lookalike audiences lost money. I'd prioritize scaling Broad and auditing the losing Lookalikes.",
+          stallSay: "The audience breakdown gave us the clearest strategic signal in the whole dataset."
+        }
+      },
+      {
+        id: "master-q7",
+        category: "technical",
+        speaker: "Technical Interviewer",
+        avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+        question: "Why must you calculate weighted CTR in a Pivot Table rather than averaging percentages?",
+        topic: "Weighted CTR in Pivot Tables",
+        babeTag: "babe 👀 never average percentages: overall CTR = Total Clicks ÷ Total Impressions × 100",
+        simplestQuestion: "Averaging percentage CTRs treats high-volume and low-volume campaigns equally, giving false numbers. Must divide total clicks by total impressions.",
+        startWithPrompt: "Start with: “One thing I was very careful about in Excel is how CTR is aggregated…”",
+        glanceSay: "One thing I was very careful about in Excel is how CTR is aggregated. You should never add individual CTR percentages together or take their average to calculate overall campaign performance. Averaging percentages treats a small 60-click campaign the same as a 7,500-click campaign, which distorts the true weighted average. Instead, you divide total clicks across the dataset by total impressions, and multiply by 100 to get the mathematically correct weighted CTR.",
+        glanceBullets: [
+          "• The Error: Averaging percentages creates an unweighted mathematical distortion",
+          "• Volume Weighting: A campaign with 200,000 impressions has vastly more statistical weight than one with 6,000",
+          "• Correct Formula: Overall CTR = (Sum of all Clicks ÷ Sum of all Impressions) × 100",
+          "• Pivot Table Best Practice: Use a calculated field or separate summary formula rather than 'Average of CTR'"
+        ],
+        expandedSay: "In statistical reporting, rates and ratios must always be recalculated from their underlying numerators and denominators. For example, if Campaign 1 has a 10% CTR on 100 impressions (10 clicks) and Campaign 2 has a 2% CTR on 10,000 impressions (200 clicks), a simple average of the percentages would show 6%. But the actual weighted CTR is 210 clicks divided by 10,100 impressions, which is just 2.08%.\n\nIn Google Sheets or Excel, I always configure Pivot Tables with calculated fields or compute the weighted metric across totals so stakeholders never make strategic decisions on skewed averages.",
+        supportingContext: "Primary Notes Section 3: A Note on Calculating CTR in a Pivot Table.",
+        stuckRecovery: {
+          breatheMsg: "Weighted CTR: Never average percentages. Total clicks divided by total impressions × 100.",
+          questionSummary: "Why calculate weighted CTR?",
+          points: ["Averaging percentages ignores volume weighting", "Small campaigns would distort large campaigns", "Formula: Total clicks ÷ Total impressions × 100", "Critical for accurate executive reporting"],
+          easySay: "You shouldn't average individual percentages because it treats small campaigns the same as massive ones. You must divide total clicks by total impressions for an accurate weighted CTR.",
+          stallSay: "That's a classic data aggregation trap—for me, mathematical integrity always comes first."
+        }
+      },
+      {
+        id: "master-q8",
+        category: "technical",
+        speaker: "Technical Interviewer",
+        avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+        question: "Can you walk us through the PPC calculation question in Part 3 of your notes?",
+        topic: "PPC Math Calculation Scenario",
+        babeTag: "babe 👀 100k imp × 3% CTR = 3,000 clicks | €300 spend | 150 conv × €20 = €3k profit - €300 = €2,700 net",
+        simplestQuestion: "100k impressions at 3% CTR = 3,000 clicks. At €0.10 CPC = €300 spend. At 5% CVR = 150 conversions. 150 × €20 margin = €3,000 gross - €300 spend = €2,700 net profit.",
+        startWithPrompt: "Start with: “Sure! The campaign has 100,000 impressions and a 3% CTR…”",
+        glanceSay: "Sure! The campaign has 100,000 impressions and a 3% CTR, which gives us 3,000 clicks. At €0.10 per click, the total advertising cost is €300. With a conversion rate of 5%, we get 150 conversions. At €20 profit per conversion, that's €3,000 in gross profit before advertising costs. After subtracting our €300 ad spend, we have €2,700 in net profit remaining, assuming the €20 profit figure accounts for all non-advertising expenses.",
+        glanceBullets: [
+          "• Clicks: 100,000 impressions × 3% CTR = 3,000 clicks",
+          "• Ad Spend: 3,000 clicks × €0.10 CPC = €300 total ad cost",
+          "• Conversions: 3,000 clicks × 5% Conversion Rate = 150 conversions",
+          "• Gross Profit: 150 conversions × €20 profit per conversion = €3,000",
+          "• Net Profit: €3,000 gross profit - €300 ad spend = €2,700 remaining net profit"
+        ],
+        expandedSay: "This calculation illustrates how unit economics and marketing metrics interact. Knowing the conversion rate allows us to calculate CPA directly: €300 spend divided by 150 conversions is a €2 CPA. Because each conversion generates €20 in margin, our return per conversion is ten times our acquisition cost.\n\nIt also demonstrates the difference between revenue and profit. If the product selling price were €100 and revenue were €15,000, looking at ROAS alone would show 50x, but what truly matters to the client is the net €2,700 contribution to the bottom line.",
+        supportingContext: "Primary Notes Section 4: PPC Calculation Question.",
+        stuckRecovery: {
+          breatheMsg: "Math: 100k imp × 3% = 3,000 clicks. €0.10 CPC = €300 cost. 5% CVR = 150 conv. 150 × €20 = €3k - €300 = €2,700 profit.",
+          questionSummary: "Walk through the PPC calculation?",
+          points: ["3,000 clicks from 100k imp at 3% CTR", "€300 ad spend at €0.10 CPC", "150 conversions at 5% conversion rate", "€2,700 net profit after subtracting €300 spend from €3,000 margin"],
+          easySay: "100,000 impressions at 3% CTR gives 3,000 clicks. At 10 cents per click, that's 300 euros spend. A 5% conversion rate gives 150 conversions, which at 20 euros profit each is 3,000 euros, leaving 2,700 euros net profit after subtracting ad spend.",
+          stallSay: "I'd love to break down those numbers step by step."
+        }
+      },
+      {
+        id: "master-q9",
+        category: "expected",
+        speaker: "Technical Interviewer",
+        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+        question: "Tell me about yourself and your journey into performance marketing.",
+        topic: "Personal Introduction & Background",
+        babeTag: "babe 👀 Dehradun valley, Media editor, Kraftshala performance marketing, AI & Roblox vibe coder",
+        simplestQuestion: "Tell your natural story: Dehradun valley, Media & Communication editor, Kraftshala curiosity, building AI tools and a Roblox game.",
+        startWithPrompt: "Start with: “I'm from Dehradun, which is a valley…”",
+        glanceSay: "I'm from Dehradun, which is a valley, and I think that explains why I love places that make you stop and look around for a minute. I studied Media and Communication and worked as an editor, so I've always been interested in stories, people, and how we communicate. When I joined Kraftshala, I discovered that I really enjoyed performance marketing because it brings together creativity, psychology, and data. A slightly unexpected discovery was how much I enjoyed working with AI. Then we were introduced to vibe coding, and I loved being able to take an idea and actually build something—I'm currently trying to make a small Roblox game! Overall, I just enjoy figuring things out, trying new things, and seeing if I can make an idea work.",
+        glanceBullets: [
+          "• Roots: Dehradun valley — thoughtful observation and genuine curiosity",
+          "• Foundation: Media & Communication graduate, editor with strict accuracy and communication skills",
+          "• Pivot: Kraftshala performance marketing — connecting creative messaging with quantitative data",
+          "• Hands-on builder: Exploring AI problem-solving, vibe coding, building functional tools and a Roblox game",
+          "• Mindset: Enjoys figuring things out, testing hypotheses, and making ideas work in practice"
+        ],
+        expandedSay: "Working in publishing gave me an appreciation for clear communication and audience intent under daily deadlines. When I saw how AI was beginning to reshape content, it sparked my interest to understand technical systems from the inside out rather than resisting them.\n\nIn performance marketing, what excites me is that you don't have to guess—you have immediate mathematical feedback. You can formulate a hypothesis about user psychology, structure a campaign, and see the auction and conversion funnel respond in real time. I'm eager to bring that builder curiosity to Crealytics and learn from experienced practitioners.",
+        supportingContext: "Primary Notes Section 1: Tell Me About Yourself.",
+        stuckRecovery: {
+          breatheMsg: "Dehradun valley → Media & Communication editor → Kraftshala performance marketing → AI & Roblox vibe coding.",
+          questionSummary: "Tell me about yourself?",
+          points: ["From Dehradun valley", "Media & Communication editor background", "Kraftshala performance marketing pivot", "Loves AI, vibe coding, and making ideas work"],
+          easySay: "I'm from Dehradun with a background in media and editing. At Kraftshala I fell in love with performance marketing because it connects creativity, psychology, and data, and lately I've been hands-on with AI and vibe coding.",
+          stallSay: "I'd love to share my background—it really connects back to my curiosity about people and systems."
+        }
+      },
+      {
+        id: "master-q10",
+        category: "expected",
+        speaker: "Technical Interviewer",
+        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+        question: "Why Crealytics, and why this Performance Marketing Associate role?",
+        topic: "Why Crealytics",
+        babeTag: "babe 👀 performance marketing + data + tech: learn how AI works at scale in retail/ecommerce",
+        simplestQuestion: "Combines performance marketing, data, and technology; want to see AI and data-driven decisions applied at scale in ecommerce.",
+        startWithPrompt: "Start with: “What caught my attention about Crealytics was the combination of…”",
+        glanceSay: "What caught my attention about Crealytics was the combination of performance marketing, data, and technology. Through my training at Kraftshala, I learned how bid strategies, keyword intent, and campaign structures influence performance. But I've also discovered how much I enjoy exploring AI and data analysis to solve real problems. I'd love to learn how that works at a larger scale in an agency environment that genuinely cares about profitable growth and incrementality rather than vanity clicks.",
+        glanceBullets: [
+          "• Core alignment: Intersection of performance marketing, deep data analysis, and technology",
+          "• Scale curiosity: Eager to see how AI and algorithmic bidding operate on large-scale ecommerce clients",
+          "• Commercial maturity: Respect Crealytics' public focus on incrementality and true profit over vanity ROAS",
+          "• Growth mindset: Bring strong analytical discipline and communication skills while learning rapidly"
+        ],
+        expandedSay: "Many agencies focus strictly on top-line platform metrics like blended ROAS, which often masks wasted spend and diminishing returns. What stands out about Crealytics is your technical depth in retail media, incrementality measurement, and margin-based decision making.\n\nMy background in editing taught me to verify facts and communicate clearly, and my coursework in data analytics and hands-on campaign testing gave me strong quantitative fundamentals. I want to build my career in a team where data integrity and analytical curiosity are celebrated.",
+        supportingContext: "Primary Notes Section 1: Why Crealytics?",
+        stuckRecovery: {
+          breatheMsg: "Why Crealytics: Data + tech + performance marketing. AI at scale. Profitable growth over vanity metrics.",
+          questionSummary: "Why Crealytics?",
+          points: ["Combination of performance marketing, data, and technology", "Exploring AI problem-solving at scale in ecommerce", "Focus on true incrementality and profitable growth", "Strong analytical culture to learn and contribute"],
+          easySay: "What drew me to Crealytics is the combination of performance marketing, data, and technology. I want to understand how AI and data-driven decisions drive profitable growth at scale.",
+          stallSay: "Crealytics really stood out to me from the start because of your focus on data and technology."
+        }
+      },
+      {
+        id: "master-q11",
+        category: "situational",
+        speaker: "Technical Interviewer",
+        avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+        question: "If a campaign is underperforming, what is your diagnostic framework?",
+        topic: "Campaign Underperformance Diagnostic",
+        babeTag: "babe 👀 6-step framework: Goal → Data → Diagnosis → Hypothesis → Action → Evaluation",
+        simplestQuestion: "Verify tracking first, segment by audience/creative/LP, isolate the funnel bottleneck, test one targeted change at a time.",
+        startWithPrompt: "Start with: “First, I'd check whether tracking is working properly…”",
+        glanceSay: "First, I'd check whether the tracking is working properly and whether the data is reliable. Then I'd break performance down across audience, creative, placement, and landing page to see where the drop-off is concentrated. I look at the funnel systematically: are people seeing the ad but not clicking, or clicking but not converting? Those are two completely different problems. Once I form a hypothesis, I test one change at a time, measure the result, and go from there. I never change five things at once and have no idea which one helped.",
+        glanceBullets: [
+          "• Step 1: Technical validation (verify conversion tags, GA4 events, and pixel firing)",
+          "• Step 2: Funnel segmentation (isolate impressions vs clicks vs conversions across devices and placements)",
+          "• Step 3: Intent & Creative audit (check search term reports for waste; review ad relevance)",
+          "• Step 4: Landing page check (mobile usability, page load speed, pricing, and checkout friction)",
+          "• Step 5: Controlled testing (change one variable at a time to isolate causality)"
+        ],
+        expandedSay: "When a campaign underperforms, the instinct is often to immediately slash bids or pause ad sets. But if the issue is a broken conversion tag or a slow mobile checkout page, altering campaign bids just compounds the error.\n\nBy following the Six-Step Framework—Goal, Data, Diagnosis, Hypothesis, Action, and Evaluation—we treat performance marketing as an empirical science. If high CTR is paired with low CVR, we audit post-click experience; if CTR is low with high CPC, we review keyword match types and auction competition.",
+        supportingContext: "Primary Notes Section 4: If a Campaign is Underperforming & Part 9 Framework.",
+        stuckRecovery: {
+          breatheMsg: "Underperforming: 1. Tracking check 2. Segment audience/creative/LP 3. Funnel drop-off 4. Test 1 variable.",
+          questionSummary: "What to do if campaign underperforms?",
+          points: ["Check tracking and data reliability first", "Segment by audience, creative, placement, and landing page", "Determine if drop-off is pre-click or post-click", "Test one variable at a time"],
+          easySay: "I first check tracking to ensure data is reliable, break down performance by audience and landing page to find the funnel drop-off, and test one change at a time so we know what worked.",
+          stallSay: "Whenever a campaign underperforms, I always follow a disciplined diagnostic framework."
+        }
+      },
+      {
+        id: "master-q12",
+        category: "commercial",
+        speaker: "Technical Interviewer",
+        avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80",
+        question: "What if the client wants to increase spend on a campaign just because it has a high CTR?",
+        topic: "High CTR Spend Increase Request",
+        babeTag: "babe 👀 a click is not a sale: check CVR, CPO, and margins before scaling spend",
+        simplestQuestion: "Explain that CTR is encouraging for creative relevance, but verify conversion rate and business profitability before recommending more budget.",
+        startWithPrompt: "Start with: “I'd explain that the high CTR is encouraging, but…”",
+        glanceSay: "I'd explain that the high CTR is encouraging because it shows the creative is capturing attention, but I'd want to check the conversion rate and business results before recommending more spend. If the campaign is generating conversions at an acceptable cost, scaling could make sense. But if it's generating clicks without meaningful revenue—like Campaign C in our case study—increasing the budget will just burn spend faster. I'd want the client to understand why we're making a recommendation, not just give them a number.",
+        glanceBullets: [
+          "• Creative validation: High CTR indicates strong ad resonance and attention",
+          "• Commercial reality: A click is not a sale; clicks without conversion readiness waste budget",
+          "• The Case Study Example: Campaign C had 30% CTR but lost money with a 0.95 ROAS",
+          "• Client partnership: Educate the client on unit economics and conversion quality before scaling"
+        ],
+        expandedSay: "Clients often see a 15% or 30% CTR in their dashboard and assume the campaign is a runaway success. My role as a performance marketer is to guide them toward true commercial outcomes.\n\nI would present the full funnel: CTR, conversion rate, cost per order, and return on ad spend. If the conversion rate is healthy and inventory margins allow for profitable scale, we can test a controlled budget increase. But if the conversion rate is low, I’d propose fixing landing page relevance or tightening audience intent before putting another euro into the auction.",
+        supportingContext: "Primary Notes Section 4: What if client wants to increase spend on high CTR?",
+        stuckRecovery: {
+          breatheMsg: "High CTR spend request: CTR is encouraging, but check conversion rate and profit. Clicks != sales.",
+          questionSummary: "Client wants to scale on high CTR?",
+          points: ["Acknowledge CTR shows strong attention", "Explain that a click is not a sale", "Check CVR, CPO, and profitability first", "Cite Campaign C (30% CTR, 0.95 ROAS) as the proof point"],
+          easySay: "I'd explain that while high CTR is encouraging for ad resonance, we need to check conversion rate and profitability first. High clicks without conversions just burns budget faster.",
+          stallSay: "That's a very common client conversation—for me, it's about grounding the discussion in profit."
+        }
+      },
+      {
+        id: "master-q13",
+        category: "behavioural",
+        speaker: "Technical Interviewer",
+        avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+        question: "What if the data doesn't give you a clear answer to a problem?",
+        topic: "Handling Data Ambiguity & Intellectual Honesty",
+        babeTag: "babe 👀 intellectual honesty: explain what data suggests vs what cannot be concluded, test next",
+        simplestQuestion: "Be honest. State what data suggests, what cannot be concluded, and propose a controlled test. Never guess or pretend to know.",
+        startWithPrompt: "Start with: “I'd be completely honest about that…”",
+        glanceSay: "I'd be completely honest about that. I'd explain what the data suggests, what we can't conclude yet, and what I'd need to investigate further. If we need more data or a larger sample size, I'd say so rather than make a recommendation I'm not confident in. I'd much rather give a clear answer with the right caveats and propose a controlled test than pretend we know something we don't.",
+        glanceBullets: [
+          "• Intellectual honesty: Acknowledge the limits of the available data openly",
+          "• Clear separation: Distinguish between verified observations and unproven hypotheses",
+          "• Sample size awareness: Avoid making sweeping conclusions on small datasets (like the 60-click retargeting set)",
+          "• Constructive next step: Propose a specific test or additional data point to resolve the ambiguity"
+        ],
+        expandedSay: "In performance marketing, pretending to have certainty when data is ambiguous leads to expensive mistakes. For instance, in our Excel exercise, the DE Retargeting campaign showed a positive €17 profit, but it was based on only 60 clicks. Declaring that a massive success without caveats would be irresponsible.\n\nMy approach is to communicate transparently: explain the plausible hypotheses, outline what additional tracking or volume is required to establish statistical confidence, and agree on a low-risk monitoring plan with the team.",
+        supportingContext: "Primary Notes Section 4: What if data doesn't give a clear answer?",
+        stuckRecovery: {
+          breatheMsg: "Data ambiguity: Be honest. State what data suggests, state what is unknown, propose controlled test.",
+          questionSummary: "What if data isn't clear?",
+          points: ["Be honest about data limitations", "State what data suggests vs what is unproven", "Never make unconfident recommendations", "Propose a controlled test to gather evidence"],
+          easySay: "I'd be honest about it. I'd explain what the data suggests, what we can't conclude yet, and what we need to test next. I'd rather give a clear answer with caveats than guess.",
+          stallSay: "I think intellectual honesty is one of the most important traits in an analyst."
+        }
+      },
+      {
+        id: "master-q14",
+        category: "technical",
+        speaker: "Technical Interviewer",
+        avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+        question: "How would you approach platforms like Microsoft Ads, Performance Max, or LinkedIn since your primary projects are in Google Search and Meta?",
+        topic: "Transferable Skills & Learning Unfamiliar Platforms",
+        babeTag: "babe 👀 candidate honesty principle: PPC principles are transferable, eager to learn hands-on at Crealytics",
+        simplestQuestion: "State honestly that you haven't had hands-on platform experience yet, but underlying PPC principles (intent, bidding, tracking) are transferable, and you're eager to learn.",
+        startWithPrompt: "Start with: “My strongest hands-on experience is with Google Search and Meta Ads, but…”",
+        glanceSay: "My strongest hands-on experience is with Google Search and Meta Ads, but the underlying performance marketing principles are completely transferable. I understand keyword intent, negative keywords, bidding mechanics, conversion tracking, and campaign optimization. For Microsoft Ads, PMax, or LinkedIn, I haven't had direct hands-on agency account experience yet, but I've studied how they operate—like PMax's multi-channel automation and product feed requirements—and I'm genuinely eager to learn them hands-on at Crealytics.",
+        glanceBullets: [
+          "• Honesty Safeguard: State clearly that practical experience is in Google Search and Meta, without pretending",
+          "• Transferable PPC Mechanics: Keyword intent, auction dynamics, negative keywords, conversion tracking",
+          "• Theoretical Grounding: Studied PMax audience signals and feed optimization, Microsoft search networks, and LinkedIn B2B lead generation",
+          "• Rapid Learner: Proven ability to dive into new tools (Google Data Analytics, SQL, Python, vibe coding)"
+        ],
+        expandedSay: "When taking on a new platform, my workflow is always structured: I study the official documentation, understand the campaign objectives, audit conversion tracking and bidding options, and test settings in a controlled environment before rolling out live budget.\n\nWhether it's configuring product feeds in Google Merchant Center for Performance Max or tailoring B2B audience targeting on LinkedIn, the core discipline of performance marketing remains the same: validate the data, monitor unit economics, and test hypotheses systematically.",
+        supportingContext: "Secondary Notes Part 1, 2, 4 & Candidate Honesty Directive.",
+        stuckRecovery: {
+          breatheMsg: "Honesty: Strongest in Google Search & Meta. Underlying PPC is transferable. Eager to master PMax/Microsoft Ads hands-on.",
+          questionSummary: "How to handle unfamiliar platforms?",
+          points: ["Be honest about hands-on background in Google & Meta", "PPC principles are transferable across platforms", "Studied PMax, Microsoft Ads, and LinkedIn concepts", "Eager to learn hands-on in this role"],
+          easySay: "My strongest practical experience is in Google Search and Meta, but PPC fundamentals are transferable. I haven't managed live PMax or Microsoft Ads accounts yet, but I understand the mechanics and I'm eager to learn them hands-on.",
+          stallSay: "I believe in being completely transparent about my experience while highlighting transferable skills."
+        }
+      },
+      {
+        id: "master-q15",
+        category: "commercial",
+        speaker: "Technical Interviewer",
+        avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+        question: "Can you explain the difference between attribution, incrementality, and Marketing Mix Modeling (MMM)?",
+        topic: "Attribution vs Incrementality vs MMM",
+        babeTag: "babe 👀 Attribution = credit assignment | Incrementality = causality (test/control) | MMM = macro regression",
+        simplestQuestion: "Attribution assigns credit to touchpoints (last-click); Incrementality proves if ads caused new sales that wouldn't happen anyway; MMM uses aggregate data over time.",
+        startWithPrompt: "Start with: “These three approaches answer fundamentally different questions…”",
+        glanceSay: "These three approaches answer fundamentally different questions. Attribution asks: which marketing touchpoints receive credit under a defined rule, like last-click or data-driven attribution. Incrementality asks: did the advertising actually cause additional sales that would not have happened organically, proven through test-and-control experiments. And Marketing Mix Modeling (MMM) uses top-down statistical regression on aggregate historical data to evaluate how all channels interact over time. They complement each other, but attribution should never be confused with causality.",
+        glanceBullets: [
+          "• Attribution: Rule-based credit assignment across touchpoints (last-click, multi-touch, data-driven)",
+          "• Incrementality: Causal proof via geo-lift or test-and-control experiments (did ads create net-new revenue?)",
+          "• Marketing Mix Modeling (MMM): Macro statistical analysis measuring channel contributions without cookies",
+          "• Platform ROAS Trap: Ad platforms take credit for existing organic demand; incrementality isolates true business lift"
+        ],
+        expandedSay: "Crealytics places huge emphasis on incrementality because platform-reported ROAS can be deeply misleading. For example, a branded search ad might report a 15x ROAS, but if those customers were already searching for the brand and would have purchased organically, the ad's incremental ROAS is near zero.\n\nBy combining bottom-up attribution for tactical bidding with top-down incrementality testing and MMM, advertisers can avoid double-counting conversions across Meta and Google and invest in channels that drive true commercial expansion.",
+        supportingContext: "Secondary Notes Part 6: Attribution vs Incrementality.",
+        stuckRecovery: {
+          breatheMsg: "Attribution = credit. Incrementality = true causality (test vs control). MMM = macro regression over time.",
+          questionSummary: "Attribution vs Incrementality vs MMM?",
+          points: ["Attribution assigns credit to touchpoints", "Incrementality proves causal lift via experiments", "MMM models macro channel interactions over time", "Platform ROAS often claims organic sales"],
+          easySay: "Attribution assigns credit under a model, incrementality tests whether the ad caused sales that wouldn't happen anyway, and MMM is top-down historical modeling across all channels.",
+          stallSay: "This is one of my favorite topics because it gets right to the heart of marketing measurement."
+        }
+      }
+    ];
+  }
+
+
+  if (templateId === "crealytics-functional" || textLower.includes("functional") || textLower.includes("account diagnostics") || textLower.includes("account audit")) {
+    return [
+      {
+        id: "func-q1",
+        category: "expected",
+        speaker: "Senior Performance Marketing Lead",
+        avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80",
+        question: "Tell me about yourself and your transition from editorial into performance marketing.",
+        topic: "Professional Profile & Transition",
+        babeTag: "babe 👀 editorial discipline + audience psychology to quantitative auction testing",
+        simplestQuestion: "How your editorial research and headline testing evolved into quantitative auction and performance marketing problem-solving.",
+        startWithPrompt: "Start with: “I started out in writing and editing at Sportskeeda…”",
+        glanceSay: "I started in writing and editing at Sportskeeda, where editing over a thousand articles and authoring six hundred NFL pieces taught me audience psychology and strict deadline discipline. But over time, I became fascinated by what happens beyond the content itself—how auction pacing works, why users drop off in checkout funnels, and how quantitative data can validate creative hypotheses. That led me to Kraftshala, where I've managed campaigns across Google Search, Meta Ads, and Amazon PPC. I love bringing together communication intuition and rigorous data to test hypotheses and optimize for real margins.",
+        glanceBullets: [
+          "• Editorial foundation: 1,000+ edited, 600+ written under daily deadlines (audience psychology & headline resonance)",
+          "• Quantitative pivot: moving beyond content into auction mechanics, pacing, and conversion funnels",
+          "• Hands-on execution: Google Search (CTR 5.2%→14.8%, CPC -21%), Meta Cost Cap (₹91→₹29), Amazon PPC",
+          "• Core philosophy: Treat every campaign as a structured hypothesis and optimize for true profit"
+        ],
+        expandedSay: "In editorial work, you have to understand what makes a headline capture attention and deliver accurate research under daily pressure. Moving into performance marketing felt like a natural quantitative evolution: instead of guessing what works, you test intent-based ad groups, analyze auction pacing, and measure post-click conversion rates.\n\nRunning campaigns across Google, Meta, and Amazon taught me to treat platform automation as a system to be understood rather than an unexamined black box. I'm excited about Crealytics because you connect algorithmic technology and first-party data directly with bottom-line profitability rather than vanity ROAS.",
+        supportingContext: "Notes Section 1: Professional Profile & Performance Marketing Foundation.",
+        stuckRecovery: {
+          breatheMsg: "Take a breath babe. Editorial discipline → auction curiosity → hands-on Search, Meta, Amazon campaigns.",
+          questionSummary: "Tell me about yourself & performance marketing transition?",
+          points: ["1,000+ edited, 600+ written at Sportskeeda", "Curious about auction mechanics & conversion funnels", "Hands-on across Google, Meta, and Amazon PPC", "Hypothesis-driven & margin-first"],
+          easySay: "I started in NFL sports writing where I learned audience psychology and deadlines, and moved into performance marketing to combine that communication background with quantitative data and auction testing.",
+          stallSay: "I'd love to share that transition—it really started with audience psychology in editorial writing."
+        }
+      },
+      {
+        id: "func-q2",
+        category: "expected",
+        speaker: "Senior Performance Marketing Lead",
+        avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80",
+        question: "How would you approach auditing a new or underperforming client account?",
+        topic: "Account Audit Framework",
+        babeTag: "babe 👀 6-step diagnostic: Tracking → Structure → SQR/Negatives → Bidding/IS → Creative → Landing Page",
+        simplestQuestion: "Step-by-step diagnostic sequence: never touch campaigns before verifying tracking; isolate brand vs generic; eliminate SQR waste.",
+        startWithPrompt: "Start with: “When taking over an account, I follow a disciplined six-step diagnostic sequence…”",
+        glanceSay: "When taking over an account, I follow a disciplined six-step diagnostic sequence. Step zero is always tracking and measurement integrity—verifying GA4, conversion tags, and deduplication before touching a single campaign. From there, I audit account structure to ensure brand and generic queries are isolated, analyze the Search Query Report to eliminate budget-draining search terms, evaluate bidding strategy alignment and impression share loss, inspect creative fatigue, and finally diagnose landing page mobile speed and conversion friction.",
+        glanceBullets: [
+          "• Step 0: Tracking health (GA4, CAPI, conversion deduplication, primary actions)",
+          "• Step 1: Account structure & intent isolation (Brand vs Generic separation, match type leakage)",
+          "• Step 2: SQR & negative keyword hygiene (identifying runaway search queries burning spend)",
+          "• Step 3: Bidding strategy & Impression Share (IS lost to budget vs IS lost to rank, learning phases)",
+          "• Step 4: Creative & copy health (RSA strength, headline-keyword alignment, fatigue)",
+          "• Step 5: Post-click funnel & landing page (mobile load speed, message consistency, checkout friction)"
+        ],
+        expandedSay: "The reason I always begin with tracking is that making bid or budget changes on inaccurate data just compounds the problem. If conversions are double-counted or primary events are misconfigured, smart bidding algorithms optimize toward false signals.\n\nOnce tracking is verified, the biggest quick win usually comes from the Search Query Report and intent isolation. Separating brand keywords from generic terms prevents branded demand from inflating top-line ROAS and masking unprofitable generic spend. Then, by sculpting negative keywords and fixing post-click landing page disconnects, we can quickly reallocate wasted spend toward high-intent conversion clusters.",
+        supportingContext: "Notes Section 3: Step-by-Step Account Audit Playbook.",
+        stuckRecovery: {
+          breatheMsg: "6-step sequence: 1. Tracking → 2. Structure → 3. SQR/Negatives → 4. Bidding/IS → 5. Creative → 6. Landing Page.",
+          questionSummary: "How to audit a client account?",
+          points: ["Step 0: Verify tracking before touching campaigns", "Isolate brand vs generic in structure", "Audit SQR for budget drainers", "Check landing page mobile speed & friction"],
+          easySay: "I start by verifying tracking integrity so we never make decisions on bad data, then audit account structure to separate brand from generic, sculpt negative keywords in the SQR, and review landing page checkout friction.",
+          stallSay: "When auditing a client account, I always walk through a structured six-step sequence."
+        }
+      },
+      {
+        id: "func-q3",
+        category: "situational",
+        speaker: "Senior Performance Marketing Lead",
+        avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80",
+        question: "Our campaign CTR increased, but conversion rate and total conversions dropped. How would you diagnose what happened?",
+        topic: "CTR Up, CVR Down Diagnostic",
+        babeTag: "babe 👀 ad hook vs post-click disconnect: check tracking, intent leakage, and landing page mismatch",
+        simplestQuestion: "Clicks up + conversions down means curiosity without buying intent: tag breaks, broad query drift, or landing page disconnect.",
+        startWithPrompt: "Start with: “When CTR rises while conversion rate drops, that immediately signals a disconnect…”",
+        glanceSay: "When CTR rises while conversion rate drops, that immediately signals a disconnect between the ad hook and the post-click experience. First, I verify whether conversion tracking broke or tag containers were altered. If tracking is healthy, I audit the Search Query Report to see if broad match expansion or a curiosity-driven creative hook attracted high click volume with zero buying intent. Finally, I check the landing page to ensure the specific promotion, price, or product promised in the ad is prominently visible above the fold on mobile.",
+        glanceBullets: [
+          "• 1. Technical check: Verify conversion tag firing, tag manager triggers, and checkout events",
+          "• 2. Intent leakage: SQR audit to check if broad match or catchy copy attracted non-buyers",
+          "• 3. Post-click mismatch: Ensure the ad hook and discount are immediately visible on the landing page",
+          "• 4. Commercial friction: Check for sudden out-of-stock variants, price changes, or shipping fees at checkout"
+        ],
+        expandedSay: "In digital advertising, high CTR is not an automatic victory. A click simply represents curiosity; the conversion represents value alignment. When CTR spikes while conversions fall, it often means the ad over-promised or cast too wide a net—for example, advertising a massive promotional discount or broad solution that users cannot find once they land on the site.\n\nI’d also look at device segmentation and bounce rates. If mobile clicks surged because of accidental taps or responsive display placement leakage, mobile conversion rates will crater. Isolating the traffic by placement, query, and device allows us to prune the wasteful clicks and restore funnel alignment.",
+        supportingContext: "Notes Section 4: Situational Diagnostic Scenarios (Case 1: CTR up, CVR down).",
+        stuckRecovery: {
+          breatheMsg: "CTR up, CVR down: 1. Tag break? 2. Intent drift? 3. Landing page mismatch? 4. Price/stock friction?",
+          questionSummary: "Why did CTR rise but conversions drop?",
+          points: ["Verify conversion tracking tags first", "Check SQR for curiosity clickers vs buyers", "Ensure landing page matches ad promise", "Check mobile speed and checkout friction"],
+          easySay: "I check if conversion tags broke first, then audit search terms to see if broad keywords attracted curiosity clickers, and verify that the landing page delivers exactly what the ad promised.",
+          stallSay: "That's a classic performance puzzle—for me, it always comes down to isolating technical issues versus intent drift."
+        }
+      },
+      {
+        id: "func-q4",
+        category: "situational",
+        speaker: "Senior Performance Marketing Lead",
+        avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80",
+        question: "A campaign is spending its full daily budget with zero conversions. What is your diagnostic checklist?",
+        topic: "Zero-Conversion Campaign Triage",
+        babeTag: "babe 👀 immediate triage: fire test transaction, open SQR for budget drainers, test mobile checkout",
+        simplestQuestion: "Triage sequence: test transaction to rule out tag failure; audit SQR for 2-3 runaway queries; test mobile checkout live.",
+        startWithPrompt: "Start with: “If a campaign is burning its full daily budget with zero conversions…”",
+        glanceSay: "If a campaign is burning its full daily budget with zero conversions, my immediate triage has four steps. First, I fire a test transaction to verify whether conversion tracking is actually recording. Second, I open the Search Query Report immediately to see if two or three broad runaway queries sucked up eighty percent of the spend. Third, I test the landing page on an actual mobile device to ensure it isn't broken, slow, or showing out-of-stock errors. And fourth, I check whether a bidding strategy like Maximize Clicks is bidding aggressively on low-quality exploratory impressions.",
+        glanceBullets: [
+          "• 1. Test transaction: Confirm pixel/GA4 conversion tags are recording events live",
+          "• 2. SQR audit: Identify runaway broad search queries draining 70-80% of daily spend",
+          "• 3. Live mobile audit: Verify page load speed, mobile UX, and checkout button functionality",
+          "• 4. Bidding strategy review: Check if automated bidding is overpaying for low-intent traffic",
+          "• Action: Pause runaway wasteful queries, add negative match terms, and set bid guardrails"
+        ],
+        expandedSay: "The most common culprit when spend burns without conversions is runaway search term leakage. A single broad match keyword can trigger hundreds of completely irrelevant user searches that eat through the daily budget before noon.\n\nIf the search queries look reasonably relevant, then the problem is almost certainly post-click or technical: either the tracking tag failed to pass transaction values, or the landing page has a technical blocker like a broken payment gateway or slow mobile load time. By systematically checking tracking, search terms, and the checkout journey, you can contain the leak within hours rather than wasting days of budget.",
+        supportingContext: "Notes Section 4: Situational Diagnostic Scenarios (Case 2: Spending with zero conversions).",
+        stuckRecovery: {
+          breatheMsg: "Zero conversions triage: 1. Test transaction 2. SQR query drain 3. Mobile landing page test 4. Bidding guardrail.",
+          questionSummary: "Spending full budget with 0 conversions?",
+          points: ["Verify tracking with a test transaction", "Check SQR for runaway broad queries", "Test mobile checkout live", "Pause wasteful queries and add negatives"],
+          easySay: "I fire a test transaction to verify tracking, check the Search Query Report to pause runaway broad terms eating the budget, and test the mobile checkout page live.",
+          stallSay: "If a campaign is spending with zero conversions, my first instinct is a rapid four-step triage."
+        }
+      },
+      {
+        id: "func-q5",
+        category: "commercial",
+        speaker: "Senior Performance Marketing Lead",
+        avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80",
+        question: "A campaign is hitting high ROAS on a small spend, and the client wants to double the budget immediately. How do you evaluate and scale?",
+        topic: "Budget Scaling & Marginal Return Analysis",
+        babeTag: "babe 👀 never double overnight: marginal returns compress, scale 15-20% in stages, check Impression Share",
+        simplestQuestion: "Never double spend instantly—marginal ROAS drops. Scale in 15-20% increments every 3-5 days and track incremental return.",
+        startWithPrompt: "Start with: “I would advise against doubling the budget overnight…”",
+        glanceSay: "I would advise against doubling the budget overnight, because ad auction algorithms harvest the lowest-hanging, highest-intent users first. When you double spend instantly, the algorithm is forced into broader, lower-intent auctions, which compresses marginal returns and causes CPA to spike. Instead, I recommend scaling budget in disciplined fifteen to twenty percent increments every three to five days, while monitoring marginal ROAS and Search Impression Share lost to budget.",
+        glanceBullets: [
+          "• The trap: Doubling budget overnight pushes algorithms into broader, lower-converting auctions",
+          "• Algorithmic reset: Massive budget jumps reset machine learning phases and trigger bid volatility",
+          "• Disciplined scaling: Increase budget by 15-20% every 3-5 days to maintain algorithmic stability",
+          "• Marginal metrics: Calculate marginal ROAS and marginal CPA on incremental spend, not just blended ROAS",
+          "• Impression Share check: High IS lost to budget confirms safe expansion headroom"
+        ],
+        expandedSay: "Platform dashboards show blended ROAS, which masks diminishing marginal returns. If an account generates ₹10,000 on a ₹1,000 spend (10x ROAS), and spending an extra ₹1,000 only brings ₹1,200 of revenue (1.2x marginal ROAS), the blended ROAS looks like 5.6x, but that extra thousand was barely profitable.\n\nBefore increasing budget, I look at Search Impression Share lost to budget versus rank. If Impression Share lost to budget is high, there is genuine uncaptured demand in our existing high-intent keywords. We can scale incrementally, let the algorithm absorb the increased volume without bid spikes, and protect the client's bottom-line profitability.",
+        supportingContext: "Notes Section 4: Situational Diagnostic Scenarios (Case 3: Budget scaling).",
+        stuckRecovery: {
+          breatheMsg: "Never double overnight. Marginal returns compress. Scale 15-20% every 3-5 days. Watch marginal ROAS.",
+          questionSummary: "Client wants to double budget on high ROAS?",
+          points: ["Never double overnight; marginal returns compress", "Scale in 15-20% steps every 3-5 days", "Monitor marginal ROAS on incremental spend", "Check Impression Share lost to budget"],
+          easySay: "I explain that algorithms harvest high-intent users first, so doubling budget instantly drives up CPA. I recommend scaling in 15-20% increments every few days while tracking marginal ROAS.",
+          stallSay: "That's a classic scaling dilemma—for me, the math of marginal returns comes first."
+        }
+      },
+      {
+        id: "func-q6",
+        category: "expected",
+        speaker: "Senior Performance Marketing Lead",
+        avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80",
+        question: "Walk me through your Google Search Ads project and your results.",
+        topic: "Google Search Ads Project",
+        babeTag: "babe 👀 intent restructuring: CTR 5.2%→14.8%, CPC cut 21% (₹5.33→₹4.21), 17/19 conversions",
+        simplestQuestion: "Google Search results: intent-based ad groups and negative keywords tripled CTR and reduced CPC by 21%.",
+        startWithPrompt: "Start with: “In my Google Search project for Unleavables, our core breakthrough was…”",
+        glanceSay: "In my Google Search project for Unleavables, our core breakthrough was diagnosing query intent and restructuring the ad groups. Originally, broad keyword matching was causing intent leakage and dragging down CTR. We split the account into tight, intent-driven ad groups and aggressively sculpted negative keywords. That drove our CTR from 5.20% up to 14.78%, cut CPC by 21% from ₹5.33 down to ₹4.21, and delivered 17 out of 19 planned conversions on a ₹777 spend.",
+        glanceBullets: [
+          "• 1,252 impressions and 185 clicks",
+          "• CTR surged from 5.20% to 14.78% through intent-based ad group restructuring",
+          "• CPC cut by 21% from ₹5.33 to ₹4.21 via negative keyword sculpting",
+          "• 17 of 19 planned conversions achieved on ₹777 spend (₹800 budget)",
+          "• Deep dive: SQR analysis of the 2 missed conversions revealed exploratory query bounce"
+        ],
+        expandedSay: "What was most valuable about that project was digging into the search query reports to analyze the two conversions we missed. I found that while our high-intent clusters were converting efficiently, certain exploratory queries were still triggering our ads and bouncing on the landing page.\n\nThat showed me that Google's auction isn't just about winning the bid—it's about query alignment and post-click friction. It gave me a strong appreciation for negative keyword hygiene, Quality Score components (expected CTR, ad relevance, landing page experience), and treating every campaign as a continuous feedback loop.",
+        supportingContext: "Notes Section 2: Google Search Ads Project (Unleavables).",
+        stuckRecovery: {
+          breatheMsg: "Google Search: 1,252 impressions, CTR 5.2% → 14.78%, CPC ₹5.33 → ₹4.21 (-21%), 17/19 conversions on ₹777 spend.",
+          questionSummary: "Google Search Ads results?",
+          points: ["CTR 5.20% to 14.78%", "CPC cut 21% to ₹4.21", "17 of 19 conversions on ₹777 spend", "Intent restructuring & negative sculpting"],
+          easySay: "We increased CTR from 5.20% to 14.78% and reduced CPC by 21% to ₹4.21 through intent-based ad groups and negative keyword sculpting, delivering 17 of 19 conversions on ₹777 spend.",
+          stallSay: "I'd love to walk through the metrics from that Google Search project."
+        }
+      },
+      {
+        id: "func-q7",
+        category: "expected",
+        speaker: "Senior Performance Marketing Lead",
+        avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80",
+        question: "In your Unleavables Meta Ads project, how did Cost Cap compare to Highest Volume?",
+        topic: "Meta Ads Bidding Test (Cost Cap vs Highest Volume)",
+        babeTag: "babe 👀 Cost Cap beat Highest Volume: cost per ATC dropped from ₹91 to ₹29, 11.04% CTR",
+        simplestQuestion: "Highest Volume spent unconditionally; Cost Cap set an algorithmic ceiling that dropped cost/ATC to ₹29.",
+        startWithPrompt: "Start with: “In the Unleavables Meta Ads project, we ran a direct test…”",
+        glanceSay: "In the Unleavables Meta Ads project, we ran a direct test comparing Meta's default Highest Volume bidding against an explicit Cost Cap. Highest Volume prioritizes exhausting the daily budget, which caused our cost per add-to-cart to surge to ₹91 during competitive auction spikes. When we switched to Cost Cap, we set an algorithmic ceiling that forced Meta to pace delivery and bid selectively, dropping our cost per add-to-cart down to ₹29 during the test with an 11.04% CTR.",
+        glanceBullets: [
+          "• Direct test: Meta Highest Volume vs Cost Cap bidding",
+          "• Cost per add-to-cart dropped from ₹91 to ₹29 during the Cost Cap test period",
+          "• Overall campaign benchmark: 11.04% CTR, 15 add-to-carts, ₹54.52 blended CV benchmark",
+          "• Auction mechanism: Highest Volume spends budget regardless of cost; Cost Cap bids only when conversion probability justifies the bid",
+          "• Key takeaway: Algorithmic bid caps protect unit economics during auction volatility"
+        ],
+        expandedSay: "Highest Volume is essentially an unconstrained pacing model: if competition rises on a Thursday evening, Meta will happily bid up impression prices just to spend the remaining daily budget. By implementing Cost Cap, we gave the algorithm a clear economic boundary.\n\nDelivery slowed down slightly during high-competition hours, but the conversions we acquired were far more cost-effective. That test proved that you should never let platform automation run unconstrained—understanding how auction bidding dynamics interact with unit economics is essential for maintaining client margins.",
+        supportingContext: "Notes Section 2: Meta Ads Project (Unleavables).",
+        stuckRecovery: {
+          breatheMsg: "Meta test: Cost Cap vs Highest Volume. Cost/ATC dropped ₹91 to ₹29. 11.04% CTR.",
+          questionSummary: "Cost Cap vs Highest Volume results?",
+          points: ["Highest Volume spent budget unconditionally at ₹91/ATC", "Cost Cap forced selective bidding at ₹29/ATC", "11.04% CTR, 15 add-to-carts"],
+          easySay: "Cost Cap dropped our cost per add-to-cart from ₹91 to ₹29 by forcing Meta to bid selectively rather than spending the budget unconditionally, delivering an 11.04% CTR.",
+          stallSay: "In that project, the core experiment was comparing bidding strategies."
+        }
+      },
+      {
+        id: "func-q8",
+        category: "reflective",
+        speaker: "Senior Performance Marketing Lead",
+        avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80",
+        question: "In your Homecrust Amazon campaign, clicks grew 40% but ACoS was 173%. What was the diagnosis?",
+        topic: "Homecrust Amazon PPC & Commercial Diagnosis",
+        babeTag: "babe 👀 clicks +40% but ACoS 173%: traffic without listing readiness and price elasticity burns budget",
+        simplestQuestion: "Ad drove traffic efficiently (+40% clicks), but the product listing lacked reviews and price readiness, hurting conversion rate.",
+        startWithPrompt: "Start with: “Homecrust was a defining learning experience because it demonstrated…”",
+        glanceSay: "Homecrust was a defining learning experience because it demonstrated that traffic efficiency means nothing without listing conversion readiness. We ran Amazon Sponsored Products with negative targeting and a nine-hour dayparting window: impressions grew five percent, clicks surged forty percent, and CTR improved to 1.06%. But conversion rate dropped from 2.20% to 1.58%, pushing ACoS up to 173% on our ₹700 budget.",
+        glanceBullets: [
+          "• Top of funnel improved: impressions +5% (5,955), clicks +40% (45 → 63), CTR 0.80% → 1.06%",
+          "• Conversion headwind: conversion rate dipped to 1.58%, generating 2 orders (₹857 sales) and 173.59% ACoS",
+          "• Diagnostic root cause: Product listing lacked social proof/reviews, uncompetitive price point, and dayparting bids drove traffic during browsing hours",
+          "• Commercial truth: Advertising can solve visibility, but it cannot solve product-market fit or listing friction"
+        ],
+        expandedSay: "At surface level, a 40% click lift looks like an optimization success. But when we audited the entire conversion funnel, we realized the advertising was successfully driving shoppers to the detail page, but the listing itself wasn't ready to convert them. The listing had low review velocity compared to category competitors, and our dayparting window was capturing lunchtime research clicks rather than evening purchasing sessions.\n\nThat experience taught me to look at retail media holistically: you cannot evaluate PPC in a silo from buy box ownership, customer review sentiment, price elasticity, and listing readiness. It gave me a deep commitment to commercial honesty over vanity traffic.",
+        supportingContext: "Notes Section 2: Amazon Sponsored Products Project (Homecrust).",
+        stuckRecovery: {
+          breatheMsg: "Homecrust: Clicks +40%, CTR 1.06%, but ACoS 173%. Lesson: Traffic without listing readiness burns spend.",
+          questionSummary: "Why did Homecrust ACoS rise to 173%?",
+          points: ["Clicks rose 40% and CTR improved", "Conversion rate dropped to 1.58% (ACoS 173%)", "Listing lacked reviews and price competitiveness", "Advertising cannot compensate for listing friction"],
+          easySay: "Clicks surged 40% but conversion rate fell, pushing ACoS to 173%. It proved that advertising can drive traffic, but if the product listing lacks review velocity and price competitiveness, you just burn spend.",
+          stallSay: "That project gave me a really valuable lesson about the difference between traffic and profitability."
+        }
+      },
+      {
+        id: "func-q9",
+        category: "expected",
+        speaker: "Senior Performance Marketing Lead",
+        avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80",
+        question: "How do you evaluate bidding strategies across Google, Meta, and Amazon?",
+        topic: "Cross-Platform Bidding Strategy Playbook",
+        babeTag: "babe 👀 match bidding to data maturity: Max Conversions to build signal, tCPA with 30+ conv, Cost Cap for Meta margins",
+        simplestQuestion: "Align bidding with conversion volume maturity: build volume first, cap bids when data stabilizes, use placement modifiers on Amazon.",
+        startWithPrompt: "Start with: “I evaluate bidding strategies based on conversion data maturity…”",
+        glanceSay: "I evaluate bidding strategies based on conversion data maturity and the client's commercial objective. On Google Ads, I use Maximize Clicks only for keyword discovery on new campaigns, transition to Maximize Conversions to build conversion volume, and only activate Target CPA or Target ROAS once the campaign has at least twenty to thirty monthly conversions. On Meta Ads, I use Highest Volume when scaling flexible budgets, but rely on Cost Cap when protecting strict customer acquisition margins. And on Amazon, I combine Sponsored Products with Top-of-Search placement modifiers and dayparting to avoid off-peak browsing clicks.",
+        glanceBullets: [
+          "• Google Ads progression: Max Clicks (discovery) → Max Conversions (data ramp) → Target CPA/ROAS (stable data)",
+          "• Threshold rule: Do not activate tCPA / tROAS without at least 20-30 historical conversions per month",
+          "• Meta Ads: Highest Volume for fast scale; Cost Cap to enforce unit economics and margin ceilings",
+          "• Amazon Ads: Placement multipliers (Top of Search vs Product Pages) + dayparting to capture buying hours"
+        ],
+        expandedSay: "The biggest mistake in bidding management is switching to smart bidding too early. Automated bidding algorithms rely on Bayesian probability: if they don't have enough conversion event signals, they bid erratically or choke impression delivery. By respecting the learning curve—building signal density before setting rigid target CPAs—you set the algorithm up for success.\n\nSimilarly, on retail media like Amazon, placement multipliers allow you to bid aggressively on Top of Search placements where conversion rates are 2x to 3x higher, while bidding conservatively on lower-converting product detail pages.",
+        supportingContext: "Notes Section 4: Platform Bidding Strategies.",
+        stuckRecovery: {
+          breatheMsg: "Google: Max Clicks → Max Conversions → tCPA/tROAS. Meta: Cost Cap protects margin. Amazon: Top of Search modifiers.",
+          questionSummary: "How evaluate bidding strategies?",
+          points: ["Match bidding strategy to conversion data maturity", "Need 20-30 conversions before tCPA/tROAS", "Cost Cap on Meta protects unit economics", "Top of Search multipliers on Amazon"],
+          easySay: "I align bidding with data maturity—using Max Conversions to build signals on Google before switching to Target CPA, using Cost Cap on Meta to protect margins, and using placement modifiers on Amazon.",
+          stallSay: "I look at bidding strategies through the lens of conversion data maturity."
+        }
+      },
+      {
+        id: "func-q10",
+        category: "commercial",
+        speaker: "Senior Performance Marketing Lead",
+        avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80",
+        question: "How do you explain Crealytics' focus on POAS (Profit on Ad Spend) and iCLV over vanity ROAS?",
+        topic: "Crealytics POAS & iCLV Commercial Edge",
+        babeTag: "babe 👀 POAS optimizes for true cash profit after COGS; iCLV bids higher for repeat lifetime buyers",
+        simplestQuestion: "ROAS treats low and high margin sales identically; POAS bids on true gross profit contribution, and iCLV bids on repeat LTV.",
+        startWithPrompt: "Start with: “Standard ROAS is fundamentally flawed because…”",
+        glanceSay: "Standard ROAS is fundamentally flawed because it treats every rupee of top-line revenue as equally profitable. A ten-thousand-rupee sale on a low-margin electronic item with ten percent margin generates only one thousand rupees of gross profit, while the same revenue on apparel with sixty percent margin generates six thousand. Crealytics POAS integrates COGS, returns, and shipping into bidding algorithms so ad spend is allocated toward true gross profit contribution. Similarly, iCLV predicts customer repeat value so brands bid higher to acquire high-lifetime-value customers rather than one-and-done discount hunters.",
+        glanceBullets: [
+          "• The ROAS flaw: Treats low-margin and high-margin revenue identically; high ROAS can still cause net loss",
+          "• Crealytics POAS: Profit on Ad Spend incorporates Cost of Goods Sold (COGS) and returns to optimize gross profit",
+          "• Crealytics iCLV: Predictive Customer Lifetime Value models identify repeat-purchase probability",
+          "• Commercial impact: Bid aggressively on high-margin, high-LTV cohorts; bid conservatively on low-margin one-offs"
+        ],
+        expandedSay: "In modern e-commerce and retail media, optimizing for top-line revenue is dangerous. You can easily scale an account to a 4x ROAS and celebrate, while the client's finance director is looking at empty bank accounts because ad spend exceeded gross product margin after fulfillment.\n\nBy feeding real margin data and predictive customer lifetime value into automated bidding feeds, Crealytics bridges the gap between marketing execution and real business profitability. It transforms performance marketing from a media buying exercise into a true revenue and profit engine.",
+        supportingContext: "Notes Section 4: Crealytics Principles (POAS & iCLV).",
+        stuckRecovery: {
+          breatheMsg: "POAS > ROAS: ROAS ignores product margins. POAS bids on true gross profit. iCLV bids on repeat customer value.",
+          questionSummary: "Why POAS and iCLV over ROAS?",
+          points: ["ROAS treats low and high margin revenue identically", "POAS incorporates COGS and returns to bid on gross profit", "iCLV predicts repeat customer lifetime value", "Protects actual client bank balance"],
+          easySay: "Standard ROAS ignores product margins, so a high ROAS can still lose money. Crealytics POAS bids on actual gross profit contribution, while iCLV bids higher for customers with high repeat lifetime value.",
+          stallSay: "I think that's one of the most exciting aspects of Crealytics' approach to retail media."
+        }
+      },
+      {
+        id: "func-q11",
+        category: "behavioural",
+        speaker: "Senior Performance Marketing Lead",
+        avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80",
+        question: "If a client or colleague strongly disagrees with your campaign recommendations, how do you handle it?",
+        topic: "Constructive Disagreement & Data-Driven A/B Testing",
+        babeTag: "babe 👀 understand why first + shared goal over winning + design A/B test with data guardrails",
+        simplestQuestion: "Diagnose whether disagreement is about information or priorities; focus on shared goal; propose controlled A/B test.",
+        startWithPrompt: "Start with: “I always start by understanding why we disagree…”",
+        glanceSay: "I always start by understanding why we disagree—whether we're looking at different data or approaching the problem with different business priorities. I keep the focus strictly on our shared goal rather than on whose idea wins. In performance marketing, we don't need to debate personal opinions; the best approach is to design a controlled A/B split test with strict budget guardrails and let empirical conversion data give us the answer.",
+        glanceBullets: [
+          "• Diagnose the root cause: Different information vs different commercial priorities",
+          "• Shared goal over winning: Keep the focus on business outcomes, not personal ego",
+          "• Test with data: Propose a structured A/B split test with controlled budget to let real numbers decide",
+          "• Professional respect: Disagree constructively on strategy while maintaining strong collaboration"
+        ],
+        expandedSay: "When a client pushes back—for example, wanting to keep a high-spending, non-converting keyword running because of emotional attachment—I don't just tell them they're wrong. I walk them through the data, show the opportunity cost in terms of wasted budget, and propose a low-risk test.\n\nBy presenting solutions as data-driven experiments rather than confrontations, you protect client relationships and ensure campaign capital is deployed responsibly.",
+        supportingContext: "Notes Section 5: Collaboration, Stakeholder Management & Disagreements.",
+        stuckRecovery: {
+          breatheMsg: "Understand why first → shared goal over winning → design an A/B split test with real data.",
+          questionSummary: "How to handle disagreements on campaign strategy?",
+          points: ["Understand why: different data or priorities", "Focus on shared goal, not personal winning", "Design a controlled A/B test to let data decide", "Constructive and respectful"],
+          easySay: "I first understand whether we have different data or priorities, focus on the shared business goal, and propose a controlled A/B test with data guardrails to let empirical results decide.",
+          stallSay: "I always start by trying to understand why we disagree, because usually people just have different data or priorities."
+        }
+      },
+      {
+        id: "func-q12",
+        category: "opinion",
+        speaker: "Senior Performance Marketing Lead",
+        avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80",
+        question: "Do you have any questions for the performance marketing team today?",
+        topic: "Questions for the Functional Team",
+        babeTag: "babe 👀 strategic questions on POAS margin integration, experimentation cadence, and PMax control",
+        simplestQuestion: "Ask about how margin data feeds into bidding algorithms, team experimentation cadence, and handling black-box PMax.",
+        startWithPrompt: "Start with: “I do, thank you! First, how does the team practically integrate…”",
+        glanceSay: "I do, thank you! First, how does the team practically integrate client margin and COGS data into automated bidding algorithms across Google and retail media? Second, what does the typical diagnostic and experimentation cadence look like across accounts—how do associates propose and validate new campaign tests? And third, with the industry shifting toward black-box automation like Advantage+ and Performance Max, how does Crealytics maintain strategic intent control?",
+        glanceBullets: [
+          "• 1. How does the team integrate client margin and COGS data into bidding algorithms day-to-day?",
+          "• 2. What is the team's experimentation cadence for proposing and validating new campaign tests?",
+          "• 3. How does Crealytics maintain intent control and transparency in black-box environments like PMax?",
+          "• 4. What separates a mechanically competent associate from someone who becomes an exceptional strategist here?"
+        ],
+        expandedSay: "I'm really interested in how you balance proprietary AI and automation with human strategic oversight. Platforms like Google and Meta push hard toward full automation, but retail clients often have complex margin structures and inventory fluctuations that platform algorithms don't account for.\n\nI'd love to know how associates on the team get involved in developing custom solutions and hypotheses that bridge that gap.",
+        supportingContext: "Notes Section 6: Strategic Questions to Ask the Performance Marketing Team.",
+        stuckRecovery: {
+          breatheMsg: "Ask about POAS margin integration, experimentation cadence, and handling black-box automation (PMax).",
+          questionSummary: "Questions for the functional team?",
+          points: ["How is client margin data integrated into bidding?", "What is the experimentation cadence for testing?", "How do you maintain intent control against black-box PMax?", "What makes an exceptional strategist here?"],
+          easySay: "I'm curious how the team integrates client margin data into automated bidding day-to-day, and how you maintain strategic intent control in black-box platforms like Performance Max.",
+          stallSay: "I do have a couple of questions about the team's experimentation workflow and bidding technology."
+        }
+      }
+    ];
+  }
 
   // If this matches Crealytics interview template (Torsten Christ, Performance Marketing Associate, Sportskeeda, Kraftshala)
   if (templateId === "crealytics-interview" || textLower.includes("crealytics") || textLower.includes("torsten") || textLower.includes("kraftshala") || textLower.includes("sportskeeda") || textLower.includes("unleavables") || textLower.includes("homecrust")) {

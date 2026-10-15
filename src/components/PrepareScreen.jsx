@@ -27,6 +27,7 @@ export function PrepareScreen() {
     questionsList,
     selectedTemplateId,
     loadTemplate,
+    clearAllNotes,
     speakingStyle,
     setSpeakingStyle,
     setCurrentScreen
@@ -36,6 +37,13 @@ export function PrepareScreen() {
   const [newRemember, setNewRemember] = useState('');
   const [newAsk, setNewAsk] = useState('');
   const [syncedAlert, setSyncedAlert] = useState(null);
+
+  const handleClearNotes = () => {
+    clearAllNotes();
+    setFileSimulated(null);
+    setSyncedAlert("🧹 Cleared all notes! Ready for your new meeting.");
+    setTimeout(() => setSyncedAlert(null), 3000);
+  };
 
   const toneOptions = [
     "Enthusiastic & Curious (Eager Learner with Numbers)",
@@ -197,18 +205,29 @@ export function PrepareScreen() {
               <FileText size={18} className="text-accent" />
               <h2>What should Aside know before the meeting?</h2>
             </div>
-            <label className="file-attach-label" title="Attach text or notes file">
-              <Upload size={14} />
-              <span>{fileSimulated ? fileSimulated : "Add file"}</span>
-              <input type="file" onChange={handleFileUpload} style={{ display: 'none' }} accept=".txt,.md,.pdf,.doc,.docx" />
-            </label>
+            <div className="card-header-actions">
+              <button
+                type="button"
+                className="btn-clear-notes"
+                onClick={handleClearNotes}
+                title="Delete all notes and start fresh for a new meeting"
+              >
+                <Trash2 size={13} />
+                <span>Clear Notes</span>
+              </button>
+              <label className="file-attach-label" title="Attach text or notes file">
+                <Upload size={14} />
+                <span>{fileSimulated ? fileSimulated : "Add file"}</span>
+                <input type="file" onChange={handleFileUpload} style={{ display: 'none' }} accept=".txt,.md,.pdf,.doc,.docx" />
+              </label>
+            </div>
           </div>
 
           <textarea
             className="freeform-notes-area"
             value={rawNotes}
             onChange={handleNotesChange}
-            placeholder="Type freely... e.g. We are discussing our Q3 initiative. Search score is 78 with +12% volume. Creative was delayed 3 days because design needed legal sign-off. Hold off on scaling budget until Tuesday's test confirms efficiency..."
+            placeholder="Type or paste your meeting notes, agenda, talking points, key metrics, or things you're worried you'll forget..."
             rows={10}
           />
 
@@ -418,30 +437,39 @@ export function PrepareScreen() {
         <div className="preview-section-header">
           <div className="preview-title-group">
             <MessageSquareQuote size={18} className="text-accent" />
-            <h3>Generated Meeting Scenarios from Your Notes ({questionsList.length} Questions Ready)</h3>
+            <h3>Generated Meeting Scenarios from Your Notes {questionsList.length > 0 ? `(${questionsList.length} Questions Ready)` : "(0 Questions)"}</h3>
           </div>
-          <span className="badge-live-intel">✨ Leader Answers Active</span>
+          {questionsList.length > 0 && <span className="badge-live-intel">✨ Leader Answers Active</span>}
         </div>
-        <p className="preview-section-subtitle">
-          Babe automatically extracted these realistic questions from your notes and drafted articulate, multi-sentence executive answers:
-        </p>
-
-        <div className="preview-scenarios-grid">
-          {questionsList.slice(0, 3).map((q, idx) => (
-            <div key={q.id || idx} className="scenario-preview-card">
-              <div className="scenario-card-header">
-                <span className="scenario-idx">#{idx + 1}</span>
-                <span className="scenario-speaker">{q.speaker}</span>
-                <span className="scenario-cat-tag">{q.category}</span>
-              </div>
-              <h4 className="scenario-question-text">“{q.question}”</h4>
-              <div className="scenario-say-preview">
-                <span className="scenario-say-label">Babe Leader Response:</span>
-                <p className="scenario-say-text">“{q.glanceSay}”</p>
-              </div>
+        {questionsList.length > 0 ? (
+          <>
+            <p className="preview-section-subtitle">
+              Aside automatically extracted these realistic questions from your notes and drafted articulate, multi-sentence executive answers:
+            </p>
+            <div className="preview-scenarios-grid">
+              {questionsList.slice(0, 3).map((q, idx) => (
+                <div key={q.id || idx} className="scenario-preview-card">
+                  <div className="scenario-card-header">
+                    <span className="scenario-idx">#{idx + 1}</span>
+                    <span className="scenario-speaker">{q.speaker}</span>
+                    <span className="scenario-cat-tag">{q.category}</span>
+                  </div>
+                  <h4 className="scenario-question-text">“{q.question}”</h4>
+                  <div className="scenario-say-preview">
+                    <span className="scenario-say-label">Aside Leader Response:</span>
+                    <p className="scenario-say-text">“{q.glanceSay}”</p>
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          </>
+        ) : (
+          <div className="notes-empty-state-card">
+            <p className="preview-section-subtitle">
+              No questions generated yet. Paste your meeting notes above and click <strong>“✨ Synthesize Questions & Leader Answers”</strong> to extract realistic questions and prepared talking points.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

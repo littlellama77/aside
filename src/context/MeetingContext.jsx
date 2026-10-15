@@ -81,15 +81,16 @@ export function MeetingProvider({ children }) {
   });
 
   // Pre-Meeting Notes & Executive Memory Brief
-  const [selectedTemplateId, setSelectedTemplateId] = useState('crealytics-interview');
+  const [selectedTemplateId, setSelectedTemplateId] = useState(PRESET_NOTE_TEMPLATES[0].id);
   const [rawNotes, setRawNotes] = useState(PRESET_NOTE_TEMPLATES[0].rawNotes);
   const [cheatSheet, setCheatSheet] = useState(PRESET_NOTE_TEMPLATES[0].cheatSheet);
+  const [customQuestionsList, setCustomQuestionsList] = useState([]);
 
   // Meeting Configuration
   const [meetingConfig, setMeetingConfig] = useState({
-    name: "Crealytics HR / Culture Fit Interview",
-    type: "Interview",
-    topic: "Performance Marketing Associate",
+    name: PRESET_NOTE_TEMPLATES[0].title,
+    type: PRESET_NOTE_TEMPLATES[0].type || "Interview",
+    topic: PRESET_NOTE_TEMPLATES[0].topic || "Technical & Case Study",
     tone: "Executive Leader"
   });
 
@@ -113,16 +114,23 @@ export function MeetingProvider({ children }) {
   // userAudio (User Microphone) vs meetingAudio (Meeting Participants Stream)
   // ============================================================================
   const [userAudio, setUserAudio] = useState({ isSpeaking: false, level: 0 });
-  const [meetingAudio, setMeetingAudio] = useState({ isSpeaking: false, speaker: "Sarah (VP Marketing)", level: 0 });
+  const [meetingAudio, setMeetingAudio] = useState({ isSpeaking: false, speaker: "Meeting Attendee", level: 0 });
 
   // Rolling continuous conversation context (Section 10)
-  const [conversationHistory, setConversationHistory] = useState(INITIAL_CONVERSATION_HISTORY);
+  const [conversationHistory, setConversationHistory] = useState([]);
 
   // Active question & frozen suggestion (Section 4: User speech never regenerates!)
   const [activeQuestion, setActiveQuestion] = useState(null);
   const [activeScenarioIndex, setActiveScenarioIndex] = useState(0);
   const [frozenSuggestion, setFrozenSuggestion] = useState(null);
   const [isQuestionActive, setIsQuestionActive] = useState(false);
+  const activeQuestionRef = useRef(null);
+  const isQuestionActiveRef = useRef(false);
+
+  useEffect(() => {
+    activeQuestionRef.current = activeQuestion;
+    isQuestionActiveRef.current = isQuestionActive;
+  }, [activeQuestion, isQuestionActive]);
 
   // Targeting & Confidence metadata (Section 6 & 9)
   const [targetingInfo, setTargetingInfo] = useState({
@@ -179,21 +187,23 @@ export function MeetingProvider({ children }) {
   // Notes Drawer Open/Close
   const [isNotesDrawerOpen, setIsNotesDrawerOpen] = useState(false);
 
-  // OpenAI GPT-4o Real-Time Intelligence
+  // AI Engine Mode: 'notes' (100% verified local notes, safe for interview) | 'ai' (live LLM)
+  const [aiEngineMode, setAiEngineMode] = useState(() => {
+    return localStorage.getItem('aside_ai_engine_mode') || 'notes';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('aside_ai_engine_mode', aiEngineMode);
+  }, [aiEngineMode]);
+
+  // AI API Key & Model (supports Google Gemini and OpenAI)
   const [openaiApiKey, setOpenaiApiKey] = useState(() => {
-    const saved = localStorage.getItem('aside_openai_api_key');
-    if (saved) return saved;
-    try {
-      // Safely initialize with configured key without exposing raw pattern to GitHub scanners
-      const decoded = atob("c2stcHJvai1LazVQWF93ajk4UUhnRno1SFR6SUNQUy0xYzBDRHFCbnlJZm5BZXd2XzloQWR1MXZRLTZZTF9OSFpTVUNOUXRxT0YtQjFOX2ZWMFQzQmxia0ZKcW9Vd3ZFLVBGR1dDeGRqS0loX2g4aThXWTdBTy04bzlIaWhjUzYyeVVVSTE0UVpYUzZucE41Z2NuOGRFNHdPWEV0ZGJlcElXc0E=");
-      localStorage.setItem('aside_openai_api_key', decoded);
-      return decoded;
-    } catch {
-      return '';
-    }
+    return localStorage.getItem('aside_openai_api_key') || '';
   });
   const [openaiModel, setOpenaiModel] = useState(() => {
-    return localStorage.getItem('aside_openai_model') || 'gpt-4o-mini';
+    const saved = localStorage.getItem('aside_openai_model');
+    if (saved && !saved.includes('2.0') && !saved.includes('1.5') && !saved.includes('latest') && (saved.includes('3.8') || saved.includes('3.5') || saved.startsWith('gpt'))) return saved;
+    return 'gemini-3.5-flash';
   });
   const [isAiSettingsOpen, setIsAiSettingsOpen] = useState(false);
   const [isGeneratingWithAi, setIsGeneratingWithAi] = useState(false);
@@ -219,6 +229,7 @@ export function MeetingProvider({ children }) {
   const askCustomQuestionRef = useRef(null);
   const selectQuestionRef = useRef(null);
   const toggleManualQuestionCaptureRef = useRef(null);
+  const startFreshSpeechRecognitionRef = useRef(null);
 
   useEffect(() => {
     if (speechLocale) {
@@ -636,7 +647,7 @@ export function MeetingProvider({ children }) {
       return;
     }
 
-    // STAGE 1: IMMEDIATE INSTANT ANSWER (Box 1) in 0 milliseconds!
+    // STAGE 1: IMMEDIATE INSTANT ANSWER (Box 1 & Box 2) in 0 milliseconds!
     // Uses the rich verified local synthesizer so the candidate sees the quick answer IMMEDIATELY.
     const instantQ = synthesizeLeaderAnswerForCustomQuestion(
       cleanText,
@@ -645,7 +656,14 @@ export function MeetingProvider({ children }) {
       speakingStyle
     );
 
-    const isAiConfigured = Boolean(openaiApiKey && openaiApiKey.startsWith('sk-'));
+    const isCuratedMatch = Boolean(
+      instantQ.isCuratedScenario ||
+      (instantQ.id && instantQ.id.startsWith('matched-'))
+    );
+
+    // Only run live AI if user explicitly chose 'ai' mode, has an API key, AND question is NOT already a verified curated scenario!
+    const isAiConfigured = Boolean(openaiApiKey && openaiApiKey.trim());
+    const shouldRunAi = aiEngineMode === 'ai' && isAiConfigured && !isCuratedMatch;
 
     const initialQ = {
       ...instantQ,
@@ -654,79 +672,104 @@ export function MeetingProvider({ children }) {
       question: cleanText,
       quickSay: instantQ.glanceSay,
       quickBullets: instantQ.glanceBullets,
-      isDetailedLoading: isAiConfigured,
+      isDetailedLoading: shouldRunAi,
       isSynthesizing: false
     };
 
+    activeQuestionRef.current = initialQ;
+    isQuestionActiveRef.current = true;
     setActiveQuestion(initialQ);
     setIsQuestionActive(true);
+    companionSync.broadcastActiveQuestion(initialQ);
     setLastEmptyCaptureNotice(false);
     setFrozenSuggestion(null);
     transitionToState(CONVERSATION_STATES.QUESTION_CONFIRMED, `Question detected from ${speakerName}`);
     triggerQuestionDetected(initialQ);
 
-    // STAGE 2: SEAMLESS DUAL-BOX PIPELINE (Fast API model for Box 1 + Detailed Model for Box 2)
-    if (isAiConfigured) {
+    // STAGE 2: If user enabled AI mode and question was uncurated, refine with AI in background
+    if (shouldRunAi) {
       setIsGeneratingWithAi(true);
-      showSystemNotice(`⚡ Quick answer live! Deep dive generating in background...`);
+      showSystemNotice(`⚡ Notes answer live! AI refining follow-up in background...`);
 
       const recentHistory = (conversationHistory || [])
         .slice(-4)
         .map(item => `${item.speaker}: "${item.text}"`)
         .join('\n');
 
-      // 1. Fast API Model for Box 1 (gpt-4o-mini, short & rapid)
-      generateQuickAnswerWithGPT(cleanText, rawNotes, openaiApiKey)
-        .catch(err => {
-          console.warn("Fast API call fallback to instant local synthesizer:", err);
-          return null;
-        })
-        .then(fastRes => {
-          const quickText = fastRes?.glanceSay || instantQ.glanceSay;
-          if (fastRes?.glanceSay) {
+      const isBlankNotes = !rawNotes || !rawNotes.trim();
+
+      if (isBlankNotes) {
+        generateAnswerWithGPT(
+          cleanText,
+          rawNotes,
+          cheatSheet,
+          openaiApiKey,
+          openaiModel,
+          recentHistory
+        )
+          .then(aiFullRes => {
+            if (!aiFullRes) return;
             setActiveQuestion(prev => {
               if (!prev || prev.question !== cleanText) return prev;
-              return {
+              const updated = {
                 ...prev,
-                quickSay: fastRes.glanceSay,
-                glanceSay: fastRes.glanceSay,
-                quickBullets: fastRes.glanceBullets?.length ? fastRes.glanceBullets : prev.quickBullets,
-                glanceBullets: fastRes.glanceBullets?.length ? fastRes.glanceBullets : prev.glanceBullets,
-                fastModelName: 'Fast API (gpt-4o-mini)'
+                topic: aiFullRes.topic || prev.topic,
+                simplestQuestion: aiFullRes.simplestQuestion || prev.simplestQuestion,
+                babeTag: aiFullRes.babeTag || prev.babeTag,
+                glanceSay: aiFullRes.glanceSay || prev.glanceSay,
+                glanceBullets: (aiFullRes.glanceBullets && aiFullRes.glanceBullets.length > 0) ? aiFullRes.glanceBullets : prev.glanceBullets,
+                quickSay: aiFullRes.glanceSay || prev.quickSay,
+                quickBullets: (aiFullRes.glanceBullets && aiFullRes.glanceBullets.length > 0) ? aiFullRes.glanceBullets : prev.quickBullets,
+                expandedSay: aiFullRes.expandedSay || prev.expandedSay,
+                extraInformation: aiFullRes.extraInformation || prev.extraInformation,
+                isDetailedLoading: false,
+                detailedModelName: openaiModel || 'AI'
               };
+              companionSync.broadcastActiveQuestion(updated);
+              return updated;
             });
-          }
-
-          // 2. Detailed Deep-Dive Model for Box 2 (openaiModel, continues directly from Box 1)
-          return generateDetailedAnswerWithGPT(
-            cleanText,
-            rawNotes,
-            openaiApiKey,
-            openaiModel,
-            recentHistory,
-            quickText
-          );
-        })
-        .then(detailedRes => {
-          if (!detailedRes) return;
-          setIsGeneratingWithAi(false);
-          setActiveQuestion(prev => {
-            if (!prev || prev.question !== cleanText) return prev;
-            return {
-              ...prev,
-              expandedSay: detailedRes.expandedSay || prev.expandedSay,
-              extraInformation: detailedRes.extraInformation || prev.extraInformation,
-              isDetailedLoading: false,
-              detailedModelName: openaiModel || 'gpt-4o'
-            };
+            showSystemNotice("✓ AI meeting answer ready!");
+          })
+          .catch(err => {
+            console.warn("AI generation error, keeping initial answer:", err);
+          })
+          .finally(() => {
+            setIsGeneratingWithAi(false);
+            setActiveQuestion(prev => prev ? { ...prev, isDetailedLoading: false } : prev);
           });
-          showSystemNotice("✓ Detailed continuation loaded!");
-        })
-        .catch(err => {
-          console.warn("AI generation error:", err);
-          setIsGeneratingWithAi(false);
-          setActiveQuestion(prev => prev ? { ...prev, isDetailedLoading: false } : prev);
-        });
+      } else {
+        generateDetailedAnswerWithGPT(
+          cleanText,
+          rawNotes,
+          openaiApiKey,
+          openaiModel,
+          recentHistory,
+          instantQ.glanceSay
+        )
+          .then(detailedRes => {
+            if (!detailedRes || !detailedRes.expandedSay) return;
+            setActiveQuestion(prev => {
+              if (!prev || prev.question !== cleanText) return prev;
+              const updated = {
+                ...prev,
+                expandedSay: detailedRes.expandedSay || prev.expandedSay,
+                extraInformation: detailedRes.extraInformation || prev.extraInformation,
+                isDetailedLoading: false,
+                detailedModelName: openaiModel || 'AI'
+              };
+              companionSync.broadcastActiveQuestion(updated);
+              return updated;
+            });
+            showSystemNotice("✓ AI detailed continuation loaded!");
+          })
+          .catch(err => {
+            console.warn("AI generation error, keeping verified notes answer:", err);
+          })
+          .finally(() => {
+            setIsGeneratingWithAi(false);
+            setActiveQuestion(prev => prev ? { ...prev, isDetailedLoading: false } : prev);
+          });
+      }
     }
   }, [openaiApiKey, openaiModel, rawNotes, cheatSheet, speakingStyle, triggerQuestionNotForUser, triggerQuestionDetected, showSystemNotice, conversationHistory]);
 
@@ -734,8 +777,41 @@ export function MeetingProvider({ children }) {
     askCustomQuestionRef.current = askCustomQuestion;
   }, [askCustomQuestion]);
 
+  // Clear all notes and start fresh for a new meeting
+  const clearAllNotes = useCallback(() => {
+    setSelectedTemplateId('blank');
+    setRawNotes('');
+    const blankBrief = parseNotesToExecutiveBrief('');
+    setCheatSheet(blankBrief);
+    setMeetingConfig({
+      name: "New Meeting",
+      type: "Work",
+      topic: "General Discussion",
+      tone: "Executive Leader"
+    });
+    setQuestionsFeed([]);
+    setActiveQuestion(null);
+    setIsQuestionActive(false);
+    setFrozenSuggestion(null);
+    setConversationHistory([]);
+    setCustomQuestionsList([]);
+    transitionToState(CONVERSATION_STATES.LISTENING, "Notes cleared. Aside is listening.");
+    companionSync.broadcastStateToPhone({
+      conversationState: CONVERSATION_STATES.LISTENING,
+      activeQuestion: null,
+      isQuestionActive: false,
+      frozenSuggestion: null,
+      cheatSheet: blankBrief
+    });
+    showSystemNotice("🧹 All notes deleted. Ready to prepare for your new meeting!");
+  }, [transitionToState, showSystemNotice]);
+
   // Load a preset template
   const loadTemplate = useCallback((templateId) => {
+    if (templateId === 'blank') {
+      clearAllNotes();
+      return;
+    }
     const t = PRESET_NOTE_TEMPLATES.find(item => item.id === templateId) || PRESET_NOTE_TEMPLATES[0];
     setSelectedTemplateId(t.id);
     setRawNotes(t.rawNotes);
@@ -759,9 +835,11 @@ export function MeetingProvider({ children }) {
       type: t.type,
       topic: t.topic
     }));
+    const newQuestions = generateQuestionsFromNotes(t.rawNotes, t.id);
+    setCustomQuestionsList(newQuestions);
     setActiveScenarioIndex(0);
     selectScenarioByIndex(0);
-  }, [selectScenarioByIndex]);
+  }, [selectScenarioByIndex, clearAllNotes]);
 
   // Parse notes to executive memory brief
   const parseNotesToCheatSheet = useCallback((text) => {
@@ -771,7 +849,12 @@ export function MeetingProvider({ children }) {
 
   // Regenerate questions dynamically from notes
   const regenerateQuestionsFromNotes = useCallback((notesToUse = rawNotes) => {
+    if (!notesToUse || !notesToUse.trim()) {
+      setCustomQuestionsList([]);
+      return [];
+    }
     const newQuestions = generateQuestionsFromNotes(notesToUse, 'custom');
+    setCustomQuestionsList(newQuestions);
     if (newQuestions.length > 0) {
       setActiveQuestion(newQuestions[0]);
       triggerQuestionDetected(newQuestions[0]);
@@ -963,6 +1046,12 @@ export function MeetingProvider({ children }) {
       };
 
       recognition.onresult = (event) => {
+        // If an answer card is currently active on screen, candidate is speaking or reading their answer.
+        // DO NOT auto-trigger questions on the candidate's own voice!
+        if (isQuestionActiveRef.current || activeQuestionRef.current) {
+          return;
+        }
+
         let sessionFinal = '';
         let sessionInterim = '';
         const startIdx = speechStartIndexRef.current || 0;
@@ -1001,10 +1090,10 @@ export function MeetingProvider({ children }) {
         // Automatic mode 1500ms conversational debounce
         if (currentTurnText.length >= 6) {
           silenceTimerRef.current = setTimeout(() => {
-            if (isListeningActiveRef.current && !isManualCaptureActiveRef.current) {
+            if (isListeningActiveRef.current && !isManualCaptureActiveRef.current && !isQuestionActiveRef.current && !activeQuestionRef.current) {
               const candidateToProcess = currentTurnText.trim();
               if (candidateToProcess.length >= 6) {
-                if (isMeetingPromptOrQuestion(candidateToProcess) || candidateToProcess.split(/\s+/).length >= 4) {
+                if (isMeetingPromptOrQuestion(candidateToProcess)) {
                   speechStartIndexRef.current = event.results.length;
                   turnTranscriptBufferRef.current = '';
                   setLiveTranscript('');
@@ -1034,7 +1123,7 @@ export function MeetingProvider({ children }) {
           if (restartTimerRef.current) clearTimeout(restartTimerRef.current);
           restartTimerRef.current = setTimeout(() => {
             if (isListeningActiveRef.current || isManualCaptureActiveRef.current) {
-              startFreshSpeechRecognition();
+              startFreshSpeechRecognitionRef.current?.();
             }
           }, 250);
         }
@@ -1050,6 +1139,10 @@ export function MeetingProvider({ children }) {
       return null;
     }
   }, [speechLocale, askCustomQuestion, showSystemNotice]);
+
+  useEffect(() => {
+    startFreshSpeechRecognitionRef.current = startFreshSpeechRecognition;
+  }, [startFreshSpeechRecognition]);
 
   // Live Microphone Listening (Continuous toggle for background listening)
   const toggleLiveListening = useCallback(async () => {
@@ -1212,6 +1305,19 @@ export function MeetingProvider({ children }) {
     companionSync.broadcastStateToPhone({ currentScreen: 'wrapup', isQuestionActive: false });
   }, []);
 
+  const clearActiveQuestion = useCallback(() => {
+    activeQuestionRef.current = null;
+    isQuestionActiveRef.current = false;
+    setActiveQuestion(null);
+    setIsQuestionActive(false);
+    turnTranscriptBufferRef.current = '';
+    speechStartIndexRef.current = 0;
+    setLiveTranscript('');
+    setManualCapturedTranscript('');
+    transitionToState(CONVERSATION_STATES.LISTENING, "Answer dismissed, listening standby active");
+    companionSync.sendActionToPhone('CLEAR_QUESTION');
+  }, [transitionToState]);
+
   const value = {
     // Branding
     productName: ASIDE_PRODUCT_NAME,
@@ -1231,6 +1337,7 @@ export function MeetingProvider({ children }) {
     // Pre-Meeting Notes
     selectedTemplateId,
     loadTemplate,
+    clearAllNotes,
     rawNotes,
     setRawNotes,
     cheatSheet,
@@ -1269,6 +1376,7 @@ export function MeetingProvider({ children }) {
     // QUESTION & SUGGESTION
     activeQuestion,
     setActiveQuestion,
+    clearActiveQuestion,
     activeScenarioIndex,
     frozenSuggestion,
     isQuestionActive,
@@ -1312,7 +1420,9 @@ export function MeetingProvider({ children }) {
     isFollowCursorEnabled,
     setIsFollowCursorEnabled,
 
-    // OPENAI GPT REAL-TIME ENGINE
+    // AI ENGINE CONFIGURATION (Notes Mode vs AI Enhanced)
+    aiEngineMode,
+    setAiEngineMode,
     openaiApiKey,
     setOpenaiApiKey,
     openaiModel,
@@ -1341,7 +1451,7 @@ export function MeetingProvider({ children }) {
 
     // SCENARIOS & RECAP
     demoScenarios: DEMO_SCENARIOS,
-    questionsList: DEMO_SCENARIOS,
+    questionsList: customQuestionsList.length > 0 ? customQuestionsList : (rawNotes && rawNotes.trim() ? DEMO_SCENARIOS : []),
     wrapUpSummary: MEETING_WRAPUP_SUMMARY,
     stallingPhrases: BUY_ME_A_SECOND_PHRASES,
     thinkingIntroSentences: THINKING_INTRO_SENTENCES,

@@ -11,7 +11,8 @@ import {
   Lightbulb,
   Clock,
   Layers,
-  BookOpen
+  BookOpen,
+  Trash2
 } from 'lucide-react';
 import { PRESET_NOTE_TEMPLATES } from '../constants/mockData';
 
@@ -23,6 +24,7 @@ export function NotesDrawer({ isOpen, onClose }) {
     parseNotesToCheatSheet,
     selectedTemplateId,
     loadTemplate,
+    clearAllNotes,
     regenerateQuestionsFromNotes
   } = useMeeting();
 
@@ -43,6 +45,8 @@ export function NotesDrawer({ isOpen, onClose }) {
     const tmpl = PRESET_NOTE_TEMPLATES.find(t => t.id === templateId);
     if (tmpl) {
       setLocalNotes(tmpl.rawNotes);
+    } else {
+      setLocalNotes('');
     }
   };
 
@@ -137,7 +141,7 @@ export function NotesDrawer({ isOpen, onClose }) {
             ))}
           </div>
 
-          {/* Hidden File Input + Custom Upload Button */}
+          {/* Hidden File Input + Custom Upload & Clear Buttons */}
           <input
             type="file"
             ref={fileInputRef}
@@ -145,15 +149,29 @@ export function NotesDrawer({ isOpen, onClose }) {
             accept=".txt,.md,.markdown,.csv,.json"
             style={{ display: 'none' }}
           />
-          <button
-            type="button"
-            className="btn-upload-file"
-            onClick={() => fileInputRef.current?.click()}
-            title="Upload a .txt, .md, or .csv document of any size"
-          >
-            <Upload size={13} />
-            <span>Upload File</span>
-          </button>
+          <div className="drawer-btn-group">
+            <button
+              type="button"
+              className="btn-clear-notes-drawer"
+              onClick={() => {
+                clearAllNotes();
+                setLocalNotes('');
+              }}
+              title="Delete all notes and start clean"
+            >
+              <Trash2 size={13} />
+              <span>Clear</span>
+            </button>
+            <button
+              type="button"
+              className="btn-upload-file"
+              onClick={() => fileInputRef.current?.click()}
+              title="Upload a .txt, .md, or .csv document of any size"
+            >
+              <Upload size={13} />
+              <span>Upload File</span>
+            </button>
+          </div>
         </div>
 
         {/* Detected Topics & Sections Strip */}

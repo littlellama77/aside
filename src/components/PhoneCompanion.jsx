@@ -30,7 +30,8 @@ export function PhoneCompanion({
   isStandalone = false,
   onOpenNotes,
   onOpenAiSettings,
-  onOpenPairing
+  onOpenPairing,
+  onToggleView
 }) {
   const context = useMeeting();
 
@@ -211,18 +212,20 @@ export function PhoneCompanion({
 
   return (
     <div className={`phone-companion-frame ${isStandalone ? 'standalone-phone-view' : ''}`}>
-      {/* Phone Notch Bar */}
-      <div className="phone-notch-bar">
-        <div className="phone-time">10:42</div>
-        <div className="phone-island">
-          <div className="island-dot"></div>
-          {isQuestionActive && <div className="island-wave-indicator"></div>}
+      {/* Phone Notch Bar — Only shown in Desktop mockup mode, hidden on real standalone phone */}
+      {!isStandalone && (
+        <div className="phone-notch-bar">
+          <div className="phone-time">10:42</div>
+          <div className="phone-island">
+            <div className="island-dot"></div>
+            {isQuestionActive && <div className="island-wave-indicator"></div>}
+          </div>
+          <div className="phone-battery">
+            <span>99%</span>
+            <div className="battery-icon-mini"></div>
+          </div>
         </div>
-        <div className="phone-battery">
-          <span>99%</span>
-          <div className="battery-icon-mini"></div>
-        </div>
-      </div>
+      )}
 
       {/* Standalone Architecture Banner */}
       <div className="phone-standalone-banner">
@@ -308,6 +311,17 @@ export function PhoneCompanion({
         </div>
 
         <div className="phone-header-actions">
+          {/* Toggle Full Mode button */}
+          {onToggleView && (
+            <button
+              className="phone-header-action-btn"
+              onClick={onToggleView}
+              title="Switch to full web app view"
+            >
+              <ExternalLink size={14} />
+            </button>
+          )}
+
           {/* AI Settings Modal button */}
           <button
             className="phone-header-action-btn"
@@ -606,79 +620,71 @@ export function PhoneCompanion({
               ))}
             </div>
 
-            {/* Quick 1-Tap Interview Prompt Chips for Mobile */}
+            {/* Quick 1-Tap Meeting Prompts for Mobile */}
             <div className="phone-quick-test-section">
-              <span className="peek-label-mini">INSTANT ONE-TAP INTERVIEW PROMPTS:</span>
+              <span className="peek-label-mini">
+                {(context?.questionsList || []).length > 0
+                  ? "QUESTIONS FROM YOUR NOTES (1-TAP):"
+                  : "INSTANT ONE-TAP MEETING PROMPTS:"}
+              </span>
               <div className="phone-test-chips-row">
-                <button
-                  type="button"
-                  className="phone-test-chip"
-                  onClick={() => handleProcessCandidateQuestion("Can you walk me through your background and why you are interested in Crealytics?")}
-                >
-                  <span>💬 Walk me through your background & why Crealytics</span>
-                </button>
-                <button
-                  type="button"
-                  className="phone-test-chip"
-                  onClick={() => handleProcessCandidateQuestion("How do you handle underperforming campaigns or tight client ROAS targets?")}
-                >
-                  <span>💬 Optimizing ROAS & underperforming campaigns</span>
-                </button>
-                <button
-                  type="button"
-                  className="phone-test-chip"
-                  onClick={() => handleProcessCandidateQuestion("What is your experience with Retail Media Networks and Amazon/Walmart sponsored ads?")}
-                >
-                  <span>💬 Retail Media & Sponsored Ads expertise</span>
-                </button>
-                <button
-                  type="button"
-                  className="phone-test-chip"
-                  onClick={() => handleProcessCandidateQuestion("Can you take me through your CV?")}
-                >
-                  <span>💬 Take me through your CV</span>
-                </button>
-                <button
-                  type="button"
-                  className="phone-test-chip"
-                  onClick={() => handleProcessCandidateQuestion("What makes someone a good teammate, and how do you approach collaboration?")}
-                >
-                  <span>💬 What makes a good teammate?</span>
-                </button>
-                <button
-                  type="button"
-                  className="phone-test-chip"
-                  onClick={() => handleProcessCandidateQuestion("How do you handle disagreements with colleagues?")}
-                >
-                  <span>💬 Handling disagreements with colleagues</span>
-                </button>
-                <button
-                  type="button"
-                  className="phone-test-chip"
-                  onClick={() => handleProcessCandidateQuestion("Tell me something about yourself that isn't on your CV.")}
-                >
-                  <span>💬 Tell me something not on your CV</span>
-                </button>
-                <button
-                  type="button"
-                  className="phone-test-chip"
-                  onClick={() => handleProcessCandidateQuestion("What kind of books do you read, and what are your favourites?")}
-                >
-                  <span>💬 Favourite books & reading</span>
-                </button>
-                {(context?.demoScenarios || []).slice(0, 3).map((sc, idx) => (
-                  <button
-                    key={sc.id || idx}
-                    type="button"
-                    className="phone-test-chip"
-                    onClick={() => {
-                      if (context?.selectQuestion) context.selectQuestion(sc);
-                      companionSync.sendActionToLaptop('SELECT_QUESTION', { questionObj: sc });
-                    }}
-                  >
-                    <span>{sc.question}</span>
-                  </button>
-                ))}
+                {(context?.questionsList || []).length > 0 ? (
+                  context.questionsList.map((q, idx) => (
+                    <button
+                      key={q.id || idx}
+                      type="button"
+                      className="phone-test-chip"
+                      onClick={() => handleProcessCandidateQuestion(q.question, q.speaker || "Meeting Attendee")}
+                    >
+                      <span>💬 {q.question}</span>
+                    </button>
+                  ))
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      className="phone-test-chip"
+                      onClick={() => handleProcessCandidateQuestion("Can you walk us through the current status and key milestones?")}
+                    >
+                      <span>💬 Current status and key milestones</span>
+                    </button>
+                    <button
+                      type="button"
+                      className="phone-test-chip"
+                      onClick={() => handleProcessCandidateQuestion("What are our immediate next steps and recommendations?")}
+                    >
+                      <span>💬 Immediate next steps & recommendation</span>
+                    </button>
+                    <button
+                      type="button"
+                      className="phone-test-chip"
+                      onClick={() => handleProcessCandidateQuestion("What are the key metrics and data points we are seeing?")}
+                    >
+                      <span>💬 Key metrics & performance data</span>
+                    </button>
+                    <button
+                      type="button"
+                      className="phone-test-chip"
+                      onClick={() => handleProcessCandidateQuestion("Are there any blockers, risks, or dependencies we should address?")}
+                    >
+                      <span>💬 Blockers, risks & dependencies</span>
+                    </button>
+                    <button
+                      type="button"
+                      className="phone-test-chip"
+                      onClick={() => handleProcessCandidateQuestion("How are we tracking against our timeline and budget?")}
+                    >
+                      <span>💬 Timeline & budget tracking</span>
+                    </button>
+                    <button
+                      type="button"
+                      className="phone-test-chip"
+                      onClick={() => handleProcessCandidateQuestion("Can you walk us through your background and experience?")}
+                    >
+                      <span>💬 Professional background & experience</span>
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           </div>
