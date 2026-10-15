@@ -26,6 +26,21 @@ import {
   Hash
 } from 'lucide-react';
 
+const QUICK_INTERVIEW_CHIPS = [
+  { label: "⚡ Campaign C (0.95 ROAS)", q: "What about Campaign C? Can you diagnose its performance and recommend next steps?" },
+  { label: "⚡ VLOOKUP & Excel", q: "Can you explain how you used VLOOKUP in Excel and what the formula was?" },
+  { label: "⚡ Scale Campaign B", q: "How would you improve or scale Campaign B given its strong performance?" },
+  { label: "⚡ Underperforming Campaigns", q: "If a campaign is underperforming, what is your diagnostic framework?" },
+  { label: "⚡ Tell Me About Yourself", q: "Can you walk us through your background and tell me about yourself?" },
+  { label: "⚡ Why Crealytics?", q: "Why Crealytics and why are you interested in this role?" },
+  { label: "⚡ Not on CV / Outside Work", q: "Tell me something about yourself that isn't on your CV." },
+  { label: "⚡ Attribution vs Incrementality", q: "What is the difference between attribution, incrementality, and MMM?" },
+  { label: "⚡ PPC Math Calculation", q: "Can you walk through the PPC math calculation scenario from the notes?" },
+  { label: "⚡ Branding Campaign", q: "Which campaign would you choose for branding and why?" },
+  { label: "⚡ Audience Deep Dive", q: "What were your key audience level findings from the Excel dataset?" },
+  { label: "⚡ Disagreements with Colleagues", q: "How do you handle disagreements with colleagues or stakeholders?" }
+];
+
 export function PhoneCompanion({
   isStandalone = false,
   onOpenNotes,
@@ -125,6 +140,13 @@ export function PhoneCompanion({
 
     // 2. Also broadcast to laptop if paired
     companionSync.sendActionToLaptop('ASK_QUESTION', { question: clean });
+  };
+
+  const handleQuickChipSelect = (qText) => {
+    if (context?.askCustomQuestion) {
+      context.askCustomQuestion(qText, "Quick Scenario");
+    }
+    companionSync.sendActionToLaptop('ASK_QUESTION', { question: qText });
   };
 
   // Toggle Microphone Listening (controls local phone mic & broadcasts to laptop)
@@ -296,6 +318,23 @@ export function PhoneCompanion({
         </button>
       </div>
 
+      {/* Quick Scenarios Tray: Instant 1-tap verified answers */}
+      <div className="phone-quick-scenarios-tray">
+        <div className="phone-quick-chips-scroll">
+          {QUICK_INTERVIEW_CHIPS.map((chip, idx) => (
+            <button
+              key={idx}
+              type="button"
+              className="phone-quick-chip-btn"
+              onClick={() => handleQuickChipSelect(chip.q)}
+              title={chip.q}
+            >
+              {chip.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Phone App Header */}
       <div className="phone-app-header">
         <div className="phone-header-left">
@@ -446,9 +485,24 @@ export function PhoneCompanion({
               </div>
             </div>
 
-            {/* Simplest interpretation of the question */}
-            <div className="phone-simplest-box">
-              <span className="phone-sub-q">{activeQuestion.simplestQuestion || activeQuestion.question}</span>
+            {/* Prominent Interviewer Question Display Card */}
+            <div className="phone-detected-question-card">
+              <div className="phone-detected-question-top">
+                <div className="phone-detected-label-group">
+                  <span className="phone-detected-dot"></span>
+                  <span className="phone-detected-label">Interviewer Asked</span>
+                </div>
+                {activeQuestion.detailedModelName && (
+                  <span className="phone-model-badge">{activeQuestion.detailedModelName}</span>
+                )}
+              </div>
+              <p className="phone-detected-q-text">“{activeQuestion.question}”</p>
+              {activeQuestion.simplestQuestion && activeQuestion.simplestQuestion !== activeQuestion.question && (
+                <div className="phone-detected-focus">
+                  <span className="phone-focus-prefix">Focus: </span>
+                  <span className="phone-focus-text">{activeQuestion.simplestQuestion}</span>
+                </div>
+              )}
             </div>
 
             {/* Thinking Out Loud Opener (Say First) */}

@@ -696,80 +696,45 @@ export function MeetingProvider({ children }) {
         .map(item => `${item.speaker}: "${item.text}"`)
         .join('\n');
 
-      const isBlankNotes = !rawNotes || !rawNotes.trim();
-
-      if (isBlankNotes) {
-        generateAnswerWithGPT(
-          cleanText,
-          rawNotes,
-          cheatSheet,
-          openaiApiKey,
-          openaiModel,
-          recentHistory
-        )
-          .then(aiFullRes => {
-            if (!aiFullRes) return;
-            setActiveQuestion(prev => {
-              if (!prev || prev.question !== cleanText) return prev;
-              const updated = {
-                ...prev,
-                topic: aiFullRes.topic || prev.topic,
-                simplestQuestion: aiFullRes.simplestQuestion || prev.simplestQuestion,
-                babeTag: aiFullRes.babeTag || prev.babeTag,
-                glanceSay: aiFullRes.glanceSay || prev.glanceSay,
-                glanceBullets: (aiFullRes.glanceBullets && aiFullRes.glanceBullets.length > 0) ? aiFullRes.glanceBullets : prev.glanceBullets,
-                quickSay: aiFullRes.glanceSay || prev.quickSay,
-                quickBullets: (aiFullRes.glanceBullets && aiFullRes.glanceBullets.length > 0) ? aiFullRes.glanceBullets : prev.quickBullets,
-                expandedSay: aiFullRes.expandedSay || prev.expandedSay,
-                extraInformation: aiFullRes.extraInformation || prev.extraInformation,
-                isDetailedLoading: false,
-                detailedModelName: openaiModel || 'AI'
-              };
-              companionSync.broadcastActiveQuestion(updated);
-              return updated;
-            });
-            showSystemNotice("✓ AI meeting answer ready!");
-          })
-          .catch(err => {
-            console.warn("AI generation error, keeping initial answer:", err);
-          })
-          .finally(() => {
-            setIsGeneratingWithAi(false);
-            setActiveQuestion(prev => prev ? { ...prev, isDetailedLoading: false } : prev);
+      // Unified AI synthesis: Grounded in notes, updates BOTH Box 1 (Quick Answer) and Box 2 (Continuation)
+      generateAnswerWithGPT(
+        cleanText,
+        rawNotes,
+        cheatSheet,
+        openaiApiKey,
+        openaiModel,
+        recentHistory
+      )
+        .then(aiFullRes => {
+          if (!aiFullRes) return;
+          setActiveQuestion(prev => {
+            if (!prev || prev.question !== cleanText) return prev;
+            const updated = {
+              ...prev,
+              topic: aiFullRes.topic || prev.topic,
+              simplestQuestion: aiFullRes.simplestQuestion || prev.simplestQuestion,
+              babeTag: aiFullRes.babeTag || prev.babeTag,
+              glanceSay: aiFullRes.glanceSay || prev.glanceSay,
+              glanceBullets: (aiFullRes.glanceBullets && aiFullRes.glanceBullets.length > 0) ? aiFullRes.glanceBullets : prev.glanceBullets,
+              quickSay: aiFullRes.glanceSay || prev.quickSay,
+              quickBullets: (aiFullRes.glanceBullets && aiFullRes.glanceBullets.length > 0) ? aiFullRes.glanceBullets : prev.quickBullets,
+              expandedSay: aiFullRes.expandedSay || prev.expandedSay,
+              extraInformation: aiFullRes.extraInformation || prev.extraInformation,
+              isDetailedLoading: false,
+              detailedModelName: openaiModel || 'AI'
+            };
+            companionSync.broadcastActiveQuestion(updated);
+            return updated;
           });
-      } else {
-        generateDetailedAnswerWithGPT(
-          cleanText,
-          rawNotes,
-          openaiApiKey,
-          openaiModel,
-          recentHistory,
-          instantQ.glanceSay
-        )
-          .then(detailedRes => {
-            if (!detailedRes || !detailedRes.expandedSay) return;
-            setActiveQuestion(prev => {
-              if (!prev || prev.question !== cleanText) return prev;
-              const updated = {
-                ...prev,
-                expandedSay: detailedRes.expandedSay || prev.expandedSay,
-                extraInformation: detailedRes.extraInformation || prev.extraInformation,
-                isDetailedLoading: false,
-                detailedModelName: openaiModel || 'AI'
-              };
-              companionSync.broadcastActiveQuestion(updated);
-              return updated;
-            });
-            showSystemNotice("✓ AI detailed continuation loaded!");
-          })
-          .catch(err => {
-            console.warn("AI generation error, keeping verified notes answer:", err);
-          })
-          .finally(() => {
-            setIsGeneratingWithAi(false);
-            setActiveQuestion(prev => prev ? { ...prev, isDetailedLoading: false } : prev);
-          });
-      }
+          showSystemNotice("✓ AI context-aware answer ready!");
+        })
+        .catch(err => {
+          console.warn("AI generation error, keeping verified instant answer:", err);
+        })
+        .finally(() => {
+          setIsGeneratingWithAi(false);
+          setActiveQuestion(prev => prev ? { ...prev, isDetailedLoading: false } : prev);
+        });
     }
   }, [openaiApiKey, openaiModel, rawNotes, cheatSheet, speakingStyle, triggerQuestionNotForUser, triggerQuestionDetected, showSystemNotice, conversationHistory]);
 
