@@ -196,7 +196,9 @@ export function MeetingProvider({ children }) {
 
   // AI Engine Mode: 'ai' (live LLM) | 'notes' (fallback local notes)
   const [aiEngineMode, setAiEngineMode] = useState(() => {
-    return localStorage.getItem('aside_ai_engine_mode') || 'ai';
+    const saved = localStorage.getItem('aside_ai_engine_mode');
+    if (saved === 'notes') return 'ai'; // Auto-upgrade stale 'notes' setting so AI always runs!
+    return saved || 'ai';
   });
 
   useEffect(() => {
@@ -206,7 +208,10 @@ export function MeetingProvider({ children }) {
   // AI API Key & Model (supports Google Gemini and OpenAI)
   const [openaiApiKey, setOpenaiApiKey] = useState(() => {
     const saved = localStorage.getItem('aside_openai_api_key');
-    return (saved && saved.trim()) ? saved : DEFAULT_GEMINI_KEY;
+    if (saved && saved.trim() && saved.trim().length >= 20 && !saved.includes('YOUR_')) {
+      return saved.trim();
+    }
+    return DEFAULT_GEMINI_KEY;
   });
   const [openaiModel, setOpenaiModel] = useState(() => {
     const saved = localStorage.getItem('aside_openai_model');

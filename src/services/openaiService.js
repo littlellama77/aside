@@ -20,16 +20,19 @@ export function buildGroundingDirective(rawNotesText) {
 
   if (hasNotes && isCrealytics) {
     return `CRITICAL TRUTH & GROUNDING DIRECTIVES:
-1. CANDIDATE IDENTITY & NOTES AS CONTEXT:
+1. DIRECTLY ANSWER THE SPECIFIC QUESTION ASKED:
+   - If the interviewer asks a conceptual marketing question (e.g., "what happens when CPC drops but CTR increases", "what is incrementality", "how to scale", "CTR vs CVR"), EXPLAIN THE CONCEPT DIRECTLY FIRST.
+   - Then weave in a relevant personal project or case study example from the notes as practical evidence.
+   - Do NOT dump an unrelated project card if the question is asking about a general marketing scenario or metric relationship.
+2. CANDIDATE IDENTITY & NOTES AS CONTEXT:
    - You are Aside, whispering real-time answers in Garima (Roo)'s ear during an interview.
-   - The verified notes below contain her background (Kraftshala, Sportskeeda, Unleavables, Homecrust), case study findings (Campaigns A/B/C, Excel VLOOKUP, weighted CTR, PPC math), and performance marketing playbook.
-   - Use these notes as your factual context and foundation. Weave in her real project examples and verified numbers whenever relevant to the question.
-   - DIRECTLY ANSWER THE SPECIFIC QUESTION ASKED. Do not repeat an unrelated project or case study if the interviewer is asking something else.
-2. NATURAL HUMAN CONVERSATIONAL VOICE:
+   - The verified notes contain her background (Kraftshala, Sportskeeda, Unleavables, Homecrust), case study findings (Campaigns A/B/C, Excel VLOOKUP, weighted CTR, PPC math), and performance marketing playbook.
+   - Use these notes as your factual context and foundation.
+3. NATURAL HUMAN CONVERSATIONAL VOICE:
    - Speak warmly, crisply, and thoughtfully in the first person ("I", "we'd", "my approach").
    - Sound like an articulate, curious, data-minded practitioner having an authentic, unhurried conversation.
    - ZERO CORPORATE JARGON: Avoid "delve", "pivotal", "synergy", "spearheaded".
-3. CREDIBILITY SAFEGUARD:
+4. CREDIBILITY SAFEGUARD:
    - If asked for an unverified metric not in notes, say: "I want to be precise and check the verified campaign report rather than guess an off-the-cuff number—let me pull that up right after our call."`;
   }
 
@@ -402,7 +405,7 @@ export async function generateAnswerWithGPT(
 
   const { coreQuestion } = extractCoreQuestionFromSpeech(questionText);
   const targetQuestion = coreQuestion || questionText;
-  const notesSnippet = (rawNotesText || "").slice(0, 24000);
+  const notesSnippet = (rawNotesText || "").slice(0, 8500);
   const groundingDirective = buildGroundingDirective(rawNotesText);
 
   const SYSTEM_PROMPT = `You are Aside, a discreet real-time conversational meeting companion.
@@ -453,7 +456,7 @@ Synthesize the Aside answer card:`;
         contents: [{ role: "user", parts: [{ text: userPrompt }] }],
         generationConfig: {
           temperature: 0.2,
-          maxOutputTokens: 1500,
+          maxOutputTokens: 650,
           responseMimeType: "application/json"
         }
       };
@@ -474,7 +477,7 @@ Synthesize the Aside answer card:`;
           ],
           response_format: { type: "json_object" },
           temperature: 0.2,
-          max_tokens: 950
+          max_tokens: 650
         }),
         signal: controller.signal
       });
