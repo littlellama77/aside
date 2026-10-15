@@ -2261,6 +2261,18 @@
   animation: pulse 1s infinite;
 }
 
+.phone-synthesizing-pill {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--accent-primary, #b35336);
+  background: rgba(179, 83, 54, 0.12);
+  border: 1px solid rgba(179, 83, 54, 0.3);
+  padding: 0.1rem 0.4rem;
+  border-radius: 9999px;
+  margin-left: 0.4rem;
+  text-transform: uppercase;
+}
+
 /* Pinned Search Input */
 .phone-search-box-pinned {
   display: flex;

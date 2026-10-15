@@ -562,6 +562,9 @@ export function PhoneCompanion({
                   <div className="phone-badge-quick">
                     <Zap size={12} className="text-accent animate-pulse" />
                     <span>1. QUICK ANSWER (Fast Hook)</span>
+                    {isDetailedLoadingPhone && (
+                      <span className="phone-synthesizing-pill animate-pulse">⚡ AI Thinking...</span>
+                    )}
                   </div>
                   <button
                     type="button"

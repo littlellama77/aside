@@ -826,8 +826,8 @@ export function matchCuratedScenarioBySignature(queryText, allScenarios) {
 
   // 19. Google Search Ads Unleavables Project (crealytics-q3)
   const isGoogleSearch = (
-    (coreLower.includes("google search") || qLower.includes("google search") || coreLower.includes("search project")) &&
-    (coreLower.includes("unleavables") || coreLower.includes("results") || coreLower.includes("quality score") || coreLower.includes("negative keyword") || coreLower.includes("14.78") || coreLower.includes("5.20"))
+    coreLower.includes("unleavables") &&
+    (coreLower.includes("google search") || coreLower.includes("search project") || coreLower.includes("search ad"))
   );
   if (isGoogleSearch) {
     const s = allScenarios.find(s => s.id === 'crealytics-q3');
@@ -836,8 +836,8 @@ export function matchCuratedScenarioBySignature(queryText, allScenarios) {
 
   // 20. Meta Ads Unleavables Project & Cost Cap (crealytics-q4)
   const isMetaUnleavables = (
-    coreLower.includes("unleavables") ||
-    ((coreLower.includes("cost cap") || qLower.includes("cost cap")) && (coreLower.includes("highest volume") || coreLower.includes("meta") || coreLower.includes("bidding")))
+    (coreLower.includes("unleavables") && (coreLower.includes("meta") || coreLower.includes("facebook") || coreLower.includes("add-to-cart") || coreLower.includes("cost cap"))) ||
+    ((coreLower.includes("cost cap") || qLower.includes("cost cap")) && (coreLower.includes("highest volume") || coreLower.includes("bidding strategy")))
   );
   if (isMetaUnleavables) {
     const s = allScenarios.find(s => s.id === 'crealytics-q4');
@@ -847,7 +847,7 @@ export function matchCuratedScenarioBySignature(queryText, allScenarios) {
   // 21. Homecrust Amazon PPC / What Went Wrong (crealytics-q5)
   const isHomecrustAmazon = (
     coreLower.includes("homecrust") ||
-    ((coreLower.includes("amazon") || qLower.includes("amazon")) && (coreLower.includes("acos") || coreLower.includes("173") || coreLower.includes("went wrong") || coreLower.includes("mistake") || coreLower.includes("hardest campaign")))
+    ((coreLower.includes("amazon") || qLower.includes("amazon")) && (coreLower.includes("acos") || coreLower.includes("173") || (coreLower.includes("went wrong") && coreLower.includes("ppc"))))
   );
   if (isHomecrustAmazon) {
     const s = allScenarios.find(s => s.id === 'crealytics-q5');

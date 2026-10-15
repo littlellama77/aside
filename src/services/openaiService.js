@@ -20,16 +20,17 @@ export function buildGroundingDirective(rawNotesText) {
 
   if (hasNotes && isCrealytics) {
     return `CRITICAL TRUTH & GROUNDING DIRECTIVES:
-1. 100% GROUNDED IN CANDIDATE'S NOTES:
-   - You are Aside, an executive meeting companion whispering in the candidate's ear.
-   - Ground every answer, diagnosis, campaign, metric, strategy, and number strictly in the verified notes provided below.
-   - Never invent or hallucinate outside marketing campaigns, agencies, or client names not in the notes.
+1. CANDIDATE IDENTITY & NOTES AS CONTEXT:
+   - You are Aside, whispering real-time answers in Garima (Roo)'s ear during an interview.
+   - The verified notes below contain her background (Kraftshala, Sportskeeda, Unleavables, Homecrust), case study findings (Campaigns A/B/C, Excel VLOOKUP, weighted CTR, PPC math), and performance marketing playbook.
+   - Use these notes as your factual context and foundation. Weave in her real project examples and verified numbers whenever relevant to the question.
+   - DIRECTLY ANSWER THE SPECIFIC QUESTION ASKED. Do not repeat an unrelated project or case study if the interviewer is asking something else.
 2. NATURAL HUMAN CONVERSATIONAL VOICE:
-   - Speak warmly, crisply, and thoughtfully like a smart practitioner having an authentic, unhurried conversation.
-   - First person voice ("I", "we'd", "my perspective").
+   - Speak warmly, crisply, and thoughtfully in the first person ("I", "we'd", "my approach").
+   - Sound like an articulate, curious, data-minded practitioner having an authentic, unhurried conversation.
    - ZERO CORPORATE JARGON: Avoid "delve", "pivotal", "synergy", "spearheaded".
 3. CREDIBILITY SAFEGUARD:
-   - If asked for an unverified number not in notes, say: "I want to be precise and check the verified campaign report rather than guess an off-the-cuff number—let me pull that up right after our call."`;
+   - If asked for an unverified metric not in notes, say: "I want to be precise and check the verified campaign report rather than guess an off-the-cuff number—let me pull that up right after our call."`;
   }
 
   if (hasNotes) {
@@ -65,10 +66,12 @@ export function buildGroundingDirective(rawNotesText) {
 async function callGeminiWithFallback(apiKey, requestedModel, payload, signal) {
   const cleanKey = apiKey.trim();
   const candidateModels = [
-    (requestedModel && !requestedModel.includes('3.5') && !requestedModel.includes('3.8')) ? requestedModel : 'gemini-2.0-flash',
-    'gemini-2.0-flash',
-    'gemini-1.5-flash',
-    'gemini-1.5-pro'
+    requestedModel,
+    'gemini-3.5-flash-lite',
+    'gemini-3.5-flash',
+    'gemini-3.6-flash',
+    'gemini-3.7-flash',
+    'gemini-3.8-flash'
   ];
 
   const uniqueModels = [...new Set(candidateModels.filter(Boolean))];
@@ -279,7 +282,7 @@ export async function generateDetailedAnswerWithGPT(
   questionText,
   rawNotesText,
   apiKey,
-  model = 'gemini-2.0-flash',
+  model = 'gemini-3.5-flash',
   recentHistory = '',
   quickAnswerText = '',
   options = {}
@@ -390,7 +393,7 @@ export async function generateAnswerWithGPT(
   rawNotesText,
   executiveBrief,
   apiKey,
-  model = 'gemini-2.0-flash',
+  model = 'gemini-3.5-flash',
   recentHistory = ''
 ) {
   if (!apiKey || !apiKey.trim()) {

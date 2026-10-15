@@ -30,8 +30,8 @@ export function AiSettingsModal({ isOpen, onClose }) {
   } = useMeeting();
 
   const [inputKey, setInputKey] = useState(openaiApiKey || '');
-  const [selectedMode, setSelectedMode] = useState(aiEngineMode || 'notes');
-  const [selectedModel, setSelectedModel] = useState(openaiModel || 'gpt-4o-mini');
+  const [selectedMode, setSelectedMode] = useState(aiEngineMode || 'ai');
+  const [selectedModel, setSelectedModel] = useState(openaiModel || 'gemini-3.5-flash-lite');
   const [showKey, setShowKey] = useState(false);
   const [testStatus, setTestStatus] = useState(null);
 
@@ -105,30 +105,30 @@ export function AiSettingsModal({ isOpen, onClose }) {
           <label className="ai-input-label font-bold">1. Select Answering Engine:</label>
           <div className="model-cards-grid">
             <div
-              className={`model-card ${selectedMode === 'notes' ? 'selected' : ''}`}
-              onClick={() => setSelectedMode('notes')}
-            >
-              <div className="model-card-top">
-                <BookOpen size={16} className="text-sage" />
-                <strong>Verified Notes Engine</strong>
-                <span className="model-chip-rec">Recommended</span>
-              </div>
-              <p className="model-card-desc">
-                ⚡ <strong>0ms Instant Latency.</strong> 100% faithful to your notes & 24 curated interview scenarios. Guaranteed <strong>zero hallucinations</strong>, no API key needed, never gets stuck.
-              </p>
-            </div>
-
-            <div
               className={`model-card ${selectedMode === 'ai' ? 'selected' : ''}`}
               onClick={() => setSelectedMode('ai')}
             >
               <div className="model-card-top">
                 <Zap size={16} className="text-accent" />
                 <strong>AI Enhanced Mode</strong>
-                <span className="model-chip-deep">Gemini / GPT</span>
+                <span className="model-chip-rec">Recommended (Default)</span>
               </div>
               <p className="model-card-desc">
-                Uses LLM intelligence strictly grounded in your notes for unexpected questions. Preserves all verified scenarios and backs up with instant notes.
+                ⚡ <strong>Dynamic AI answers</strong> directly relevant to whatever question the interviewer asks, grounded in your candidate notes.
+              </p>
+            </div>
+
+            <div
+              className={`model-card ${selectedMode === 'notes' ? 'selected' : ''}`}
+              onClick={() => setSelectedMode('notes')}
+            >
+              <div className="model-card-top">
+                <BookOpen size={16} className="text-sage" />
+                <strong>Offline Notes Engine</strong>
+                <span className="model-chip-deep">0ms Latency</span>
+              </div>
+              <p className="model-card-desc">
+                Instant answers from pre-curated scenarios and candidate notes without calling an external AI model.
               </p>
             </div>
           </div>
@@ -235,33 +235,33 @@ export function AiSettingsModal({ isOpen, onClose }) {
           <label className="ai-input-label">Choose AI Model:</label>
           <div className="model-cards-grid">
             <div
-              className={`model-card ${selectedModel === 'gpt-4o-mini' || selectedModel === 'gemini-2.0-flash' || selectedModel === 'gemini-3.8-flash' ? 'selected' : ''}`}
-              onClick={() => setSelectedModel(currentProvider === 'gemini' ? 'gemini-2.0-flash' : 'gpt-4o-mini')}
+              className={`model-card ${selectedModel === 'gpt-4o-mini' || selectedModel === 'gemini-3.5-flash-lite' || selectedModel === 'gemini-3.8-flash' ? 'selected' : ''}`}
+              onClick={() => setSelectedModel(currentProvider === 'gemini' ? 'gemini-3.5-flash-lite' : 'gpt-4o-mini')}
             >
               <div className="model-card-top">
                 <Zap size={14} className="text-accent" />
-                <strong>{currentProvider === 'gemini' ? 'Gemini 2.0 Flash' : 'GPT-4o Mini'}</strong>
+                <strong>{currentProvider === 'gemini' ? 'Gemini 3.5 Flash-Lite' : 'GPT-4o Mini'}</strong>
                 <span className="model-chip-rec">Fast & Snappy (Default)</span>
               </div>
               <p className="model-card-desc">
                 {currentProvider === 'gemini'
-                  ? 'Blazing fast sub-second latency with Google Gemini. Recommended for real-time meetings.'
+                  ? 'Blazing fast sub-2s latency with Google Gemini. Recommended for real-time live meetings.'
                   : 'Sub-second speed. Optimized for live conversations where immediate verbal answers matter.'}
               </p>
             </div>
 
             <div
-              className={`model-card ${selectedModel === 'gpt-4o' || selectedModel === 'gemini-1.5-flash' || selectedModel === 'gemini-3.5-flash' ? 'selected' : ''}`}
-              onClick={() => setSelectedModel(currentProvider === 'gemini' ? 'gemini-1.5-flash' : 'gpt-4o')}
+              className={`model-card ${selectedModel === 'gpt-4o' || selectedModel === 'gemini-3.5-flash' ? 'selected' : ''}`}
+              onClick={() => setSelectedModel(currentProvider === 'gemini' ? 'gemini-3.5-flash' : 'gpt-4o')}
             >
               <div className="model-card-top">
                 <Cpu size={14} className="text-freeze" />
-                <strong>{currentProvider === 'gemini' ? 'Gemini 1.5 Flash' : 'GPT-4o'}</strong>
+                <strong>{currentProvider === 'gemini' ? 'Gemini 3.5 Flash' : 'GPT-4o'}</strong>
                 <span className="model-chip-deep">High Stability</span>
               </div>
               <p className="model-card-desc">
                 {currentProvider === 'gemini'
-                  ? 'Proven balanced reasoning and structured JSON reliability across complex topics.'
+                  ? 'Proven balanced reasoning and structured JSON reliability across complex marketing scenarios.'
                   : 'Deeper reasoning and narrative synthesis for high-stakes trade-offs and complex situational questions.'}
               </p>
             </div>
