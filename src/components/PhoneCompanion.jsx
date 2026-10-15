@@ -318,6 +318,14 @@ export function PhoneCompanion({
         </button>
       </div>
 
+      {/* Live Hearing Banner when capturing audio */}
+      {isManualCaptureActive && (
+        <div className="phone-live-hearing-banner animate-pulse">
+          <div className="phone-hearing-dot"></div>
+          <span>Hearing: {manualCapturedTranscript ? `“${manualCapturedTranscript}”` : "Listening to interviewer... Speak now"}</span>
+        </div>
+      )}
+
       {/* Quick Scenarios Tray: Instant 1-tap verified answers */}
       <div className="phone-quick-scenarios-tray">
         <div className="phone-quick-chips-scroll">
@@ -334,6 +342,20 @@ export function PhoneCompanion({
           ))}
         </div>
       </div>
+
+      {/* Pinned Search Input: Type or paste any question anytime */}
+      <form onSubmit={handleMobileSubmit} className="phone-search-box-pinned">
+        <input
+          type="text"
+          placeholder="Or type/paste any question directly..."
+          value={mobileCustomInput}
+          onChange={(e) => setMobileCustomInput(e.target.value)}
+          className="phone-search-input"
+        />
+        <button type="submit" className="phone-search-btn" title="Get Answer">
+          <Send size={13} />
+        </button>
+      </form>
 
       {/* Phone App Header */}
       <div className="phone-app-header">

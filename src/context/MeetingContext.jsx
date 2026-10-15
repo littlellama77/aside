@@ -84,7 +84,9 @@ export function MeetingProvider({ children }) {
   const [selectedTemplateId, setSelectedTemplateId] = useState(PRESET_NOTE_TEMPLATES[0].id);
   const [rawNotes, setRawNotes] = useState(PRESET_NOTE_TEMPLATES[0].rawNotes);
   const [cheatSheet, setCheatSheet] = useState(PRESET_NOTE_TEMPLATES[0].cheatSheet);
-  const [customQuestionsList, setCustomQuestionsList] = useState([]);
+  const [customQuestionsList, setCustomQuestionsList] = useState(() => {
+    return generateQuestionsFromNotes(PRESET_NOTE_TEMPLATES[0].rawNotes, PRESET_NOTE_TEMPLATES[0].id);
+  });
 
   // Meeting Configuration
   const [meetingConfig, setMeetingConfig] = useState({
@@ -171,6 +173,7 @@ export function MeetingProvider({ children }) {
   const [isManualCaptureActive, setIsManualCaptureActive] = useState(false);
   const isManualCaptureActiveRef = useRef(false);
   const [manualCapturedTranscript, setManualCapturedTranscript] = useState('');
+  const manualCapturedTranscriptRef = useRef('');
   const [isFollowCursorEnabled, setIsFollowCursorEnabled] = useState(false);
 
   useEffect(() => {
@@ -202,8 +205,11 @@ export function MeetingProvider({ children }) {
   });
   const [openaiModel, setOpenaiModel] = useState(() => {
     const saved = localStorage.getItem('aside_openai_model');
-    if (saved && !saved.includes('2.0') && !saved.includes('1.5') && !saved.includes('latest') && (saved.includes('3.8') || saved.includes('3.5') || saved.startsWith('gpt'))) return saved;
-    return 'gemini-3.5-flash';
+    if (saved && (saved.includes('gemini') || saved.startsWith('gpt'))) {
+      if (saved.includes('3.5') || saved.includes('3.8')) return 'gemini-2.0-flash';
+      return saved;
+    }
+    return 'gemini-2.0-flash';
   });
   const [isAiSettingsOpen, setIsAiSettingsOpen] = useState(false);
   const [isGeneratingWithAi, setIsGeneratingWithAi] = useState(false);
@@ -661,9 +667,9 @@ export function MeetingProvider({ children }) {
       (instantQ.id && instantQ.id.startsWith('matched-'))
     );
 
-    // Only run live AI if user explicitly chose 'ai' mode, has an API key, AND question is NOT already a verified curated scenario!
+    // Run live AI if API key is configured AND question is uncurated (or ai mode is explicitly on)
     const isAiConfigured = Boolean(openaiApiKey && openaiApiKey.trim());
-    const shouldRunAi = aiEngineMode === 'ai' && isAiConfigured && !isCuratedMatch;
+    const shouldRunAi = isAiConfigured && (aiEngineMode === 'ai' || !isCuratedMatch);
 
     const initialQ = {
       ...instantQ,
@@ -1011,9 +1017,9 @@ export function MeetingProvider({ children }) {
       };
 
       recognition.onresult = (event) => {
-        // If an answer card is currently active on screen, candidate is speaking or reading their answer.
-        // DO NOT auto-trigger questions on the candidate's own voice!
-        if (isQuestionActiveRef.current || activeQuestionRef.current) {
+        // In manual capture mode, ALWAYS capture speech!
+        // In automatic mode, only ignore candidate's voice if conversation state is actively YOUR_TURN
+        if (!isManualCaptureActiveRef.current && conversationStateRef.current === 'YOUR_TURN') {
           return;
         }
 
@@ -1037,6 +1043,7 @@ export function MeetingProvider({ children }) {
         const currentTurnText = cleanSpeechTranscriptText(rawTurnText);
 
         if (currentTurnText) {
+          manualCapturedTranscriptRef.current = currentTurnText;
           setLiveTranscript(currentTurnText);
           if (isManualCaptureActiveRef.current) {
             setManualCapturedTranscript(currentTurnText);
@@ -1055,7 +1062,7 @@ export function MeetingProvider({ children }) {
         // Automatic mode 1500ms conversational debounce
         if (currentTurnText.length >= 6) {
           silenceTimerRef.current = setTimeout(() => {
-            if (isListeningActiveRef.current && !isManualCaptureActiveRef.current && !isQuestionActiveRef.current && !activeQuestionRef.current) {
+            if (isListeningActiveRef.current && !isManualCaptureActiveRef.current && conversationStateRef.current !== 'YOUR_TURN') {
               const candidateToProcess = currentTurnText.trim();
               if (candidateToProcess.length >= 6) {
                 if (isMeetingPromptOrQuestion(candidateToProcess)) {
@@ -1148,6 +1155,7 @@ export function MeetingProvider({ children }) {
       // 1. START LISTENING FOR QUESTION (NEW TURN)
       isManualCaptureActiveRef.current = true;
       setIsManualCaptureActive(true);
+      manualCapturedTranscriptRef.current = '';
       setManualCapturedTranscript('');
       turnTranscriptBufferRef.current = '';
       setLiveTranscript('');
@@ -1158,13 +1166,20 @@ export function MeetingProvider({ children }) {
         silenceTimerRef.current = null;
       }
 
+      // Reset active question so microphone and UI are ready for the new turn
+      activeQuestionRef.current = null;
+      isQuestionActiveRef.current = false;
+      setActiveQuestion(null);
+      setIsQuestionActive(false);
+      companionSync.broadcastActiveQuestion(null);
+
       // Ensure audio meter is active for visual feedback
       startAudioMeter();
 
       // ALWAYS launch a brand-new, healthy SpeechRecognition session for this turn!
       startFreshSpeechRecognition();
 
-      showSystemNotice("🔴 Listening for question... Speak now, then click Stop (or Space) to answer ASAP!");
+      showSystemNotice("🔴 Listening for question... Speak now, then click Stop to answer ASAP!");
       companionSync.sendActionToPhone('MANUAL_CAPTURE_STARTED');
     } else {
       // 2. STOP LISTENING AND GET ANSWER ASAP (FINISH TURN)
@@ -1177,6 +1192,7 @@ export function MeetingProvider({ children }) {
       }
 
       const rawCapturedText = (
+        manualCapturedTranscriptRef.current ||
         manualCapturedTranscript ||
         turnTranscriptBufferRef.current ||
         liveTranscript ||
@@ -1186,6 +1202,7 @@ export function MeetingProvider({ children }) {
 
       // Cleanly stop speech recognition so Chrome doesn't transcribe candidate's own voice while answering
       stopSpeechRecognition();
+      manualCapturedTranscriptRef.current = '';
       setManualCapturedTranscript('');
       turnTranscriptBufferRef.current = '';
       setLiveTranscript('');

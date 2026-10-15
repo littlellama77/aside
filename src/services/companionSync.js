@@ -134,7 +134,7 @@ class CompanionSyncEngine {
           this.mqttClient.publish(
             `aside/rooms/${cleanCode}/laptop`,
             JSON.stringify(message),
-            { qos: 1, retain: true }
+            { qos: 1, retain: false }
           );
         }
       });
@@ -204,12 +204,16 @@ class CompanionSyncEngine {
     };
     window.addEventListener('storage', storageHandler);
 
-    // Initial check for cached state in localStorage
+    // Initial check for cached state in localStorage (only if under 30s to avoid restoring stale questions)
     try {
       const cached = localStorage.getItem(`aside_state_${cleanCode}`);
       if (cached) {
         const parsed = JSON.parse(cached);
-        this.notifyMessage(parsed);
+        if (parsed.timestamp && Date.now() - parsed.timestamp < 30000) {
+          this.notifyMessage(parsed);
+        } else {
+          localStorage.removeItem(`aside_state_${cleanCode}`);
+        }
       }
     } catch {}
 
@@ -297,7 +301,7 @@ class CompanionSyncEngine {
         this.mqttClient.publish(
           `aside/rooms/${cleanCode}/laptop`,
           JSON.stringify(message),
-          { qos: 1, retain: true }
+          { qos: 1, retain: false }
         );
       } catch (err) {
         console.warn('MQTT publish state failed:', err);

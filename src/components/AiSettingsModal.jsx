@@ -235,12 +235,12 @@ export function AiSettingsModal({ isOpen, onClose }) {
           <label className="ai-input-label">Choose AI Model:</label>
           <div className="model-cards-grid">
             <div
-              className={`model-card ${selectedModel === 'gpt-4o-mini' || selectedModel === 'gemini-3.8-flash' || selectedModel === 'gemini-flash-latest' ? 'selected' : ''}`}
-              onClick={() => setSelectedModel(currentProvider === 'gemini' ? 'gemini-3.8-flash' : 'gpt-4o-mini')}
+              className={`model-card ${selectedModel === 'gpt-4o-mini' || selectedModel === 'gemini-2.0-flash' || selectedModel === 'gemini-3.8-flash' ? 'selected' : ''}`}
+              onClick={() => setSelectedModel(currentProvider === 'gemini' ? 'gemini-2.0-flash' : 'gpt-4o-mini')}
             >
               <div className="model-card-top">
                 <Zap size={14} className="text-accent" />
-                <strong>{currentProvider === 'gemini' ? 'Gemini 3.8 Flash' : 'GPT-4o Mini'}</strong>
+                <strong>{currentProvider === 'gemini' ? 'Gemini 2.0 Flash' : 'GPT-4o Mini'}</strong>
                 <span className="model-chip-rec">Fast & Snappy (Default)</span>
               </div>
               <p className="model-card-desc">
@@ -251,12 +251,12 @@ export function AiSettingsModal({ isOpen, onClose }) {
             </div>
 
             <div
-              className={`model-card ${selectedModel === 'gpt-4o' || selectedModel === 'gemini-3.5-flash' ? 'selected' : ''}`}
-              onClick={() => setSelectedModel(currentProvider === 'gemini' ? 'gemini-3.5-flash' : 'gpt-4o')}
+              className={`model-card ${selectedModel === 'gpt-4o' || selectedModel === 'gemini-1.5-flash' || selectedModel === 'gemini-3.5-flash' ? 'selected' : ''}`}
+              onClick={() => setSelectedModel(currentProvider === 'gemini' ? 'gemini-1.5-flash' : 'gpt-4o')}
             >
               <div className="model-card-top">
                 <Cpu size={14} className="text-freeze" />
-                <strong>{currentProvider === 'gemini' ? 'Gemini 3.5 Flash' : 'GPT-4o'}</strong>
+                <strong>{currentProvider === 'gemini' ? 'Gemini 1.5 Flash' : 'GPT-4o'}</strong>
                 <span className="model-chip-deep">High Stability</span>
               </div>
               <p className="model-card-desc">

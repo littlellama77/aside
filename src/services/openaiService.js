@@ -65,12 +65,10 @@ export function buildGroundingDirective(rawNotesText) {
 async function callGeminiWithFallback(apiKey, requestedModel, payload, signal) {
   const cleanKey = apiKey.trim();
   const candidateModels = [
-    (requestedModel && requestedModel.includes('gemini') && !requestedModel.includes('2.0') && !requestedModel.includes('1.5') && !requestedModel.includes('latest'))
-      ? requestedModel
-      : 'gemini-3.5-flash',
-    'gemini-3.5-flash',
-    'gemini-3.8-flash',
-    'gemini-3.5-flash-lite'
+    (requestedModel && !requestedModel.includes('3.5') && !requestedModel.includes('3.8')) ? requestedModel : 'gemini-2.0-flash',
+    'gemini-2.0-flash',
+    'gemini-1.5-flash',
+    'gemini-1.5-pro'
   ];
 
   const uniqueModels = [...new Set(candidateModels.filter(Boolean))];
@@ -281,7 +279,7 @@ export async function generateDetailedAnswerWithGPT(
   questionText,
   rawNotesText,
   apiKey,
-  model = 'gemini-3.5-flash',
+  model = 'gemini-2.0-flash',
   recentHistory = '',
   quickAnswerText = '',
   options = {}
@@ -392,7 +390,7 @@ export async function generateAnswerWithGPT(
   rawNotesText,
   executiveBrief,
   apiKey,
-  model = 'gemini-3.5-flash',
+  model = 'gemini-2.0-flash',
   recentHistory = ''
 ) {
   if (!apiKey || !apiKey.trim()) {
